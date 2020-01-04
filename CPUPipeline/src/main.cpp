@@ -10,6 +10,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
 #include <TransformationMatrices.h>
+#include "../Scene.h"
+#include "../SceneRenderer.h"
 
 #define DEFAULT_WIDTH 1280
 #define DEFAULT_HEIGHT 720
@@ -143,16 +145,22 @@ int main(int, char**)
 	FrameBuffer fb(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	fb.InitGL();
 
-	std::vector<glm::vec3> cubeVerticles = {
+	Scene scene;
+	SceneRenderer sceneRenderer(fb);
+	sceneRenderer.SetScene(scene);
+	SceneObject cube;
+	scene.AddSceneObject(cube);
+
+	cube.GetMesh().setVertices({
 		{0.0f,0.0f,0.0f}, {0.0f,1.0f,0.0f}, {1.0f,1.0f,0.0f}, {1.0f,0.0f,0.0f},
 		{0.0f,0.0f,1.0f}, {0.0f,1.0f,1.0f}, {1.0f,1.0f,1.0f}, {1.0f,0.0f,1.0f}
-	};
+	});
 	//front, back, right, left, up, down
-	/*std::vector<glm::vec3> cubeNormals = {
+	cube.GetMesh().setNormals({
 		{0.0f,0.0f,1.0f},{0.0f,0.0f,-1.0f},
 		{1.0f,0.0f,0.0f},{-1.0f,0.0f,0.0f},
 		{0.0f,1.0f,0.0f},{0.0f,-1.0f,0.0f},
-	};*/
+	});
 	//cube:
 	//right handed mesh
 	//back:
@@ -162,22 +170,22 @@ int main(int, char**)
 	//front:
 	//5 6
 	//4 7
-	std::vector<glm::uvec3> cubeTriangles = {
+	cube.GetMesh().setTriangles({
 			{4,7,6},{4,6,5},//front
 			{3,0,1},{3,1,2},//back
 			{7,3,2},{7,2,6},//right
 			{0,4,5},{0,5,1},//left
 			{5,6,2},{5,2,1},//up
 			{0,7,4},{0,3,7}//down
-	};
-	//std::vector<glm::uvec3> cubeTrianglesNormals = {
-	//		{0,0,0},{0,0,0},//front
-	//		{1,1,1},{1,1,1},//back
-	//		{2,2,2},{2,2,2},//right
-	//		{3,3,3},{3,3,3},//left
-	//		{4,4,4},{4,4,4},//up
-	//		{5,5,5},{5,5,5}//down
-	//};
+	});
+	cube.GetMesh().setTrianglesNormals({
+			{0,0,0},{0,0,0},//front
+			{1,1,1},{1,1,1},//back
+			{2,2,2},{2,2,2},//right
+			{3,3,3},{3,3,3},//left
+			{4,4,4},{4,4,4},//up
+			{5,5,5},{5,5,5}//down
+	});
 
 
 	cameraPos = { 0,0,1 };
@@ -186,12 +194,10 @@ int main(int, char**)
 
 	//TODO: initialize camera
 	camera = new Camera(cameraPos, cameraFront, cameraUp);
+	scene.SetMainCamera(*camera);
 
 	double deltaTime = 0.0;
 	double currentTime = 0.0;
-	std::vector<glm::vec3> cubeVerticlesModified1(cubeVerticles.size());
-	std::vector<glm::vec3> cubeVerticlesModified2(cubeVerticles.size());
-	std::vector<glm::vec3> transformedNormals(cubeTriangles.size());
 
 	// Main loop
 	while (!glfwWindowShouldClose(window))
@@ -202,42 +208,26 @@ int main(int, char**)
 
 		// Update scene
 
-
-		//fb.ClearColor(0.5f, 0.5f, 1.0f);
-		fb.ClearColor(0.1f, 0.15f, 0.15f);
-
-		//write your render pipeline here
-		camera->SetViewport(0, 0, current_width, current_height);
-		camera->SetPerspective(fov, (float)current_height / current_width, 0.1, 10);
-		camera->LookAt(cameraPos, cameraFront, cameraUp);
-
-		glm::mat4 model = TransformationMatrices::getTranslationMatrix({ -0.1,-0.1,-0.1 })
+		glm::mat4 modelBase = TransformationMatrices::getTranslationMatrix({ -0.1,-0.1,-0.1 })
 			* TransformationMatrices::getScalingMatrix({ 0.2,0.2,0.2 });
 
 
 		glm::mat4 rotation = TransformationMatrices::getRotationMatrix(currentTime, cameraUp);
 		glm::mat4 translation = TransformationMatrices::getTranslationMatrix({ 0.1,0.1,0 });
+		cube.SetWorldMatrix(rotation * modelBase);
+		camera->SetViewport(0, 0, current_width, current_height);
+		camera->SetPerspective(fov, (float)current_height / current_width, 0.1, 10);
+		camera->LookAt(cameraPos, cameraFront, cameraUp);
 
-		glm::mat4 vp = camera->GetViewportMatrix() * camera->GetProjectionMatrix() * camera->GetWorldMatrix();
-		glm::mat4 normalMatrix = camera->GetProjectionMatrix() * camera->GetWorldMatrix() * rotation * model;
-		glm::mat4 mvp = vp * rotation * model;
+		//fb.ClearColor(0.5f, 0.5f, 1.0f);
+		fb.ClearColor(0.1f, 0.15f, 0.15f);
+
+		//write your render pipeline here
+
+
 
 		//TODO: calculate point positions
-		for (int i = 0; i < cubeVerticles.size(); i++)
-		{
-			glm::vec4 vect = mvp * glm::vec4(cubeVerticles[i], 1);
-			vect /= vect.w;
-			cubeVerticlesModified1[i] = vect;
-		}
-		fb.DrawTriangles(cubeVerticlesModified1, cubeTriangles, 0xFFFF0000);
-		mvp = vp * translation * model;
-		for (int i = 0; i < cubeVerticles.size(); i++)
-		{
-			glm::vec4 vect = mvp * glm::vec4(cubeVerticles[i], 1);
-			vect /= vect.w;
-			cubeVerticlesModified2[i] = vect;
-		}
-		fb.DrawTriangles(cubeVerticlesModified2, cubeTriangles, 0xFF00FF00);
+		sceneRenderer.RenderScene();
 
 		// Rendering
 		int display_w, display_h;
