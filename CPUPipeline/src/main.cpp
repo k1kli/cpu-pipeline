@@ -20,6 +20,8 @@ glm::vec3 cameraPos, cameraFront, cameraUp;
 float fov = 60.f;
 int current_width = DEFAULT_WIDTH;
 int current_height = DEFAULT_HEIGHT;
+double oldXpos = 0;
+double oldYpos = 0;
 Camera* camera = nullptr;
 
 static void glfw_error_callback(int error, const char* description)
@@ -57,24 +59,26 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-	//TODO: write mouse camera control
-	/*xpos = xpos-current_width/2.0;
+	xpos = xpos-current_width/2.0;
 	ypos = ypos-current_height/2.0;
-	cameraFront = { 0,0,-1 };
-	ypos /= current_height / 2.0;
-	if (abs(ypos) > 0.001)
+	double xDiff = xpos - oldXpos;
+	double yDiff = ypos - oldYpos;
+	oldXpos = xpos;
+	oldYpos = ypos;
+	yDiff /= current_height / 2.0;
+	if (abs(yDiff) > 0.001)
 	{
 		glm::vec3 right = glm::cross(cameraFront, cameraUp);
-		cameraFront = TransformationMatrices::getRotationMatrix(ypos * 3 / 2, right)
+		cameraFront = TransformationMatrices::getRotationMatrix(-yDiff * 0.6f, right)
 			* glm::vec4(cameraFront, 1);
 
 	}
-	xpos /= current_width / 2.0;
-	if (abs(xpos) > 0.001)
+	xDiff /= current_width / 2.0;
+	if (abs(xDiff) > 0.001)
 	{
-		cameraFront = TransformationMatrices::getRotationMatrix(xpos * 4, cameraUp)
+		cameraFront = TransformationMatrices::getRotationMatrix(-xDiff * 1.6f, cameraUp)
 			* glm::vec4(cameraFront, 1);
-	}*/
+	}
 
 
 }
