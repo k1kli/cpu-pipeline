@@ -20,9 +20,11 @@ class SceneRenderer
 	void TransformNormals();
 	void DrawObjectsTriangles(int color);
 	void DrawTriangle(int triangleId, int color);
+	void DrawClippedTriangle(int triangleId, int color);
+	void InitInterpolators(int triangleId);
 	int GetPixelColor();
 	void WireFrame(int triangleId, int color);
-	void ScanLine(int triangleId, int color);
+	void ScanLine(glm::vec3* v1, glm::vec3* v2, glm::vec3* v3, int color);
 	void ScanLineHorizontalBase(const glm::vec3& v1baseLeft, const glm::vec3& v2baseRight, const glm::vec3& v3peak, int color);
 public:
 	SceneRenderer(FrameBuffer& frameBuffer);

@@ -80,8 +80,30 @@ void SceneRenderer::DrawObjectsTriangles(int color)
 void SceneRenderer::DrawTriangle(int triangleId, int color)
 {
 
-	ScanLine(triangleId, color);
+	InitInterpolators(triangleId);
+	DrawClippedTriangle(triangleId, color);
 	WireFrame(triangleId, 0xFF00FFFF);
+}
+void SceneRenderer::DrawClippedTriangle(int triangleId, int color)
+{
+	glm::uvec3 mainTriangle = renderedObject->GetMesh().getTriangles()[triangleId];
+	ScanLine(
+		&transformedVertices[mainTriangle.x],
+		&transformedVertices[mainTriangle.y],
+		&transformedVertices[mainTriangle.z], color);
+}
+void SceneRenderer::InitInterpolators(int triangleId)
+{
+	glm::uvec3 triangle = renderedObject->GetMesh().getTriangles()[triangleId];
+	interpolatorsManager.initTriangle(
+		transformedVertices[triangle.x],
+		transformedVertices[triangle.y],
+		transformedVertices[triangle.z]);
+	glm::uvec3 triangleNormals = renderedObject->GetMesh().getTrianglesNormals()[triangleId];
+	normalInterpolator.initTriangleValues(
+		transformedNormals[triangleNormals.x],
+		transformedNormals[triangleNormals.y],
+		transformedNormals[triangleNormals.z]);
 }
 void SceneRenderer::WireFrame(int triangleId, int color)
 {
@@ -105,73 +127,40 @@ void SceneRenderer::WireFrame(int triangleId, int color)
 		v1.x,
 		v1.y, 0xFF00FFFF);
 }
-void SceneRenderer::ScanLine(int triangleId, int color)
+void SceneRenderer::ScanLine(glm::vec3 * v1, glm::vec3 * v2, glm::vec3 * v3, int color)
 {
-	const glm::uvec3 & triangle = renderedObject->GetMesh().getTriangles()[triangleId];
-	int buf, v1Id = 0, v2Id = 1, v3Id = 2;
+	glm::vec3 * buf;
 
-	if (transformedVertices[triangle[v2Id]].y < transformedVertices[triangle[v1Id]].y)
+	if (v2->y < v1->y)
 	{
-		buf = v1Id;
-		v1Id = v2Id;
-		v2Id = buf;
+		buf = v1;
+		v1 = v2;
+		v2 = buf;
 	}
-	if (transformedVertices[triangle[v3Id]].y < transformedVertices[triangle[v2Id]].y)
+	if (v3->y < v2->y)
 	{
-		buf = v3Id;
-		v3Id = v2Id;
-		v2Id = buf;
-		if (transformedVertices[triangle[v2Id]].y < transformedVertices[triangle[v1Id]].y)
+		buf = v3;
+		v3 = v2;
+		v2 = buf;
+		if (v2->y < v1->y)
 		{
-			buf = v1Id;
-			v1Id = v2Id;
-			v2Id = buf;
+			buf = v1;
+			v1 = v2;
+			v2 = buf;
 		}
 	}
-	const glm::vec3* v1 = &transformedVertices[triangle[v1Id]];
-	const glm::vec3* v2 = &transformedVertices[triangle[v2Id]];
-	const glm::vec3* v3 = &transformedVertices[triangle[v3Id]];
 	//point on the edge opposite to the middle point, which will be another vertex
 	//of the base of two created triangles
 	float v4q = (v2->y - v1->y) / (v3->y - v1->y);
 	glm::vec3 v4 = *v1 * (1-v4q) + *v3 * v4q;
-	float v1Depth = verticesDepthsForInterpolation[triangle[v1Id]];
-	float v2Depth = verticesDepthsForInterpolation[triangle[v2Id]];
-	float v3Depth = verticesDepthsForInterpolation[triangle[v3Id]];
-	float v4Depth = v1Depth * (1 - v4q) + v3Depth * v4q;
-	auto triangleNormals = renderedObject->GetMesh().getTrianglesNormals()[triangleId];
-	glm::vec3 v4Normal = glm::normalize(normalInterpolator.interpolateBetweenTwoVertices(
-		transformedNormals[triangleNormals[v1Id]], transformedNormals[triangleNormals[v3Id]],
-		v1Depth, v3Depth,
-		v4q));
 	if (v2->x < v4.x)
 	{
-		normalInterpolator.initTriangleValues(
-			transformedNormals[triangleNormals[v2Id]],
-			v4Normal,
-			transformedNormals[triangleNormals[v3Id]]);
-		interpolatorsManager.initTriangle(v3->y - v2->y, v2Depth, v4Depth, v3Depth);
 		ScanLineHorizontalBase(*v2, v4, *v3, color);
-		normalInterpolator.initTriangleValues(
-			transformedNormals[triangleNormals[v2Id]],
-			v4Normal,
-			transformedNormals[triangleNormals[v1Id]]);
-		interpolatorsManager.initTriangle(v1->y - v2->y, v2Depth, v4Depth, v1Depth);
 		ScanLineHorizontalBase(*v2, v4, *v1, color);
 	}
 	else
 	{
-		normalInterpolator.initTriangleValues(
-			v4Normal,
-			transformedNormals[triangleNormals[v2Id]],
-			transformedNormals[triangleNormals[v3Id]]);
-		interpolatorsManager.initTriangle(v3->y - v2->y, v4Depth, v2Depth, v3Depth);
 		ScanLineHorizontalBase(v4, *v2, *v3, color);
-		normalInterpolator.initTriangleValues(
-			v4Normal,
-			transformedNormals[triangleNormals[v2Id]],
-			transformedNormals[triangleNormals[v1Id]]);
-		interpolatorsManager.initTriangle(v1->y - v2->y, v4Depth, v2Depth, v1Depth);
 		ScanLineHorizontalBase(v4, *v2, *v1, color);
 	}
 }
@@ -197,10 +186,9 @@ void SceneRenderer::ScanLineHorizontalBase(
 		float lineDepth1 = depth1 * (1 - q) + depth3 * q;
 		float lineDepth2 = depth2 * (1 - q) + depth3 * q;
 		int xDiff = maxX - minX;
-		interpolatorsManager.startLine(xDiff);
 		for (int x = minX; x < maxX; x++)
 		{
-			interpolatorsManager.updatePosition();
+			interpolatorsManager.updatePosition(x, y);
 			q = (float)(x - (int)minX) / xDiff;
 			float depth = lineDepth1 * (1 - q) + lineDepth2 * q;
 			frameBuffer.SetPixel(x, y, GetPixelColor(), depth);

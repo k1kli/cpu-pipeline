@@ -2,26 +2,18 @@
 #include <vector>
 #include "TriangleInterpolator.h"
 #include "TriangleInterpolatorManagementInterface.h"
+#include <glm/glm.hpp>
 class InterpolatorsManager
 {
-	float vertBaseLeftDepth;
-	float vertBaseRightDepth;
-	float vertPeakDepth;
-	int triangleHeight;
-	int lineWidth;
-	int onTrianglePosition;
-	int onLinePosition;
-	float leftDepth;
-	float rightDepth;
+	glm::vec3 v1;
+	glm::vec3 v2;
+	glm::vec3 v3;
+	float detT;
 	std::vector<TriangleInterpolatorManagementInterface*> interpolators;
 public:
 	void addInterpolator(TriangleInterpolatorManagementInterface& interpolator);
 	void initTriangle(
-		int height,
-		float vertBaseLeftDepth,
-		float vertBaseRightDepth,
-		float vertPeakDepth);
-	void startLine(int lineWidth);
-	void updatePosition();
+		glm::vec3 v1, glm::vec3 v2, glm::vec3 v3);
+	void updatePosition(int x, int y);
 };
 

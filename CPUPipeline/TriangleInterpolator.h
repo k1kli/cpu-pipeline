@@ -3,9 +3,13 @@
 template<class T>
 class TriangleInterpolator : public TriangleInterpolatorManagementInterface
 {
-	T vertBaseLeftValue;
-	T vertBaseRightValue;
-	T vertPeakValue;
+	T vert1Value;
+	T vert2Value;
+	T vert3Value;
+
+	float w1;
+	float w2;
+	float w3;
 
 	T lineLeftValue;
 	T lineRightValue;
@@ -14,54 +18,40 @@ class TriangleInterpolator : public TriangleInterpolatorManagementInterface
 
 public:
 	void initTriangleValues(
-		const T& vertBaseLeftValue,
-		const T& vertBaseRightValue,
-		const T& vertPeakValue);
-	void startLine(float q, float oneMinusQLeft, float oneMinusQRight);
-	void setLinePosition(float q, float oneMinusQ);
-	T interpolateBetweenTwoVertices(const T& vertOneValue, const T& vertTwoValue,
-		float vertOneDepth, float vertTwoDepth, float q);
+		const T& vert1Value,
+		const T& vert2Value,
+		const T& vert3Value);
+	void setBarycentricWeights(float w1, float w2, float w3);
 	T getValue();
 };
 
 template<class T>
 void TriangleInterpolator<T>::initTriangleValues(
-	const T& vertBaseLeftValue,
-	const T& vertBaseRightValue,
-	const T& vertPeakValue)
+	const T& vert1Value,
+	const T& vert2Value,
+	const T& vert3Value)
 {
-	this->vertBaseLeftValue = vertBaseLeftValue;
-	this->vertBaseRightValue = vertBaseRightValue;
-	this->vertPeakValue = vertPeakValue;
+	this->vert1Value = vert1Value;
+	this->vert2Value = vert2Value;
+	this->vert3Value = vert3Value;
 }
 
 
-template<class T>
-void TriangleInterpolator<T>::startLine(float q, float oneMinusQLeft, float oneMinusQRight)
-{
-	lineLeftValue = (vertBaseLeftValue * oneMinusQLeft + vertPeakValue * q) / (oneMinusQLeft + q);
-	lineRightValue = (vertBaseRightValue * oneMinusQRight + vertPeakValue * q) / (oneMinusQRight + q);
-}
 
 template<class T>
-void TriangleInterpolator<T>::setLinePosition(float q, float oneMinusQ)
+void TriangleInterpolator<T>::setBarycentricWeights(float w1, float w2, float w3)
 {
-	currentValue = (lineLeftValue * oneMinusQ + lineRightValue * q) / (oneMinusQ + q);
+	this->w1 = w1;
+	this->w2 = w2;
+	this->w3 = w3;
 }
 
-template<class T>
-inline T TriangleInterpolator<T>::interpolateBetweenTwoVertices(const T& vertOneValue, const T& vertTwoValue, float vertOneDepth, float vertTwoDepth, float q)
-{
-	float weightedQ = q / vertTwoDepth;
-	float weightedOneMinusQ = (1 - q) / vertOneDepth;
-	return (vertOneValue * weightedOneMinusQ + vertTwoValue * weightedQ) /
-		(weightedOneMinusQ + weightedQ);
-}
 
 template<class T>
 T TriangleInterpolator<T>::getValue()
 {
-	return currentValue;
+	//these weights take depth into account so they do not sum up to 1
+	return (w1 * vert1Value + w2 * vert2Value + w3 * vert3Value)/(w1+w2+w3);
 }
 
 
