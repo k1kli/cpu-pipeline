@@ -22,7 +22,7 @@ void InterpolatorsManager::updatePosition(int x, int y)
 	w1 /= v1.z;
 	w2 /= v2.z;
 	w3 /= v3.z;
-	for (int i = 0; i < interpolators.size(); i++)
+	for (auto i = 0; i < interpolators.size(); i++)
 	{
 		interpolators[i]->setBarycentricWeights(w1, w2, w3);
 	}

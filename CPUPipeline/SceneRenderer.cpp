@@ -7,8 +7,10 @@
 
 SceneRenderer::SceneRenderer(FrameBuffer& frameBuffer):frameBuffer(frameBuffer)
 {
-	mvp = glm::identity<glm::mat4>();
-	vp = glm::identity<glm::mat4>();
+	modelViewProjectionMatrix = glm::identity<glm::mat4>();
+	viewProjectionMatrix = glm::identity<glm::mat4>();
+	viewportMatrix = glm::identity<glm::mat4>();
+	renderedObject = nullptr;
 	interpolatorsManager.addInterpolator(normalInterpolator);
 }
 
@@ -24,9 +26,10 @@ void SceneRenderer::RenderScene()
 		throw "Set scene first";
 	}
 	const Camera& camera = scene->getMainCamera();
-	vp = camera.GetViewportMatrix() * camera.GetProjectionMatrix() * camera.GetViewMatrix();
+	viewProjectionMatrix = camera.GetProjectionMatrix() * camera.GetViewMatrix();
+	viewportMatrix = camera.GetViewportMatrix();
 	auto sceneObjects = scene->GetSceneObjects();
-	for (int i = 0; i < sceneObjects.size(); i++)
+	for (auto i = 0; i < sceneObjects.size(); i++)
 	{
 		renderedObject = sceneObjects[i];
 		DrawSceneObject(0xFFFF0000);
@@ -40,16 +43,13 @@ void SceneRenderer::DrawSceneObject(int color)
 }
 void SceneRenderer::TransformVertices()
 {
-	mvp = vp * renderedObject->GetWorldMatrix();
+	modelViewProjectionMatrix = viewProjectionMatrix*renderedObject->GetWorldMatrix();
 	auto vertices = renderedObject->GetMesh().getVertices();
 	transformedVertices.resize(vertices.size());
 	verticesDepthsForInterpolation.resize(vertices.size());
-	for (int i = 0; i < vertices.size(); i++)
+	for (auto i = 0; i < vertices.size(); i++)
 	{
-		glm::vec4 vect = mvp * glm::vec4(vertices[i], 1);
-		verticesDepthsForInterpolation[i] = vect.w;
-		vect /= vect.w;
-		transformedVertices[i] = vect;
+		transformedVertices[i] = modelViewProjectionMatrix * glm::vec4(vertices[i], 1);
 	}
 }
 void SceneRenderer::TransformNormals()
@@ -57,7 +57,7 @@ void SceneRenderer::TransformNormals()
 	glm::mat4 inverseWorldMatrix = glm::inverse(renderedObject->GetWorldMatrix());
 	auto normals = renderedObject->GetMesh().getNormals();
 	transformedNormals.resize(normals.size());
-	for (int i = 0; i < normals.size(); i++)
+	for (auto i = 0; i < normals.size(); i++)
 	{
 		glm::vec4 vect = inverseWorldMatrix * glm::vec4(normals[i], 0);
 		transformedNormals[i] = vect;
@@ -66,11 +66,15 @@ void SceneRenderer::TransformNormals()
 void SceneRenderer::DrawObjectsTriangles(int color)
 {
 	const std::vector<glm::uvec3> triangles = renderedObject->GetMesh().getTriangles();
-	for (int i = 0; i < triangles.size(); i++)
-	{
-		glm::vec3 normal = glm::normalize(glm::cross(
-			transformedVertices[triangles[i].y] - transformedVertices[triangles[i].x],
-			transformedVertices[triangles[i].z] - transformedVertices[triangles[i].x]));
+	for (auto i = 0; i < triangles.size(); i++)
+	{	
+		glm::vec3 v1 = glm::vec3(transformedVertices[triangles[i].x]
+			/ transformedVertices[triangles[i].x].w);
+		glm::vec3 v2 = glm::vec3(transformedVertices[triangles[i].y]
+			/ transformedVertices[triangles[i].y].w);
+		glm::vec3 v3 = glm::vec3(transformedVertices[triangles[i].z]
+			/ transformedVertices[triangles[i].z].w);
+		glm::vec3 normal = glm::normalize(glm::cross(v2-v1, v3-v1));
 		if (dot({ 0,0,-1 }, normal) < 0)
 		{
 			DrawTriangle(i, color);
@@ -80,25 +84,47 @@ void SceneRenderer::DrawObjectsTriangles(int color)
 void SceneRenderer::DrawTriangle(int triangleId, int color)
 {
 
-	InitInterpolators(triangleId);
 	DrawClippedTriangle(triangleId, color);
 	WireFrame(triangleId, 0xFF00FFFF);
 }
 void SceneRenderer::DrawClippedTriangle(int triangleId, int color)
 {
 	glm::uvec3 mainTriangle = renderedObject->GetMesh().getTriangles()[triangleId];
-	ScanLine(
-		&transformedVertices[mainTriangle.x],
-		&transformedVertices[mainTriangle.y],
-		&transformedVertices[mainTriangle.z], color);
+	
+	glm::vec4 v1 = transformedVertices[mainTriangle.x];
+	glm::vec4 v2 = transformedVertices[mainTriangle.y];
+	glm::vec4 v3 = transformedVertices[mainTriangle.z];
+	std::vector<glm::vec4> poly = { v1,v2,v3 };
+	v1 = viewportMatrix * v1;
+	v2 = viewportMatrix * v2;
+	v3 = viewportMatrix * v3;
+	triangleClipper.ClipTriangle(poly);
+	InitInterpolators(triangleId, v1, v2, v3);
+	if (poly.size() >= 3)
+	{
+		for (auto i = 0; i < poly.size(); i++)
+		{
+			poly[i] = viewportMatrix * poly[i];
+			float w = poly[i].w;
+			poly[i] /= poly[i].w;
+			poly[i].z = w;
+		}
+		for (auto i = 1; i < poly.size()-1; i++)
+		{
+			ScanLine(&poly[0], &poly[i], &poly[i + 1], color);
+		}
+	}
 }
-void SceneRenderer::InitInterpolators(int triangleId)
+void SceneRenderer::InitInterpolators(int triangleId,
+	glm::vec3 v1InViewport,
+	glm::vec3 v2InViewport,
+	glm::vec3 v3InViewport)
 {
 	glm::uvec3 triangle = renderedObject->GetMesh().getTriangles()[triangleId];
 	interpolatorsManager.initTriangle(
-		transformedVertices[triangle.x],
-		transformedVertices[triangle.y],
-		transformedVertices[triangle.z]);
+		v1InViewport,
+		v2InViewport,
+		v3InViewport);
 	glm::uvec3 triangleNormals = renderedObject->GetMesh().getTrianglesNormals()[triangleId];
 	normalInterpolator.initTriangleValues(
 		transformedNormals[triangleNormals.x],
@@ -127,9 +153,9 @@ void SceneRenderer::WireFrame(int triangleId, int color)
 		v1.x,
 		v1.y, 0xFF00FFFF);
 }
-void SceneRenderer::ScanLine(glm::vec3 * v1, glm::vec3 * v2, glm::vec3 * v3, int color)
+void SceneRenderer::ScanLine(glm::vec4 * v1, glm::vec4 * v2, glm::vec4 * v3, int color)
 {
-	glm::vec3 * buf;
+	glm::vec4 * buf;
 
 	if (v2->y < v1->y)
 	{
@@ -152,7 +178,7 @@ void SceneRenderer::ScanLine(glm::vec3 * v1, glm::vec3 * v2, glm::vec3 * v3, int
 	//point on the edge opposite to the middle point, which will be another vertex
 	//of the base of two created triangles
 	float v4q = (v2->y - v1->y) / (v3->y - v1->y);
-	glm::vec3 v4 = *v1 * (1-v4q) + *v3 * v4q;
+	glm::vec4 v4 = *v1 * (1-v4q) + *v3 * v4q;
 	if (v2->x < v4.x)
 	{
 		ScanLineHorizontalBase(*v2, v4, *v3, color);
@@ -165,9 +191,9 @@ void SceneRenderer::ScanLine(glm::vec3 * v1, glm::vec3 * v2, glm::vec3 * v3, int
 	}
 }
 void SceneRenderer::ScanLineHorizontalBase(
-	const glm::vec3& v1baseLeft,
-	const glm::vec3& v2baseRight,
-	const glm::vec3& v3peak, int color)
+	const glm::vec4& v1baseLeft,
+	const glm::vec4& v2baseRight,
+	const glm::vec4& v3peak, int color)
 {
 	int baseY = v1baseLeft.y;
 	int peakY = v3peak.y;

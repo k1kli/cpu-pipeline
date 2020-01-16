@@ -7,9 +7,9 @@ class TriangleInterpolator : public TriangleInterpolatorManagementInterface
 	T vert2Value;
 	T vert3Value;
 
-	float w1;
-	float w2;
-	float w3;
+	float w1 = 0.0f;
+	float w2 = 0.0f;
+	float w3 = 0.0f;
 
 	T lineLeftValue;
 	T lineRightValue;

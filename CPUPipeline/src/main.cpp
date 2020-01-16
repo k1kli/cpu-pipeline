@@ -80,7 +80,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 			* glm::vec4(cameraFront, 1);
 	}
 
-
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
@@ -142,7 +141,7 @@ int main(int, char**)
 	// Set callback for resizing window
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 
@@ -220,7 +219,7 @@ int main(int, char**)
 		glm::mat4 translation = TransformationMatrices::getTranslationMatrix({ 0.1,0.1,0 });
 		cube.SetWorldMatrix(rotation * modelBase);
 		camera->SetViewport(0, 0, current_width, current_height);
-		camera->SetPerspective(fov, (float)current_height / current_width, 0.1, 10);
+		camera->SetPerspective(fov, (float)current_height / current_width, 0.1, 50);
 		camera->LookAt(cameraPos, cameraFront, cameraUp);
 
 		//fb.ClearColor(0.5f, 0.5f, 1.0f);
