@@ -7,9 +7,6 @@ void InterpolatorsManager::addInterpolator(TriangleInterpolatorManagementInterfa
 
 void InterpolatorsManager::initTriangle(glm::vec4 v1, glm::vec4 v2, glm::vec4 v3)
 {
-	this->v1 = v1;
-	this->v2 = v2;
-	this->v3 = v3;
 	float detT = (v2.y - v3.y) * (v1.x - v3.x) + (v3.x - v2.x) * (v1.y - v3.y);
 	a = (v2.y - v3.y) / detT;
 	b = (v3.x - v2.x) / detT;

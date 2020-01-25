@@ -5,9 +5,6 @@
 #include <glm/glm.hpp>
 class InterpolatorsManager
 {
-	glm::vec4 v1;
-	glm::vec4 v2;
-	glm::vec4 v3;
 	float a, b, c, d, e, f, g, h, i;
 	std::vector<TriangleInterpolatorManagementInterface*> interpolators;
 public:

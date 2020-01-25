@@ -69,14 +69,14 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	if (abs(yDiff) > 0.001)
 	{
 		glm::vec3 right = glm::cross(cameraFront, cameraUp);
-		cameraFront = TransformationMatrices::getRotationMatrix(-yDiff * 0.6f, right)
+		cameraFront = TransformationMatrices::getRotationMatrix(-(float)yDiff * 0.6f, right)
 			* glm::vec4(cameraFront, 1);
 
 	}
 	xDiff /= current_width / 2.0;
 	if (abs(xDiff) > 0.001)
 	{
-		cameraFront = TransformationMatrices::getRotationMatrix(-xDiff * 1.6f, cameraUp)
+		cameraFront = TransformationMatrices::getRotationMatrix(-(float)xDiff * 1.6f, cameraUp)
 			* glm::vec4(cameraFront, 1);
 	}
 
@@ -85,7 +85,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	//TODO: mouse scroll
-	fov += yoffset;
+	fov += (float)yoffset;
 }
 
 void timeMeasurement(GLFWwindow* win, double& deltaTime, double& currentTime)
@@ -152,8 +152,14 @@ int main(int, char**)
 	SceneRenderer sceneRenderer(fb);
 	sceneRenderer.SetScene(scene);
 	Mesh cubeMesh;
-	Material cubeMaterial = Material(0.1f, 0.9f, 0.1f, 1.0f, { 1.0f, 0.0f, 0.0f });
+	Material cubeMaterial = Material(0.8f, 0.2f, 0.1f, 80.0f, { 1.0f, 1.0f, 1.0f });
 	SceneObject cube = SceneObject(cubeMesh, glm::identity<glm::mat4>(), cubeMaterial);
+	Light light1 = Light({ 2.0f,0.0f,1.0f }, { 1.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 1.0f },
+		1.0f, 0.09f, 0.032f);
+	Light light2 = Light({ -2.0f,0.0f,1.0f }, { 0.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 1.0f },
+		1.0f, 0.09f, 0.032f);
+	scene.AddLight(light1);
+	scene.AddLight(light2);
 
 	cube.GetMesh().setVertices({
 		{0.0f,0.0f,0.0f}, {0.0f,1.0f,0.0f}, {1.0f,1.0f,0.0f}, {1.0f,0.0f,0.0f},
@@ -209,7 +215,7 @@ int main(int, char**)
 	{
 		glfwPollEvents();
 		timeMeasurement(window, deltaTime, currentTime);
-		processInput(window, deltaTime);
+		processInput(window, (float)deltaTime);
 
 		// Update scene
 
@@ -217,11 +223,11 @@ int main(int, char**)
 			* TransformationMatrices::getScalingMatrix({ 0.2,0.2,0.2 });
 
 
-		glm::mat4 rotation = TransformationMatrices::getRotationMatrix(currentTime, cameraUp);
+		glm::mat4 rotation = TransformationMatrices::getRotationMatrix((float)currentTime, cameraUp);
 		glm::mat4 translation = TransformationMatrices::getTranslationMatrix({ 0.1,0.1,0 });
 		cube.SetWorldMatrix(rotation * modelBase);
-		camera->SetViewport(0, 0, current_width, current_height);
-		camera->SetPerspective(fov, (float)current_height / current_width, 0.1, 50);
+		camera->SetViewport(0, 0, (float)current_width, (float)current_height);
+		camera->SetPerspective(fov, (float)current_height / current_width, 0.1f, 50);
 		camera->LookAt(cameraPos, cameraFront, cameraUp);
 
 		//fb.ClearColor(0.5f, 0.5f, 1.0f);

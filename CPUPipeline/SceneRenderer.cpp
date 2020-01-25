@@ -89,7 +89,7 @@ void SceneRenderer::DrawTriangle(int triangleId, int color)
 {
 
 	DrawClippedTriangle(triangleId, color);
-	WireFrame(triangleId, 0xFF00FFFF);
+	//WireFrame(triangleId, 0xFF00FFFF);
 }
 void SceneRenderer::DrawClippedTriangle(int triangleId, int color)
 {
@@ -99,13 +99,13 @@ void SceneRenderer::DrawClippedTriangle(int triangleId, int color)
 	glm::vec4 v2 = transformedVertices[mainTriangle.y];
 	glm::vec4 v3 = transformedVertices[mainTriangle.z];
 	std::vector<glm::vec4> poly = { v1,v2,v3 };
-	v1 = viewportMatrix * v1;
-	v2 = viewportMatrix * v2;
-	v3 = viewportMatrix * v3;
 	triangleClipper.ClipTriangle(poly);
-	InitInterpolators(triangleId, v1, v2, v3);
 	if (poly.size() >= 3)
 	{
+		v1 = viewportMatrix * v1;
+		v2 = viewportMatrix * v2;
+		v3 = viewportMatrix * v3;
+		InitInterpolators(triangleId, v1, v2, v3);
 		for (auto i = 0; i < poly.size(); i++)
 		{
 			poly[i] = viewportMatrix * poly[i];
@@ -240,20 +240,28 @@ int floatToIntColor(const glm::vec4& floatColor)
 }
 int SceneRenderer::GetPixelColor()
 {
-	//TODO - calculate pixel color from material
 	const Material& material = renderedObject->GetMaterial();
-	glm::vec3 toLightVector = glm::normalize(glm::vec3({ 0,1.0f,1.0f }));
 	glm::vec3 ambientLight = { 0.5f, 0.0f, 0.0f };
-	glm::vec3 lightColor = { 1.0f, 1.0f, 1.0f };
 	glm::vec3 normal = glm::normalize(normalInterpolator.getValue());
-	glm::vec3 reflect = glm::normalize(
-		2 * glm::dot(toLightVector, normal) * normal - toLightVector);
-	glm::vec3 worldPostion = worldPosInterpolator.getValue();
-	glm::vec3 toObserver = glm::normalize(scene->getMainCamera().GetPosition() - worldPostion);
+	glm::vec3 worldPosition = worldPosInterpolator.getValue();
+	glm::vec3 toObserver = glm::normalize(scene->getMainCamera().GetPosition() - worldPosition);
+
 	glm::vec3 color = material.ambient * ambientLight;
-	color += lightColor * (
-		material.diffuse * glm::dot(normal, toLightVector) +
-		material.specular * glm::pow(glm::dot(reflect, toObserver), material.shininess));
+
+	for (Light* light : scene->GetLights())
+	{
+		glm::vec3 toLightVector = light->getPosition()-worldPosition;
+		float dist = glm::length(toLightVector);
+		toLightVector /= dist;
+		glm::vec3 reflect = glm::normalize(
+			2 * glm::dot(toLightVector, normal) * normal - toLightVector);
+		color += 
+			(light->getDiffuseColor() * 
+			material.diffuse * glm::dot(normal, toLightVector) +
+			light->getSpecularColor() * 
+			material.specular * glm::pow(glm::dot(reflect, toObserver), material.shininess))
+			* light->getAttenuation(dist);
+	}
 	color *= material.color;
 	color = glm::clamp(color, { 0,0,0 }, { 1,1,1 });
 	return floatToIntColor(glm::vec4(color, 1));
