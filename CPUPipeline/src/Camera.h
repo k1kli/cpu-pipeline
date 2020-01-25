@@ -18,6 +18,8 @@ public:
 
 	void LookAt(glm::vec3 pos, glm::vec3 front, glm::vec3 up);
 
+	const glm::vec3& GetPosition() const;
+
 private:
 	glm::vec3 m_position;
 	glm::vec3 m_up_vector;

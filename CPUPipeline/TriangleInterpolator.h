@@ -50,8 +50,7 @@ void TriangleInterpolator<T>::setBarycentricWeights(float w1, float w2, float w3
 template<class T>
 T TriangleInterpolator<T>::getValue()
 {
-	//these weights take depth into account so they do not sum up to 1
-	return (w1 * vert1Value + w2 * vert2Value + w3 * vert3Value)/(w1+w2+w3);
+	return w1 * vert1Value + w2 * vert2Value + w3 * vert3Value;
 }
 
 

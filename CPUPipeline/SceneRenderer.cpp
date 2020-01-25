@@ -12,6 +12,7 @@ SceneRenderer::SceneRenderer(FrameBuffer& frameBuffer):frameBuffer(frameBuffer)
 	viewportMatrix = glm::identity<glm::mat4>();
 	renderedObject = nullptr;
 	interpolatorsManager.addInterpolator(normalInterpolator);
+	interpolatorsManager.addInterpolator(worldPosInterpolator);
 }
 
 void SceneRenderer::SetScene(const Scene& scene)
@@ -43,18 +44,21 @@ void SceneRenderer::DrawSceneObject(int color)
 }
 void SceneRenderer::TransformVertices()
 {
+	const glm::mat4 & worldMatrix = renderedObject->GetWorldMatrix();
 	modelViewProjectionMatrix = viewProjectionMatrix*renderedObject->GetWorldMatrix();
 	auto vertices = renderedObject->GetMesh().getVertices();
 	transformedVertices.resize(vertices.size());
-	verticesDepthsForInterpolation.resize(vertices.size());
+	worldPosVertices.resize(vertices.size());
 	for (auto i = 0; i < vertices.size(); i++)
 	{
 		transformedVertices[i] = modelViewProjectionMatrix * glm::vec4(vertices[i], 1);
+		worldPosVertices[i] = worldMatrix * glm::vec4(vertices[i], 1);
+		worldPosVertices[i] /= worldPosVertices[i].w;
 	}
 }
 void SceneRenderer::TransformNormals()
 {
-	glm::mat4 inverseWorldMatrix = glm::inverse(renderedObject->GetWorldMatrix());
+	glm::mat4 inverseWorldMatrix = glm::inverse(glm::transpose(renderedObject->GetWorldMatrix()));
 	auto normals = renderedObject->GetMesh().getNormals();
 	transformedNormals.resize(normals.size());
 	for (auto i = 0; i < normals.size(); i++)
@@ -105,9 +109,7 @@ void SceneRenderer::DrawClippedTriangle(int triangleId, int color)
 		for (auto i = 0; i < poly.size(); i++)
 		{
 			poly[i] = viewportMatrix * poly[i];
-			float w = poly[i].w;
 			poly[i] /= poly[i].w;
-			poly[i].z = w;
 		}
 		for (auto i = 1; i < poly.size()-1; i++)
 		{
@@ -116,9 +118,9 @@ void SceneRenderer::DrawClippedTriangle(int triangleId, int color)
 	}
 }
 void SceneRenderer::InitInterpolators(int triangleId,
-	glm::vec3 v1InViewport,
-	glm::vec3 v2InViewport,
-	glm::vec3 v3InViewport)
+	glm::vec4 v1InViewport,
+	glm::vec4 v2InViewport,
+	glm::vec4 v3InViewport)
 {
 	glm::uvec3 triangle = renderedObject->GetMesh().getTriangles()[triangleId];
 	interpolatorsManager.initTriangle(
@@ -130,6 +132,11 @@ void SceneRenderer::InitInterpolators(int triangleId,
 		transformedNormals[triangleNormals.x],
 		transformedNormals[triangleNormals.y],
 		transformedNormals[triangleNormals.z]);
+	worldPosInterpolator.initTriangleValues(
+		worldPosVertices[triangle.x],
+		worldPosVertices[triangle.y],
+		worldPosVertices[triangle.z]
+	);
 }
 void SceneRenderer::WireFrame(int triangleId, int color)
 {
@@ -191,9 +198,9 @@ void SceneRenderer::ScanLine(glm::vec4 * v1, glm::vec4 * v2, glm::vec4 * v3, int
 	}
 }
 void SceneRenderer::ScanLineHorizontalBase(
-	const glm::vec4& v1baseLeft,
-	const glm::vec4& v2baseRight,
-	const glm::vec4& v3peak, int color)
+	const glm::vec3& v1baseLeft,
+	const glm::vec3& v2baseRight,
+	const glm::vec3& v3peak, int color)
 {
 	int baseY = v1baseLeft.y;
 	int peakY = v3peak.y;
@@ -212,7 +219,7 @@ void SceneRenderer::ScanLineHorizontalBase(
 		float lineDepth1 = depth1 * (1 - q) + depth3 * q;
 		float lineDepth2 = depth2 * (1 - q) + depth3 * q;
 		int xDiff = maxX - minX;
-		for (int x = minX; x < maxX; x++)
+		for (int x = minX; x <= maxX; x++)
 		{
 			interpolatorsManager.updatePosition(x, y);
 			q = (float)(x - (int)minX) / xDiff;
@@ -233,8 +240,21 @@ int floatToIntColor(const glm::vec4& floatColor)
 }
 int SceneRenderer::GetPixelColor()
 {
-	glm::vec3 baseColor = { 1,1,1 };
+	//TODO - calculate pixel color from material
+	const Material& material = renderedObject->GetMaterial();
+	glm::vec3 toLightVector = glm::normalize(glm::vec3({ 0,1.0f,1.0f }));
+	glm::vec3 ambientLight = { 0.5f, 0.0f, 0.0f };
+	glm::vec3 lightColor = { 1.0f, 1.0f, 1.0f };
 	glm::vec3 normal = glm::normalize(normalInterpolator.getValue());
-	baseColor *= normal;
-	return floatToIntColor(glm::vec4(baseColor, 1));
+	glm::vec3 reflect = glm::normalize(
+		2 * glm::dot(toLightVector, normal) * normal - toLightVector);
+	glm::vec3 worldPostion = worldPosInterpolator.getValue();
+	glm::vec3 toObserver = glm::normalize(scene->getMainCamera().GetPosition() - worldPostion);
+	glm::vec3 color = material.ambient * ambientLight;
+	color += lightColor * (
+		material.diffuse * glm::dot(normal, toLightVector) +
+		material.specular * glm::pow(glm::dot(reflect, toObserver), material.shininess));
+	color *= material.color;
+	color = glm::clamp(color, { 0,0,0 }, { 1,1,1 });
+	return floatToIntColor(glm::vec4(color, 1));
 }

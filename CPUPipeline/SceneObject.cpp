@@ -19,3 +19,18 @@ void SceneObject::SetWorldMatrix(const glm::mat4& worldMatrix)
 {
 	this->worldMatrix = worldMatrix;
 }
+
+void SceneObject::SetMaterial(const Material& material)
+{
+	this->material = material;
+}
+
+Material& SceneObject::GetMaterial()
+{
+	return material;
+}
+
+const Material& SceneObject::GetMaterial() const
+{
+	return material;
+}

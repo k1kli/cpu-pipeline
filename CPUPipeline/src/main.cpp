@@ -151,8 +151,9 @@ int main(int, char**)
 	Scene scene;
 	SceneRenderer sceneRenderer(fb);
 	sceneRenderer.SetScene(scene);
-	SceneObject cube;
-	scene.AddSceneObject(cube);
+	Mesh cubeMesh;
+	Material cubeMaterial = Material(0.1f, 0.9f, 0.1f, 1.0f, { 1.0f, 0.0f, 0.0f });
+	SceneObject cube = SceneObject(cubeMesh, glm::identity<glm::mat4>(), cubeMaterial);
 
 	cube.GetMesh().setVertices({
 		{0.0f,0.0f,0.0f}, {0.0f,1.0f,0.0f}, {1.0f,1.0f,0.0f}, {1.0f,0.0f,0.0f},
@@ -189,6 +190,7 @@ int main(int, char**)
 			{4,4,4},{4,4,4},//up
 			{5,5,5},{5,5,5}//down
 	});
+	scene.AddSceneObject(cube);
 
 
 	cameraPos = { 0,0,1 };
