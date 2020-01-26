@@ -5,7 +5,8 @@
 #include <algorithm>
 
 
-SceneRenderer::SceneRenderer(FrameBuffer& frameBuffer):frameBuffer(frameBuffer)
+SceneRenderer::SceneRenderer(FrameBuffer& frameBuffer)
+	:frameBuffer(frameBuffer) ,interpolatorsManager(512)
 {
 	modelViewProjectionMatrix = glm::identity<glm::mat4>();
 	viewProjectionMatrix = glm::identity<glm::mat4>();
@@ -13,11 +14,32 @@ SceneRenderer::SceneRenderer(FrameBuffer& frameBuffer):frameBuffer(frameBuffer)
 	renderedObject = nullptr;
 	interpolatorsManager.addInterpolator(normalInterpolator);
 	interpolatorsManager.addInterpolator(worldPosInterpolator);
+	
+	for (int i = 0; i < 512; i++)
+	{
+		PixelDrawingThreadManagement * pdtm
+			= new PixelDrawingThreadManagement(
+				frameBuffer, i, interpolatorsManager, normalInterpolator,
+			worldPosInterpolator);
+		pixelDrawingThreadPool.push_back(pdtm);
+	}
+}
+
+SceneRenderer::~SceneRenderer()
+{
+	for (int i = 0; i < pixelDrawingThreadPool.size(); i++)
+	{
+		delete pixelDrawingThreadPool[i];
+	}
 }
 
 void SceneRenderer::SetScene(const Scene& scene)
 {
 	this->scene = &scene;
+	for (auto pixelThread : pixelDrawingThreadPool)
+	{
+		pixelThread->thread->setScene(scene);
+	}
 }
 
 void SceneRenderer::RenderScene()
@@ -38,6 +60,10 @@ void SceneRenderer::RenderScene()
 }
 void SceneRenderer::DrawSceneObject(int color)
 {
+	for (auto pixelThread : pixelDrawingThreadPool)
+	{
+		pixelThread->thread->setRenderedObject(*renderedObject);
+	}
 	TransformVertices();
 	TransformNormals();
 	DrawObjectsTriangles(color);
@@ -213,6 +239,7 @@ void SceneRenderer::ScanLineHorizontalBase(
 	int yInc = glm::sign(peakY - baseY);
 	float antitangent1 = (v3peak.x - v1baseLeft.x) / (v3peak.y - v1baseLeft.y) * yInc;
 	float antitangent2 = (v3peak.x - v2baseRight.x) / (v3peak.y - v2baseRight.y) * yInc;
+	int threadId = 0;
 	for (int y = baseY; y != peakY; y += yInc)
 	{
 		float q = (float)(y - baseY) / yDiff;
@@ -221,48 +248,14 @@ void SceneRenderer::ScanLineHorizontalBase(
 		int xDiff = maxX - minX;
 		for (int x = minX; x <= maxX; x++)
 		{
-			interpolatorsManager.updatePosition(x, y);
 			q = (float)(x - (int)minX) / xDiff;
 			float depth = lineDepth1 * (1 - q) + lineDepth2 * q;
-			frameBuffer.SetPixel(x, y, GetPixelColor(), depth);
+			pixelDrawingThreadPool[threadId]->firstBarrier.Wait();
+			pixelDrawingThreadPool[threadId]->thread->setPosition(x, y, depth);
+			pixelDrawingThreadPool[threadId]->secondBarrier.Wait();
+			threadId = (threadId + 1) % pixelDrawingThreadPool.size();
 		}
 		minX += antitangent1;
 		maxX += antitangent2;
 	}
-}
-int floatToIntColor(const glm::vec4& floatColor)
-{
-	uint8_t r = (uint8_t)(std::clamp<float>(floatColor.r, 0.f, 1.f) * 255);
-	uint8_t g = (uint8_t)(std::clamp<float>(floatColor.g, 0.f, 1.f) * 255);
-	uint8_t b = (uint8_t)(std::clamp<float>(floatColor.b, 0.f, 1.f) * 255);
-	uint8_t a = (uint8_t)(std::clamp<float>(floatColor.a, 0.f, 1.f) * 255);
-	return RGBA(r, g, b, a);
-}
-int SceneRenderer::GetPixelColor()
-{
-	const Material& material = renderedObject->GetMaterial();
-	glm::vec3 ambientLight = { 0.5f, 0.0f, 0.0f };
-	glm::vec3 normal = glm::normalize(normalInterpolator.getValue());
-	glm::vec3 worldPosition = worldPosInterpolator.getValue();
-	glm::vec3 toObserver = glm::normalize(scene->getMainCamera().GetPosition() - worldPosition);
-
-	glm::vec3 color = material.ambient * ambientLight;
-
-	for (Light* light : scene->GetLights())
-	{
-		glm::vec3 toLightVector = light->getPosition()-worldPosition;
-		float dist = glm::length(toLightVector);
-		toLightVector /= dist;
-		glm::vec3 reflect = glm::normalize(
-			2 * glm::dot(toLightVector, normal) * normal - toLightVector);
-		color += 
-			(light->getDiffuseColor() * 
-			material.diffuse * glm::dot(normal, toLightVector) +
-			light->getSpecularColor() * 
-			material.specular * glm::pow(glm::dot(reflect, toObserver), material.shininess))
-			* light->getAttenuation(dist);
-	}
-	color *= material.color;
-	color = glm::clamp(color, { 0,0,0 }, { 1,1,1 });
-	return floatToIntColor(glm::vec4(color, 1));
 }

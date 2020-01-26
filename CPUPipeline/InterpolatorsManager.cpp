@@ -3,6 +3,7 @@
 void InterpolatorsManager::addInterpolator(TriangleInterpolatorManagementInterface& interpolator)
 {
 	interpolators.push_back(&interpolator);
+	interpolator.setInstanceCount(instanceCount);
 }
 
 void InterpolatorsManager::initTriangle(glm::vec4 v1, glm::vec4 v2, glm::vec4 v3)
@@ -23,7 +24,7 @@ void InterpolatorsManager::initTriangle(glm::vec4 v1, glm::vec4 v2, glm::vec4 v3
 }
 
 
-void InterpolatorsManager::updatePosition(int x, int y)
+void InterpolatorsManager::updatePosition(int x, int y, int instance)
 {
 	float w1 = a * x + b * y + e;
 	float w2 = c * x + d * y + f;
@@ -35,7 +36,7 @@ void InterpolatorsManager::updatePosition(int x, int y)
 	const int iSize = interpolators.size();
 	for (auto i = 0; i < iSize; i++)
 	{
-		interpolators[i]->setBarycentricWeights(w1, w2, w3);
+		interpolators[i]->setBarycentricWeights(w1, w2, w3, instance);
 	}
 
 }
