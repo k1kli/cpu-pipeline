@@ -7,7 +7,7 @@ public:
 	Camera(glm::vec3 pos, glm::vec3 forward, glm::vec3 up);
 	~Camera() = default;
 
-	glm::mat4 GetWorldMatrix() const { return m_world_matrix; }
+	glm::mat4 GetViewMatrix() const { return m_world_matrix; }
 	glm::mat4 GetProjectionMatrix() const { return m_projection_matrix; };
 	glm::mat4 GetViewportMatrix() const { return m_viewport_matrix; };
 
@@ -17,6 +17,8 @@ public:
 	void SetViewport(float offset_x, float offset_y, float screen_width, float screen_height);
 
 	void LookAt(glm::vec3 pos, glm::vec3 front, glm::vec3 up);
+
+	const glm::vec3& GetPosition() const;
 
 private:
 	glm::vec3 m_position;

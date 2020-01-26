@@ -82,3 +82,8 @@ void Camera::LookAt(glm::vec3 pos, glm::vec3 front, glm::vec3 up)
 {
 	m_world_matrix = glm::lookAt(pos, pos+front, up);
 }
+
+const glm::vec3& Camera::GetPosition() const
+{
+	return m_position;
+}
