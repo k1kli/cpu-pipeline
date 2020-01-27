@@ -17,6 +17,7 @@ class SceneRenderer
 	InterpolatorsManager interpolatorsManager;
 	TriangleInterpolator<glm::vec3> normalInterpolator;
 	TriangleInterpolator<glm::vec3> worldPosInterpolator;
+	TriangleInterpolator<glm::vec2> uvInterpolator;
 	TriangleClipper triangleClipper;
 	const SceneObject * renderedObject;
 	void DrawSceneObject(int color);

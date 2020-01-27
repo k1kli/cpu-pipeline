@@ -5,7 +5,14 @@
 #include <glm/glm.hpp>
 class InterpolatorsManager
 {
-	float a, b, c, d, e, f, g, h, i;
+	//float a, b, c, d, e, f, g, h, i;
+	glm::vec2 v1;
+	float v1DepthFix, v2DepthFix, v3DepthFix;
+	float denom;
+	float d00;
+	float d01;
+	float d11;
+	glm::vec2 va, vb;
 	std::vector<TriangleInterpolatorManagementInterface*> interpolators;
 public:
 	void addInterpolator(TriangleInterpolatorManagementInterface& interpolator);

@@ -63,6 +63,16 @@ void Mesh::setTrianglesNormals(const std::vector<glm::uvec3>& trianglesNormals)
 	}
 }
 
+void Mesh::setTrianglesUV(const std::vector<glm::uvec3>& trianglesUV)
+{
+	this->trianglesUV = trianglesUV;
+}
+
+void Mesh::setUV(const std::vector<glm::vec2>& uv)
+{
+	this->uv = uv;
+}
+
 const std::vector<glm::vec3>& Mesh::getVertices() const
 {
 	return vertices;
@@ -81,4 +91,14 @@ const std::vector<glm::uvec3>& Mesh::getTriangles() const
 const std::vector<glm::uvec3>& Mesh::getTrianglesNormals() const
 {
 	return trianglesNormals;
+}
+
+const std::vector<glm::uvec3>& Mesh::getTrianglesUV() const
+{
+	return trianglesUV;
+}
+
+const std::vector<glm::vec2>& Mesh::getUV() const
+{
+	return uv;
 }

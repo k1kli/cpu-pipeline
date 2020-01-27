@@ -1,5 +1,6 @@
 #pragma once
 #include <glm\glm.hpp>
+#include "Sampler.h"
 class Material
 {
 public:
@@ -7,9 +8,13 @@ public:
 	float diffuse;
 	float ambient;
 	float shininess;
-	glm::vec3 color;
-	Material(float specular, float diffuse, float ambient, float shininess, glm::vec3 color)
-		:specular(specular), diffuse(diffuse), ambient(ambient), shininess(shininess),
-		color(color) {}
+	const Sampler * colorSampler;
+	Material(
+		float specular, float diffuse,
+		float ambient, float shininess,
+		const Sampler& colorSampler)
+		:specular(specular), diffuse(diffuse),
+		ambient(ambient), shininess(shininess),
+		colorSampler(&colorSampler) {}
 };
 

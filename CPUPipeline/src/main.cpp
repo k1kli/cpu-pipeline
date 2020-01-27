@@ -12,6 +12,9 @@
 #include <TransformationMatrices.h>
 #include "../Scene.h"
 #include "../SceneRenderer.h"
+#include "../StaticColorSampler.h"
+#include "../Image.h"
+#include "../ImageSampler.h"
 
 #define DEFAULT_WIDTH 1280
 #define DEFAULT_HEIGHT 720
@@ -110,6 +113,14 @@ void timeMeasurement(GLFWwindow* win, double& deltaTime, double& currentTime)
 		lastTime += 1.0;
 	}
 }
+int floatToIntColor(const glm::vec3& floatColor)
+{
+	uint8_t r = (uint8_t)(glm::clamp<float>(floatColor.r, 0.f, 1.f) * 255);
+	uint8_t g = (uint8_t)(glm::clamp<float>(floatColor.g, 0.f, 1.f) * 255);
+	uint8_t b = (uint8_t)(glm::clamp<float>(floatColor.b, 0.f, 1.f) * 255);
+	uint8_t a = (uint8_t)(255);
+	return RGBA(r, g, b, a);
+}
 
 int main(int, char**)
 {
@@ -148,13 +159,18 @@ int main(int, char**)
 	FrameBuffer fb(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	fb.InitGL();
 
+	Image image = Image("data/lion.jpg");
+	
+
 	Scene scene;
 	SceneRenderer sceneRenderer(fb);
 	sceneRenderer.SetScene(scene);
 	Mesh cubeMesh;
-	Material cubeMaterial = Material(0.8f, 0.2f, 0.1f, 80.0f, { 1.0f, 1.0f, 1.0f });
+	Material cubeMaterial = Material(
+		0.6f, 0.5f, 0.1f, 12.0f,
+		ImageSampler(image));
 	SceneObject cube = SceneObject(cubeMesh, glm::identity<glm::mat4>(), cubeMaterial);
-	Light light1 = Light({ 2.0f,0.0f,1.0f }, { 1.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 1.0f },
+	Light light1 = Light({ 0.0f,3.0f,1.0f }, { 1.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 1.0f },
 		1.0f, 0.09f, 0.032f);
 	Light light2 = Light({ -2.0f,0.0f,1.0f }, { 0.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 1.0f },
 		1.0f, 0.09f, 0.032f);
@@ -196,8 +212,21 @@ int main(int, char**)
 			{4,4,4},{4,4,4},//up
 			{5,5,5},{5,5,5}//down
 	});
+	cube.GetMesh().setUV({
+		{0,0},//bottom left
+		{0,1},//top left
+		{1,0},//bottom right
+		{1,1}//top right
+		});
+	cube.GetMesh().setTrianglesUV({
+		{0,2,3},{0,3,1},
+		{0,2,3},{0,3,1},
+		{0,2,3},{0,3,1},
+		{0,2,3},{0,3,1},
+		{0,2,3},{0,3,1},
+		{0,3,1},{0,2,3}
+		});
 	scene.AddSceneObject(cube);
-
 
 	cameraPos = { 0,0,1 };
 	cameraFront = { 0,0,-1 };
@@ -239,6 +268,13 @@ int main(int, char**)
 
 		//TODO: calculate point positions
 		sceneRenderer.RenderScene();
+		for (int y = 0; y < image.getImageHeight(); y++)
+		{
+			for (int x = 0; x < image.getImageWidth(); x++)
+			{
+				fb.SetPixel(x, y, floatToIntColor(image.getData()[x + y * image.getImageWidth()]), 1000.0f);
+			}
+		}
 
 		// Rendering
 		int display_w, display_h;

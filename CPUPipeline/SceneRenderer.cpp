@@ -4,7 +4,6 @@
 #include <memory>
 #include <algorithm>
 
-
 SceneRenderer::SceneRenderer(FrameBuffer& frameBuffer):frameBuffer(frameBuffer)
 {
 	modelViewProjectionMatrix = glm::identity<glm::mat4>();
@@ -13,6 +12,7 @@ SceneRenderer::SceneRenderer(FrameBuffer& frameBuffer):frameBuffer(frameBuffer)
 	renderedObject = nullptr;
 	interpolatorsManager.addInterpolator(normalInterpolator);
 	interpolatorsManager.addInterpolator(worldPosInterpolator);
+	interpolatorsManager.addInterpolator(uvInterpolator);
 }
 
 void SceneRenderer::SetScene(const Scene& scene)
@@ -136,6 +136,13 @@ void SceneRenderer::InitInterpolators(int triangleId,
 		worldPosVertices[triangle.x],
 		worldPosVertices[triangle.y],
 		worldPosVertices[triangle.z]
+	);
+	glm::uvec3 triangleUV = renderedObject->GetMesh().getTrianglesUV()[triangleId];
+	auto UVs = renderedObject->GetMesh().getUV();
+	uvInterpolator.initTriangleValues(
+		UVs[triangleUV.x],
+		UVs[triangleUV.y],
+		UVs[triangleUV.z]
 	);
 }
 void SceneRenderer::WireFrame(int triangleId, int color)
@@ -262,7 +269,8 @@ int SceneRenderer::GetPixelColor()
 			material.specular * glm::pow(glm::dot(reflect, toObserver), material.shininess))
 			* light->getAttenuation(dist);
 	}
-	color *= material.color;
+	glm::vec2 uv = uvInterpolator.getValue();
+	color *= material.colorSampler->sample(uv);
 	color = glm::clamp(color, { 0,0,0 }, { 1,1,1 });
 	return floatToIntColor(glm::vec4(color, 1));
 }

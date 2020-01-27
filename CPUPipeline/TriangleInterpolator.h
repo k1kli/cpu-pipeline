@@ -11,10 +11,6 @@ class TriangleInterpolator : public TriangleInterpolatorManagementInterface
 	float w2 = 0.0f;
 	float w3 = 0.0f;
 
-	T lineLeftValue;
-	T lineRightValue;
-
-	T currentValue;
 
 public:
 	void initTriangleValues(
