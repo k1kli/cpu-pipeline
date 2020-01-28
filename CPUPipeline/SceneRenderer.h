@@ -13,9 +13,11 @@ class SceneRenderer
 	glm::mat4 viewportMatrix;
 	std::vector<glm::vec4> transformedVertices;
 	std::vector<glm::vec3> transformedNormals;
+	std::vector<glm::vec3> transformedTangents;
 	std::vector<glm::vec4> worldPosVertices;
 	InterpolatorsManager interpolatorsManager;
 	TriangleInterpolator<glm::vec3> normalInterpolator;
+	TriangleInterpolator<glm::vec3> tangentInterpolator;
 	TriangleInterpolator<glm::vec3> worldPosInterpolator;
 	TriangleInterpolator<glm::vec2> uvInterpolator;
 	TriangleClipper triangleClipper;

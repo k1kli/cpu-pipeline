@@ -33,3 +33,16 @@ int Image::getImageHeight() const
 {
 	return y;
 }
+
+void Image::transform(std::function<glm::vec3(const glm::vec3&)> transformation)
+{
+	for (int i = 0; i < x * y; i++)
+	{
+		data[i] = transformation(data[i]);
+	}
+}
+
+glm::vec3 normalTransformation(const glm::vec3& input)
+{
+	return glm::normalize(input * 2.0f - 1.0f);
+}

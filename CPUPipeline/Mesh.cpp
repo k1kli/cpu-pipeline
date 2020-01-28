@@ -23,6 +23,11 @@ void Mesh::setNormals(const std::vector<glm::vec3>& normals)
 	}
 }
 
+void Mesh::setTangents(const std::vector<glm::vec3>& tangents)
+{
+	this->tangents = tangents;
+}
+
 void Mesh::setTriangles(const std::vector<glm::uvec3>& triangles)
 {
 	if (vertices.size() == 0)
@@ -82,6 +87,12 @@ const std::vector<glm::vec3>& Mesh::getNormals() const
 {
 	return normals;
 }
+
+const std::vector<glm::vec3>& Mesh::getTangents() const
+{
+	return tangents;
+}
+
 
 const std::vector<glm::uvec3>& Mesh::getTriangles() const
 {

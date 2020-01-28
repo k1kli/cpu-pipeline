@@ -159,7 +159,9 @@ int main(int, char**)
 	FrameBuffer fb(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	fb.InitGL();
 
-	Image image = Image("data/lion.jpg");
+	//Image image = Image("data/meryl szachownica 2.jpeg");
+	Image normalImage = Image("data/brick_normalmap.png");
+	normalImage.transform(normalTransformation);
 	
 
 	Scene scene;
@@ -167,12 +169,14 @@ int main(int, char**)
 	sceneRenderer.SetScene(scene);
 	Mesh cubeMesh;
 	Material cubeMaterial = Material(
-		0.6f, 0.5f, 0.1f, 12.0f,
-		ImageSampler(image));
+		0.7f, 0.3f, 0.1f, 15.0f,
+		//ImageSampler(image),
+		StaticColorSampler({ 1.0f,0.0f,0.0f }),
+		ImageSampler(normalImage));
 	SceneObject cube = SceneObject(cubeMesh, glm::identity<glm::mat4>(), cubeMaterial);
-	Light light1 = Light({ 0.0f,3.0f,1.0f }, { 1.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 1.0f },
+	Light light1 = Light({ 0.0f,3.0f,1.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 1.0f },
 		1.0f, 0.09f, 0.032f);
-	Light light2 = Light({ -2.0f,0.0f,1.0f }, { 0.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 1.0f },
+	Light light2 = Light({ -2.0f,0.0f,1.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 1.0f },
 		1.0f, 0.09f, 0.032f);
 	scene.AddLight(light1);
 	scene.AddLight(light2);
@@ -187,6 +191,11 @@ int main(int, char**)
 		{1.0f,0.0f,0.0f},{-1.0f,0.0f,0.0f},
 		{0.0f,1.0f,0.0f},{0.0f,-1.0f,0.0f},
 	});
+	cube.GetMesh().setTangents({
+		{0.0f,1.0f,0.0f},{0.0f,1.0f,0.0f},
+		{0.0f,1.0f,0.0f},{0.0f,1.0f,0.0f},
+		{0.0f,0.0f,-1.0f},{0.0f,0.0f,-1.0f}
+		});
 	//cube:
 	//right handed mesh
 	//back:
@@ -252,9 +261,9 @@ int main(int, char**)
 			* TransformationMatrices::getScalingMatrix({ 0.2,0.2,0.2 });
 
 
-		glm::mat4 rotation = TransformationMatrices::getRotationMatrix((float)currentTime, cameraUp);
+		//glm::mat4 rotation = TransformationMatrices::getRotationMatrix((float)currentTime, cameraUp);
 		glm::mat4 translation = TransformationMatrices::getTranslationMatrix({ 0.1,0.1,0 });
-		cube.SetWorldMatrix(rotation * modelBase);
+		cube.SetWorldMatrix(modelBase);
 		camera->SetViewport(0, 0, (float)current_width, (float)current_height);
 		camera->SetPerspective(fov, (float)current_height / current_width, 0.1f, 50);
 		camera->LookAt(cameraPos, cameraFront, cameraUp);
@@ -268,13 +277,6 @@ int main(int, char**)
 
 		//TODO: calculate point positions
 		sceneRenderer.RenderScene();
-		for (int y = 0; y < image.getImageHeight(); y++)
-		{
-			for (int x = 0; x < image.getImageWidth(); x++)
-			{
-				fb.SetPixel(x, y, floatToIntColor(image.getData()[x + y * image.getImageWidth()]), 1000.0f);
-			}
-		}
 
 		// Rendering
 		int display_w, display_h;

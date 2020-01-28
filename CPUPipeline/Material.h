@@ -9,12 +9,15 @@ public:
 	float ambient;
 	float shininess;
 	const Sampler * colorSampler;
+	const Sampler * normalSampler;
 	Material(
 		float specular, float diffuse,
 		float ambient, float shininess,
-		const Sampler& colorSampler)
+		const Sampler& colorSampler,
+		const Sampler & normalSampler)
 		:specular(specular), diffuse(diffuse),
 		ambient(ambient), shininess(shininess),
-		colorSampler(&colorSampler) {}
+		colorSampler(&colorSampler),
+		normalSampler(&normalSampler) {}
 };
 
