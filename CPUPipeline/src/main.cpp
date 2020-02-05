@@ -15,6 +15,7 @@
 #include "../StaticColorSampler.h"
 #include "../Image.h"
 #include "../ImageSampler.h"
+#include "../MeshGenerator.h"
 
 #define DEFAULT_WIDTH 1280
 #define DEFAULT_HEIGHT 720
@@ -159,84 +160,30 @@ int main(int, char**)
 	FrameBuffer fb(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	fb.InitGL();
 
-	//Image image = Image("data/Image.jpg");
-	Image normalImage = Image("data/normalmap.jpg");
+	Image image = Image("data/Image.jpg");
+	Image normalImage = Image("data/Normals.jpg");
 	normalImage.transform(normalTransformation);
 
 	
-
+	MeshGenerator meshGenerator;
 	Scene scene;
 	SceneRenderer sceneRenderer(fb);
 	sceneRenderer.SetScene(scene);
-	Mesh cubeMesh;
+	Mesh cubeMesh = meshGenerator.getCylinderMesh(30);
 	Material cubeMaterial = Material(
 		0.9f, 0.1f, 0.1f, 100.0f,
-		//ImageSampler(image),
-		StaticColorSampler({ 1.0f,0.0f,0.0f }),
+		ImageSampler(image),
+		//StaticColorSampler({ 1.0f,0.0f,0.0f }),
 		//StaticColorSampler({ 0.0f,0.0f,1.0f }));
 		ImageSampler(normalImage));
 	SceneObject cube = SceneObject(cubeMesh, glm::identity<glm::mat4>(), cubeMaterial);
 	Light light1 = Light({ 3.0f,0.0f,0 }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 1.0f },
 		1.0f, 0.09f, 0.032f);
-	//Light light2 = Light({ -3.0f,-3.0f,-3.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 1.0f },
-	//	1.0f, 0.09f, 0.032f);
+	Light light2 = Light({ -1.0f,1.5f,0.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 1.0f },
+		1.0f, 0.09f, 0.032f);
 	scene.AddLight(light1);
-	//scene.AddLight(light2);
-
-	cube.GetMesh().setVertices({
-		{0.0f,0.0f,0.0f}, {0.0f,1.0f,0.0f}, {1.0f,1.0f,0.0f}, {1.0f,0.0f,0.0f},
-		{0.0f,0.0f,1.0f}, {0.0f,1.0f,1.0f}, {1.0f,1.0f,1.0f}, {1.0f,0.0f,1.0f}
-	});
-	//front, back, right, left, up, down
-	cube.GetMesh().setNormals({
-		{0.0f,0.0f,1.0f},{0.0f,0.0f,-1.0f},
-		{1.0f,0.0f,0.0f},{-1.0f,0.0f,0.0f},
-		{0.0f,1.0f,0.0f},{0.0f,-1.0f,0.0f},
-	});
-	cube.GetMesh().setTangents({
-		{1.0f,0.0f,0.0f},{-1.0f,0.0f,0.0f},
-		{0.0f,0.0f,-1.0f},{0.0f,0.0f,1.0f},
-		{1.0f,0.0f,0.0f},{1.0f,0.0f,0.0f}
-		});
-	//cube:
-	//right handed mesh
-	//back:
-	//1 2
-	//0 3
-
-	//front:
-	//5 6
-	//4 7
-	cube.GetMesh().setTriangles({
-			{4,7,6},{4,6,5},//front
-			{3,0,1},{3,1,2},//back
-			{7,3,2},{7,2,6},//right
-			{0,4,5},{0,5,1},//left
-			{5,6,2},{5,2,1},//up
-			{0,7,4},{0,3,7}//down
-	});
-	cube.GetMesh().setTrianglesNormals({
-			{0,0,0},{0,0,0},//front
-			{1,1,1},{1,1,1},//back
-			{2,2,2},{2,2,2},//right
-			{3,3,3},{3,3,3},//left
-			{4,4,4},{4,4,4},//up
-			{5,5,5},{5,5,5}//down
-	});
-	cube.GetMesh().setUV({
-		{0,0},//bottom left
-		{0,1},//top left
-		{1,0},//bottom right
-		{1,1}//top right
-		});
-	cube.GetMesh().setTrianglesUV({
-		{0,2,3},{0,3,1},
-		{0,2,3},{0,3,1},
-		{0,2,3},{0,3,1},
-		{0,2,3},{0,3,1},
-		{0,2,3},{0,3,1},
-		{0,3,1},{0,2,3}
-		});
+	scene.AddLight(light2);
+	
 	scene.AddSceneObject(cube);
 
 	cameraPos = { 0,0,1 };
@@ -259,13 +206,13 @@ int main(int, char**)
 
 		// Update scene
 
-		glm::mat4 modelBase = TransformationMatrices::getTranslationMatrix({ -0.1,-0.1,-0.1 })
-			* TransformationMatrices::getScalingMatrix({ 0.2,0.2,0.2 });
+		glm::mat4 modelBase = TransformationMatrices::getScalingMatrix({ 0.2,0.2,0.2 });
 
 
-		//glm::mat4 rotation = TransformationMatrices::getRotationMatrix((float)currentTime, cameraUp);
+		glm::mat4 rotation = TransformationMatrices::getRotationMatrix(
+			(float)currentTime, glm::vec3(1.0f, 0.0f, 0.0f));
 		glm::mat4 translation = TransformationMatrices::getTranslationMatrix({ 0.1,0.1,0 });
-		cube.SetWorldMatrix(modelBase);
+		cube.SetWorldMatrix(rotation * modelBase);
 		camera->SetViewport(0, 0, (float)current_width, (float)current_height);
 		camera->SetPerspective(fov, (float)current_height / current_width, 0.1f, 12);
 		camera->LookAt(cameraPos, cameraFront, cameraUp);

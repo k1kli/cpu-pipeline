@@ -111,8 +111,8 @@ void FrameBuffer::Save(std::string file_name)
 void FrameBuffer::SetPixel(int x, int y, int color, float depth)
 {
 	//ASSERT(x >= 0 || y < 0 || x >= m_width || y >= m_height, "SetPixel out of range!")
-	if (x < 0 || y < 0 || x >= m_width || y >= m_height)
-		return;
+	//if (x < 0 || y < 0 || x >= m_width || y >= m_height)
+	//	return;
 	int id = y * m_width + x;
 	if (depthBuffer[id] < depth) return;
 	int idx = m_bytesPerPixel * id;
