@@ -10,9 +10,9 @@ class Mesh
 	std::vector<glm::uvec3> trianglesNormals;
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
-	std::vector<glm::vec3> tangents;
 	std::vector<glm::uvec3> trianglesUV;
 	std::vector<glm::vec2> uv;
+	std::vector<glm::mat3> tbn;
 public:
 	virtual ~Mesh();
 	void setVertices(const std::vector<glm::vec3> & vertices);
@@ -24,7 +24,7 @@ public:
 	void setUV(const std::vector<glm::vec2>& uv);
 	const std::vector<glm::vec3>& getVertices() const;
 	const std::vector<glm::vec3>& getNormals() const;
-	const std::vector<glm::vec3>& getTangents() const;
+	const std::vector<glm::mat3>& getTBN() const;
 	const std::vector<glm::uvec3>& getTriangles() const;
 	const std::vector<glm::uvec3>& getTrianglesNormals() const;
 	const std::vector<glm::uvec3>& getTrianglesUV() const;

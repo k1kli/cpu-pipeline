@@ -22,5 +22,6 @@ class TriangleClipper
 	void ClipAgainst(int edgeId, const ClipPolygon& inVertices, ClipPolygon& outVertices);
 public:
 	void ClipTriangle(std::vector<glm::vec4>& vertices);
+	bool isPointVisible(const glm::vec4& point) const;
 };
 

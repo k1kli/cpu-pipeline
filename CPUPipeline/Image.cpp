@@ -47,5 +47,8 @@ void Image::transform(std::function<glm::vec3(const glm::vec3&)> transformation)
 
 glm::vec3 normalTransformation(const glm::vec3& input)
 {
-	return glm::normalize(input * 2.0f - 1.0f);
+	return glm::normalize(glm::vec3(
+		(input.x * 2.0f - 1.0f),
+		(input.y * 2.0f - 1.0f),
+		input.z * 2.0f - 1.0f));
 }

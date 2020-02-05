@@ -159,7 +159,7 @@ int main(int, char**)
 	FrameBuffer fb(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	fb.InitGL();
 
-	Image image = Image("data/lion.jpg");
+	//Image image = Image("data/Image.jpg");
 	Image normalImage = Image("data/normalmap.jpg");
 	normalImage.transform(normalTransformation);
 
@@ -170,13 +170,13 @@ int main(int, char**)
 	sceneRenderer.SetScene(scene);
 	Mesh cubeMesh;
 	Material cubeMaterial = Material(
-		0.7f, 0.3f, 0.1f, 100.0f,
-		ImageSampler(image),
-		//StaticColorSampler({ 1.0f,0.0f,0.0f }),
+		0.9f, 0.1f, 0.1f, 100.0f,
+		//ImageSampler(image),
+		StaticColorSampler({ 1.0f,0.0f,0.0f }),
 		//StaticColorSampler({ 0.0f,0.0f,1.0f }));
 		ImageSampler(normalImage));
 	SceneObject cube = SceneObject(cubeMesh, glm::identity<glm::mat4>(), cubeMaterial);
-	Light light1 = Light({ 1.5f,2.0f,1.5f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 1.0f },
+	Light light1 = Light({ 3.0f,0.0f,0 }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 1.0f },
 		1.0f, 0.09f, 0.032f);
 	//Light light2 = Light({ -3.0f,-3.0f,-3.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 1.0f },
 	//	1.0f, 0.09f, 0.032f);
@@ -194,9 +194,9 @@ int main(int, char**)
 		{0.0f,1.0f,0.0f},{0.0f,-1.0f,0.0f},
 	});
 	cube.GetMesh().setTangents({
-		{0.0f,1.0f,0.0f},{0.0f,1.0f,0.0f},
-		{0.0f,1.0f,0.0f},{0.0f,1.0f,0.0f},
-		{0.0f,0.0f,-1.0f},{0.0f,0.0f,-1.0f}
+		{1.0f,0.0f,0.0f},{-1.0f,0.0f,0.0f},
+		{0.0f,0.0f,-1.0f},{0.0f,0.0f,1.0f},
+		{1.0f,0.0f,0.0f},{1.0f,0.0f,0.0f}
 		});
 	//cube:
 	//right handed mesh
@@ -267,9 +267,10 @@ int main(int, char**)
 		glm::mat4 translation = TransformationMatrices::getTranslationMatrix({ 0.1,0.1,0 });
 		cube.SetWorldMatrix(modelBase);
 		camera->SetViewport(0, 0, (float)current_width, (float)current_height);
-		camera->SetPerspective(fov, (float)current_height / current_width, 0.1f, 5);
+		camera->SetPerspective(fov, (float)current_height / current_width, 0.1f, 12);
 		camera->LookAt(cameraPos, cameraFront, cameraUp);
-
+		float t = (float)(currentTime) * 0.05f;
+		light1.setPosition({ 3.0f * glm::cos(t), 1.1f, -3.0f * glm::sin(t) });
 		//fb.ClearColor(0.5f, 0.5f, 1.0f);
 		fb.ClearColor(0.1f, 0.15f, 0.15f);
 

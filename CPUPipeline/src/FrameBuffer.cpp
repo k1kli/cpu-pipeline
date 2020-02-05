@@ -168,4 +168,13 @@ void FrameBuffer::DrawRect(int x0, int y0, int x1, int y1, int color)
 	}
 }
 
+int FrameBuffer::getWidth()
+{
+	return this->m_width;
+}
+int FrameBuffer::getHeight()
+{
+	return this->m_height;
+}
+
 

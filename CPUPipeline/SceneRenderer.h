@@ -13,11 +13,11 @@ class SceneRenderer
 	glm::mat4 viewportMatrix;
 	std::vector<glm::vec4> transformedVertices;
 	std::vector<glm::vec3> transformedNormals;
-	std::vector<glm::vec3> transformedTangents;
+	std::vector<glm::mat3> transformedTBN;
 	std::vector<glm::vec4> worldPosVertices;
 	InterpolatorsManager interpolatorsManager;
 	TriangleInterpolator<glm::vec3> normalInterpolator;
-	TriangleInterpolator<glm::vec3> tangentInterpolator;
+	TriangleInterpolator<glm::mat3> tbnInterpolator;
 	TriangleInterpolator<glm::vec3> worldPosInterpolator;
 	TriangleInterpolator<glm::vec2> uvInterpolator;
 	TriangleClipper triangleClipper;
@@ -33,6 +33,8 @@ class SceneRenderer
 		glm::vec4 v2InViewport,
 		glm::vec4 v3InViewport);
 	int GetPixelColor();
+	void drawNormalLine(int x, int y);
+	void DrawLights();
 	void WireFrame(int triangleId, int color);
 	void ScanLine(glm::vec4* v1, glm::vec4* v2, glm::vec4* v3, int color);
 	void ScanLineHorizontalBase(const glm::vec3& v1baseLeft, const glm::vec3& v2baseRight, const glm::vec3& v3peak, int color);

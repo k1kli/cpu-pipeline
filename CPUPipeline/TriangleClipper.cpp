@@ -86,3 +86,15 @@ void TriangleClipper::ClipAgainst(int edgeId, const ClipPolygon& inVertices, Cli
 		}
 	}
 }
+
+bool TriangleClipper::isPointVisible(const glm::vec4& point) const
+{
+	for (int i = 0; i < 6; i++)
+	{
+		if (edgeDist[i](point) < 0)
+		{
+			return false;
+		}
+	}
+	return true;
+}

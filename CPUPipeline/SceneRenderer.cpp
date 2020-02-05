@@ -13,7 +13,7 @@ SceneRenderer::SceneRenderer(FrameBuffer& frameBuffer):frameBuffer(frameBuffer)
 	interpolatorsManager.addInterpolator(normalInterpolator);
 	interpolatorsManager.addInterpolator(worldPosInterpolator);
 	interpolatorsManager.addInterpolator(uvInterpolator);
-	interpolatorsManager.addInterpolator(tangentInterpolator);
+	interpolatorsManager.addInterpolator(tbnInterpolator);
 }
 
 void SceneRenderer::SetScene(const Scene& scene)
@@ -42,6 +42,7 @@ void SceneRenderer::DrawSceneObject(int color)
 	TransformVertices();
 	TransformNormals();
 	DrawObjectsTriangles(color);
+	DrawLights();
 }
 void SceneRenderer::TransformVertices()
 {
@@ -59,15 +60,15 @@ void SceneRenderer::TransformVertices()
 }
 void SceneRenderer::TransformNormals()
 {
-	glm::mat4 inverseWorldMatrix = glm::inverse(glm::transpose(renderedObject->GetWorldMatrix()));
+	glm::mat3 inverseWorldMatrix = glm::inverse(glm::transpose(renderedObject->GetWorldMatrix()));
 	auto normals = renderedObject->GetMesh().getNormals();
-	auto tangents = renderedObject->GetMesh().getTangents();
+	auto tbns = renderedObject->GetMesh().getTBN();
 	transformedNormals.resize(normals.size());
-	transformedTangents.resize(normals.size());
+	transformedTBN.resize(normals.size());
 	for (auto i = 0; i < normals.size(); i++)
 	{
 		transformedNormals[i] = inverseWorldMatrix * glm::vec4(normals[i], 0);
-		transformedTangents[i] = inverseWorldMatrix * glm::vec4(tangents[i], 0);
+		transformedTBN[i] = inverseWorldMatrix * tbns[i];
 	}
 }
 void SceneRenderer::DrawObjectsTriangles(int color)
@@ -135,10 +136,10 @@ void SceneRenderer::InitInterpolators(int triangleId,
 		transformedNormals[triangleNormals.x],
 		transformedNormals[triangleNormals.y],
 		transformedNormals[triangleNormals.z]);
-	tangentInterpolator.initTriangleValues(
-		transformedTangents[triangleNormals.x],
-		transformedTangents[triangleNormals.y],
-		transformedTangents[triangleNormals.z]);
+	tbnInterpolator.initTriangleValues(
+		transformedTBN[triangleNormals.x],
+		transformedTBN[triangleNormals.y],
+		transformedTBN[triangleNormals.z]);
 	worldPosInterpolator.initTriangleValues(
 		worldPosVertices[triangle.x],
 		worldPosVertices[triangle.y],
@@ -241,27 +242,16 @@ void SceneRenderer::ScanLineHorizontalBase(
 			interpolatorsManager.updatePosition(x, y);
 			q = (float)(x - (int)minX) / xDiff;
 			float depth = lineDepth1 * (1 - q) + lineDepth2 * q;
-			if (!(y % 20 == 0 && x % 20 == 0))
+			frameBuffer.SetPixel(x, y, GetPixelColor(), depth);
+
+			/*if(y % 20 == 0 && x % 20 == 0)
 			{
-				frameBuffer.SetPixel(x, y, GetPixelColor(), depth);
+				drawNormalLine(x, y);
 			}
 			else
 			{
-
-				glm::vec3 normal = glm::normalize(normalInterpolator.getValue());
-				glm::vec3 tangent = glm::normalize(tangentInterpolator.getValue());
-				glm::vec3 binormal = glm::normalize(glm::cross(tangent, normal));
-				glm::mat3 tbn = glm::mat3(tangent, binormal, normal);
-				glm::vec2 uv = uvInterpolator.getValue();
-				const Material& material = renderedObject->GetMaterial();
-				normal = glm::normalize(tbn * material.normalSampler->sample(uv));
-				glm::vec4 lineEndWorldPos = glm::vec4(worldPosInterpolator.getValue()
-					+ normal *0.1f, 1);
-				glm::vec4 lineEndViewPos = viewportMatrix
-					* viewProjectionMatrix * lineEndWorldPos;
-				lineEndViewPos /= lineEndViewPos.w;
-				frameBuffer.DrawLine(x, y, lineEndViewPos.x, lineEndViewPos.y, 0xFFFF00FF);
-			}
+				frameBuffer.SetPixel(x, y, GetPixelColor(), depth);
+			}*/
 		}
 		minX += antitangent1;
 		maxX += antitangent2;
@@ -281,11 +271,9 @@ int SceneRenderer::GetPixelColor()
 	glm::vec3 ambientLight = { 1.0f, 1.0f, 1.0f };
 	glm::vec2 uv = uvInterpolator.getValue();
 
-	glm::vec3 normal = glm::normalize(normalInterpolator.getValue());
-	glm::vec3 tangent = glm::normalize(tangentInterpolator.getValue());
-	glm::vec3 binormal = glm::normalize(glm::cross(tangent, normal));
-	glm::mat3 tbn = glm::mat3(tangent, binormal, normal);
-	normal = glm::normalize(tbn * material.normalSampler->sample(uv));
+	glm::vec3 baseNormal = glm::normalize(normalInterpolator.getValue());
+	glm::mat3 tbn = tbnInterpolator.getValue();
+	glm::vec3 normal = glm::normalize(tbn * material.normalSampler->sample(uv));
 
 	glm::vec3 worldPosition = worldPosInterpolator.getValue();
 	glm::vec3 toObserver = glm::normalize(scene->getMainCamera().GetPosition() - worldPosition);
@@ -295,17 +283,62 @@ int SceneRenderer::GetPixelColor()
 	for (Light* light : scene->GetLights())
 	{
 		glm::vec3 toLightVector = light->getPosition()-worldPosition;
-		float dist = glm::length(toLightVector);
-		toLightVector /= dist;
-		glm::vec3 reflect = glm::normalize(
-			2 * glm::dot(toLightVector, normal) * normal - toLightVector);
-		color += 
-			(light->getDiffuseColor() * 
-			objectColor * glm::dot(normal, toLightVector) +
-			light->getSpecularColor() * 
-			material.specular * glm::pow(glm::dot(reflect, toObserver), material.shininess))
-			* light->getAttenuation(dist);
+		if (glm::dot(toLightVector, baseNormal) >= 0.0f)
+		{
+			float dist = glm::length(toLightVector);
+			toLightVector /= dist;
+			glm::vec3 reflect =
+				2 * glm::dot(toLightVector, normal) * normal - toLightVector;
+			color +=
+				(light->getDiffuseColor() *
+					objectColor * glm::dot(toLightVector, normal) +
+					light->getSpecularColor() *
+					material.specular * glm::pow(glm::dot(reflect, toObserver), material.shininess))
+				* light->getAttenuation(dist);
+		}
 	}
 	color = glm::clamp(color, { 0,0,0 }, { 1,1,1 });
 	return floatToIntColor(glm::vec4(color, 1));
+}
+
+void SceneRenderer::drawNormalLine(int x, int y)
+{
+	glm::mat3 tbn = tbnInterpolator.getValue();
+	glm::vec2 uv = uvInterpolator.getValue();
+	const Material& material = renderedObject->GetMaterial();
+	glm::vec3 normal = glm::normalize(tbn * material.normalSampler->sample(uv));
+	glm::vec4 lineEndWorldPos = glm::vec4(worldPosInterpolator.getValue()
+		+ normal * 0.1f, 1);
+	glm::vec4 lineEndViewPos = viewportMatrix
+		* viewProjectionMatrix * lineEndWorldPos;
+	lineEndViewPos /= lineEndViewPos.w;
+	frameBuffer.DrawLine(x, y, lineEndViewPos.x, lineEndViewPos.y, 0xFFFF00FF);
+}
+
+void SceneRenderer::DrawLights()
+{
+	for (Light* light : scene->GetLights())
+	{
+		glm::vec4 lightViewPos = viewProjectionMatrix
+			* glm::vec4(light->getPosition(),1);
+		if (triangleClipper.isPointVisible(lightViewPos))
+		{
+			lightViewPos = viewportMatrix * lightViewPos;
+			lightViewPos /= lightViewPos.w;
+			float lightSize = 80.0f /
+				glm::length(scene->getMainCamera().GetPosition() - light->getPosition());
+			int yMin = glm::max((int)(lightViewPos.y - lightSize / 2), 0);
+			int yMax = glm::min((int)(lightViewPos.y + lightSize / 2), frameBuffer.getHeight() - 1);
+			int xMin = glm::max((int)(lightViewPos.x - lightSize / 2), 0);
+			int xMax = glm::min((int)(lightViewPos.x + lightSize / 2), frameBuffer.getWidth() - 1);
+			int lightColor = floatToIntColor(glm::vec4(light->getDiffuseColor(), 1));
+			for (int y = yMin; y <= yMax; y++)
+			{
+				for (int x = xMin; x <= xMax; x++)
+				{
+					frameBuffer.SetPixel(x, y, lightColor, lightViewPos.z);
+				}
+			}
+		}
+	}
 }

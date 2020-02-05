@@ -50,6 +50,8 @@ public:
 
 	void DrawLine(int x0, int y0, int x1, int y1, int color);
 	void DrawRect(int x0, int y0, int x1, int y1, int color);
+	int getWidth();
+	int getHeight();
 	//void DrawTriangles(std::vector<glm::vec3> vertices,
 	//	std::vector<glm::uvec3> triangles, int color);
 
