@@ -159,9 +159,10 @@ int main(int, char**)
 	FrameBuffer fb(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	fb.InitGL();
 
-	//Image image = Image("data/meryl szachownica 2.jpeg");
-	Image normalImage = Image("data/brick_normalmap.png");
+	Image image = Image("data/lion.jpg");
+	Image normalImage = Image("data/normalmap.jpg");
 	normalImage.transform(normalTransformation);
+
 	
 
 	Scene scene;
@@ -169,17 +170,18 @@ int main(int, char**)
 	sceneRenderer.SetScene(scene);
 	Mesh cubeMesh;
 	Material cubeMaterial = Material(
-		0.7f, 0.3f, 0.1f, 15.0f,
-		//ImageSampler(image),
-		StaticColorSampler({ 1.0f,0.0f,0.0f }),
+		0.7f, 0.3f, 0.1f, 100.0f,
+		ImageSampler(image),
+		//StaticColorSampler({ 1.0f,0.0f,0.0f }),
+		//StaticColorSampler({ 0.0f,0.0f,1.0f }));
 		ImageSampler(normalImage));
 	SceneObject cube = SceneObject(cubeMesh, glm::identity<glm::mat4>(), cubeMaterial);
-	Light light1 = Light({ 0.0f,3.0f,1.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 1.0f },
+	Light light1 = Light({ 1.5f,2.0f,1.5f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 1.0f },
 		1.0f, 0.09f, 0.032f);
-	Light light2 = Light({ -2.0f,0.0f,1.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 1.0f },
-		1.0f, 0.09f, 0.032f);
+	//Light light2 = Light({ -3.0f,-3.0f,-3.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 1.0f },
+	//	1.0f, 0.09f, 0.032f);
 	scene.AddLight(light1);
-	scene.AddLight(light2);
+	//scene.AddLight(light2);
 
 	cube.GetMesh().setVertices({
 		{0.0f,0.0f,0.0f}, {0.0f,1.0f,0.0f}, {1.0f,1.0f,0.0f}, {1.0f,0.0f,0.0f},
@@ -265,7 +267,7 @@ int main(int, char**)
 		glm::mat4 translation = TransformationMatrices::getTranslationMatrix({ 0.1,0.1,0 });
 		cube.SetWorldMatrix(modelBase);
 		camera->SetViewport(0, 0, (float)current_width, (float)current_height);
-		camera->SetPerspective(fov, (float)current_height / current_width, 0.1f, 50);
+		camera->SetPerspective(fov, (float)current_height / current_width, 0.1f, 5);
 		camera->LookAt(cameraPos, cameraFront, cameraUp);
 
 		//fb.ClearColor(0.5f, 0.5f, 1.0f);

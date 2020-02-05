@@ -155,9 +155,12 @@ void SceneRenderer::InitInterpolators(int triangleId,
 void SceneRenderer::WireFrame(int triangleId, int color)
 {
 	const std::vector<glm::uvec3> triangles = renderedObject->GetMesh().getTriangles();
-	const glm::vec3& v1 = transformedVertices[triangles[triangleId].x];
-	const glm::vec3& v2 = transformedVertices[triangles[triangleId].y];
-	const glm::vec3& v3 = transformedVertices[triangles[triangleId].z];
+	glm::vec4& v1 = viewportMatrix * transformedVertices[triangles[triangleId].x];
+	glm::vec4& v2 = viewportMatrix * transformedVertices[triangles[triangleId].y];
+	glm::vec4& v3 = viewportMatrix * transformedVertices[triangles[triangleId].z];
+	v1 /= v1.w;
+	v2 /= v2.w;
+	v3 /= v3.w;
 	frameBuffer.DrawLine(
 		v1.x,
 		v1.y,
@@ -238,7 +241,27 @@ void SceneRenderer::ScanLineHorizontalBase(
 			interpolatorsManager.updatePosition(x, y);
 			q = (float)(x - (int)minX) / xDiff;
 			float depth = lineDepth1 * (1 - q) + lineDepth2 * q;
-			frameBuffer.SetPixel(x, y, GetPixelColor(), depth);
+			if (!(y % 20 == 0 && x % 20 == 0))
+			{
+				frameBuffer.SetPixel(x, y, GetPixelColor(), depth);
+			}
+			else
+			{
+
+				glm::vec3 normal = glm::normalize(normalInterpolator.getValue());
+				glm::vec3 tangent = glm::normalize(tangentInterpolator.getValue());
+				glm::vec3 binormal = glm::normalize(glm::cross(tangent, normal));
+				glm::mat3 tbn = glm::mat3(tangent, binormal, normal);
+				glm::vec2 uv = uvInterpolator.getValue();
+				const Material& material = renderedObject->GetMaterial();
+				normal = glm::normalize(tbn * material.normalSampler->sample(uv));
+				glm::vec4 lineEndWorldPos = glm::vec4(worldPosInterpolator.getValue()
+					+ normal *0.1f, 1);
+				glm::vec4 lineEndViewPos = viewportMatrix
+					* viewProjectionMatrix * lineEndWorldPos;
+				lineEndViewPos /= lineEndViewPos.w;
+				frameBuffer.DrawLine(x, y, lineEndViewPos.x, lineEndViewPos.y, 0xFFFF00FF);
+			}
 		}
 		minX += antitangent1;
 		maxX += antitangent2;
@@ -255,18 +278,20 @@ int floatToIntColor(const glm::vec4& floatColor)
 int SceneRenderer::GetPixelColor()
 {
 	const Material& material = renderedObject->GetMaterial();
-	glm::vec3 ambientLight = { 0.5f, 0.0f, 0.0f };
+	glm::vec3 ambientLight = { 1.0f, 1.0f, 1.0f };
 	glm::vec2 uv = uvInterpolator.getValue();
+
 	glm::vec3 normal = glm::normalize(normalInterpolator.getValue());
 	glm::vec3 tangent = glm::normalize(tangentInterpolator.getValue());
 	glm::vec3 binormal = glm::normalize(glm::cross(tangent, normal));
-	glm::mat3 tbn = glm::mat3(tangent, normal, binormal);
+	glm::mat3 tbn = glm::mat3(tangent, binormal, normal);
 	normal = glm::normalize(tbn * material.normalSampler->sample(uv));
+
 	glm::vec3 worldPosition = worldPosInterpolator.getValue();
 	glm::vec3 toObserver = glm::normalize(scene->getMainCamera().GetPosition() - worldPosition);
 
 	glm::vec3 color = material.ambient * ambientLight;
-
+	glm::vec3 objectColor = material.colorSampler->sample(uv);
 	for (Light* light : scene->GetLights())
 	{
 		glm::vec3 toLightVector = light->getPosition()-worldPosition;
@@ -276,12 +301,11 @@ int SceneRenderer::GetPixelColor()
 			2 * glm::dot(toLightVector, normal) * normal - toLightVector);
 		color += 
 			(light->getDiffuseColor() * 
-			material.diffuse * glm::dot(normal, toLightVector) +
+			objectColor * glm::dot(normal, toLightVector) +
 			light->getSpecularColor() * 
 			material.specular * glm::pow(glm::dot(reflect, toObserver), material.shininess))
 			* light->getAttenuation(dist);
 	}
-	color *= material.colorSampler->sample(uv);
 	color = glm::clamp(color, { 0,0,0 }, { 1,1,1 });
 	return floatToIntColor(glm::vec4(color, 1));
 }

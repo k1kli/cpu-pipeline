@@ -6,11 +6,14 @@ Image::Image(const char * filename)
 	int channels;
 	unsigned char * dataC = stbi_load(filename, &x, &y, &channels, 3);
 	data = new glm::vec3[x * y];
-	for (int i = 0; i < x * y; i++)
+	for (int yi = 0; yi < y; yi++)
 	{
-		data[i].r = dataC[i * 3] / 255.0f;
-		data[i].g = dataC[i * 3 + 1] / 255.0f;
-		data[i].b = dataC[i * 3 + 2] / 255.0f;
+		for (int xi = 0; xi < x; xi++)
+		{
+			data[yi * x + xi].r = dataC[((y - yi - 1) * x + xi) * 3] / 255.0f;
+			data[yi * x + xi].g = dataC[((y - yi - 1) * x + xi) * 3 + 1] / 255.0f;
+			data[yi * x + xi].b = dataC[((y - yi - 1) * x + xi) * 3 + 2] / 255.0f;
+		}
 	}
 	stbi_image_free(dataC);
 }
