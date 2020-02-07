@@ -1,6 +1,5 @@
 #include "MeshGenerator.h"
 #include "TransformationMatrices.h"
-
 Mesh MeshGenerator::getCubeMesh()
 {
 	Mesh resMesh;
@@ -97,7 +96,7 @@ Mesh MeshGenerator::getCylinderMesh(int netDivisions)
 	normals[netDivisions + 1]
 		= vertices[netDivisions * 2 + 1]
 		= glm::vec3(0.0f, 1.0f, 0.0f);//top center
-	tangents[netDivisions] = glm::vec3(-1.0f, 0.0f, 0.0f);
+	tangents[netDivisions + 1] = glm::vec3(-1.0f, 0.0f, 0.0f);
 
 
 	float d = 2.0f * 3.1415f / netDivisions;
@@ -151,6 +150,190 @@ Mesh MeshGenerator::getCylinderMesh(int netDivisions)
 	}
 	uv[netDivisions] = { 1.0f, 0.0f };
 	uv[netDivisions*2+1] = { 1.0f, 1.0f };
+
+
+	resMesh.setVertices(vertices);
+	resMesh.setNormals(normals);
+	resMesh.setTangents(tangents);
+	resMesh.setTriangles(triangles);
+	resMesh.setTrianglesNormals(trianglesNormals);
+	resMesh.setTrianglesUV(trianglesUV);
+	resMesh.setUV(uv);
+	return resMesh;
+}
+
+Mesh MeshGenerator::getSphereMesh(float R, int netVerticalLinesCount, int netHorizontalLinesCount)
+{
+	if (R <= 0.0f) throw "sphere radius should be positive";
+	if (netHorizontalLinesCount <= 0) throw "number of horizontal lines should be positive";
+	if (netVerticalLinesCount <= 2) throw "number of vertical lines should be higher than 2";
+	Mesh resMesh;
+	std::vector<glm::vec3> vertices;
+	std::vector<glm::vec3> normals;
+	std::vector<glm::vec3> tangents;
+	std::vector<glm::uvec3> triangles;
+	std::vector<glm::uvec3> trianglesNormals;
+	std::vector<glm::vec2> uv;
+	std::vector<glm::uvec3> trianglesUV;
+	//vertex on every net division and on top and bottom
+	vertices.resize(2 + netHorizontalLinesCount * netVerticalLinesCount);
+
+	//normal and tangent for every non pole vertex
+	//for each pole one normal and tangent for each triangle touching that pole
+	normals.resize(2 * netVerticalLinesCount + netHorizontalLinesCount * netVerticalLinesCount);
+	tangents.resize(2 * netVerticalLinesCount + netHorizontalLinesCount * netVerticalLinesCount);
+
+	//every horizontal line consists of triangles 
+	//bases of (netVerticalLinesCount) triangles above it
+	//and (netVerticalLinesCount) triangles below it
+	//first non pole triangles then triangles next to south pole, then north pole
+	triangles.resize(netHorizontalLinesCount * netVerticalLinesCount * 2);
+	trianglesNormals.resize(netHorizontalLinesCount * netVerticalLinesCount * 2);
+	trianglesUV.resize(netHorizontalLinesCount * netVerticalLinesCount * 2);
+
+	//for vertices not at the top or bottom one uv defined,
+	//except for those at left and right edge of texture where two for each vertex are defined
+	//at the top and bottom one uv for each triangle connected
+	uv.resize(netHorizontalLinesCount * netVerticalLinesCount
+		+ netHorizontalLinesCount + netVerticalLinesCount * 2);
+
+
+
+	//non pole vertices
+
+	//south pole is at pi, first horizontal line is at p1-d1, last horizontal line is at d1,
+	//north pole is at 0
+	float d1 = 3.1415f / (netHorizontalLinesCount+1);
+	float d2 = 2.0f * 3.1415f / netVerticalLinesCount;
+	float alpha = 3.1415f - d1;
+	for (int horizontalLine = 0;
+		horizontalLine < netHorizontalLinesCount;
+		horizontalLine++, alpha -= d1)
+	{
+		float beta = 0.0f;
+		for (int verticalLine = 0; verticalLine < netVerticalLinesCount;
+			verticalLine++, beta += d2)
+		{
+			int i = horizontalLine * netVerticalLinesCount + verticalLine;
+			normals[i]
+				= glm::vec3(sin(alpha) * cos(beta), cos(alpha), -sin(alpha) * sin(beta));
+			vertices[i]
+				= normals[i] * R;
+			tangents[i] = glm::normalize(
+				glm::vec3(-sin(alpha) * sin(beta), cos(alpha), -sin(alpha) * cos(beta)));
+			uv[horizontalLine * (netVerticalLinesCount+1) + verticalLine] = glm::vec2(
+				(float)verticalLine/netVerticalLinesCount,
+				(float)(horizontalLine+1)/(netHorizontalLinesCount+1));
+		}
+		uv[horizontalLine * (netVerticalLinesCount + 1) + netVerticalLinesCount] = glm::vec2(
+			1.0f, (float)(horizontalLine + 1) / (netHorizontalLinesCount + 1));
+	}
+
+
+	//pole vertices
+	vertices[netHorizontalLinesCount * netVerticalLinesCount] = glm::vec3(0.0f, -R, 0.0f);
+	vertices[netHorizontalLinesCount * netVerticalLinesCount + 1] = glm::vec3(0.0f, R, 0.0f);
+	for (int touchingTriangle = 0;
+		touchingTriangle < netVerticalLinesCount; touchingTriangle++)
+	{
+		//south pole
+		int i = netHorizontalLinesCount * netVerticalLinesCount + touchingTriangle;
+		int uvi = netHorizontalLinesCount * (netVerticalLinesCount + 1) + touchingTriangle;
+		normals[i]
+			= glm::vec3(0.0f, -1.0, 0.0f);
+		float alpha = d1 * (touchingTriangle + 0.5f);
+		tangents[i] = glm::normalize(glm::vec3(cos(alpha), 0.0f, -sin(alpha)));
+		uv[uvi] = glm::vec2((float)touchingTriangle/ netVerticalLinesCount, 0.0f);
+
+		i += netVerticalLinesCount;
+		uvi += netVerticalLinesCount;
+
+		//north pole
+		normals[i]
+			= glm::vec3(0.0f, 1.0f, 0.0f);
+		alpha = d1 * (touchingTriangle + 0.5f);
+		tangents[i] = glm::normalize(glm::vec3(cos(alpha), 0.0f, -sin(alpha)));
+		uv[uvi] = glm::vec2((float)touchingTriangle / netVerticalLinesCount, 1.0f);
+	}
+
+
+	//triangles
+
+	//non pole triangles
+	for (int horizontalLine = 0; horizontalLine < netHorizontalLinesCount-1; horizontalLine++)
+	{
+		//making triangles above horizontalLine
+		for (int verticalLine = 0; verticalLine < netVerticalLinesCount; verticalLine++)
+		{
+			int i = horizontalLine * netVerticalLinesCount + verticalLine;
+			triangles[i] = glm::uvec3(
+				horizontalLine * netVerticalLinesCount + verticalLine,
+				horizontalLine * netVerticalLinesCount + ((verticalLine + 1) % netVerticalLinesCount),
+				(horizontalLine + 1) * netVerticalLinesCount
+				+ ((verticalLine + 1) % netVerticalLinesCount));
+			trianglesNormals[i] = triangles[i];
+			trianglesUV[i] = glm::uvec3(
+					horizontalLine * (netVerticalLinesCount + 1) + verticalLine,
+					horizontalLine * (netVerticalLinesCount + 1) + (verticalLine + 1),
+					(horizontalLine + 1) * (netVerticalLinesCount + 1)
+					+ (verticalLine + 1));
+
+			i += netHorizontalLinesCount * netVerticalLinesCount;
+
+			triangles[i] = glm::uvec3(
+				horizontalLine * netVerticalLinesCount + verticalLine,
+				(horizontalLine + 1) * netVerticalLinesCount
+				+ ((verticalLine + 1) % netVerticalLinesCount),
+				(horizontalLine + 1) * netVerticalLinesCount + verticalLine);
+			trianglesNormals[i] = triangles[i];
+			trianglesUV[i] = glm::uvec3(
+				horizontalLine * (netVerticalLinesCount + 1) + verticalLine,
+				(horizontalLine+1) * (netVerticalLinesCount + 1) + (verticalLine + 1),
+				(horizontalLine + 1) * (netVerticalLinesCount + 1)+verticalLine);
+		}
+	}
+
+	//pole triangles
+	for (int touchingTriangle = 0;
+		touchingTriangle < netVerticalLinesCount; touchingTriangle++)
+	{
+		int i = (netHorizontalLinesCount - 1) * netVerticalLinesCount + touchingTriangle;
+		triangles[i] = glm::uvec3(
+			netHorizontalLinesCount * netVerticalLinesCount,
+			(touchingTriangle + 1) % netVerticalLinesCount,
+			touchingTriangle);
+		trianglesNormals[i] = glm::uvec3(
+			netHorizontalLinesCount * netVerticalLinesCount + touchingTriangle,
+			(touchingTriangle + 1) % netVerticalLinesCount,
+			touchingTriangle);
+		trianglesUV[i] = glm::uvec3(
+			netHorizontalLinesCount * (netVerticalLinesCount+1) + touchingTriangle,
+			touchingTriangle + 1,
+			touchingTriangle);
+
+		i += netVerticalLinesCount*netHorizontalLinesCount;
+
+		triangles[i] = glm::uvec3(
+			netHorizontalLinesCount * netVerticalLinesCount + 1,
+			(netHorizontalLinesCount-1) * netVerticalLinesCount
+			+ touchingTriangle,
+			(netHorizontalLinesCount - 1) * netVerticalLinesCount
+			+ (touchingTriangle + 1) % netVerticalLinesCount);
+		trianglesNormals[i] = glm::uvec3(
+			(netHorizontalLinesCount+1) * netVerticalLinesCount + touchingTriangle,
+			(netHorizontalLinesCount - 1) * netVerticalLinesCount
+			+ touchingTriangle,
+			(netHorizontalLinesCount - 1) * netVerticalLinesCount
+			+ (touchingTriangle + 1) % netVerticalLinesCount);
+		trianglesUV[i] = glm::uvec3(
+			netHorizontalLinesCount * (netVerticalLinesCount + 1)
+			+ netVerticalLinesCount + touchingTriangle,
+			(netHorizontalLinesCount - 1) * (netVerticalLinesCount+1)
+			+ touchingTriangle,
+			(netHorizontalLinesCount - 1) * (netVerticalLinesCount+1)
+			+ touchingTriangle + 1);
+	}
+	
 
 
 	resMesh.setVertices(vertices);

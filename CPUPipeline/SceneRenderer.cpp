@@ -106,9 +106,11 @@ void SceneRenderer::DrawClippedTriangle(int triangleId, int color)
 	triangleClipper.ClipTriangle(poly);
 	if (poly.size() >= 3)
 	{
+
 		v1 = viewportMatrix * v1;
 		v2 = viewportMatrix * v2;
 		v3 = viewportMatrix * v3;
+		
 		InitInterpolators(triangleId, v1, v2, v3);
 		for (auto i = 0; i < poly.size(); i++)
 		{
@@ -200,6 +202,7 @@ void SceneRenderer::ScanLine(glm::vec4 * v1, glm::vec4 * v2, glm::vec4 * v3, int
 			v2 = buf;
 		}
 	}
+	if (glm::abs(v3->y - v1->y) < 1.0f) return;
 	//point on the edge opposite to the middle point, which will be another vertex
 	//of the base of two created triangles
 	float v4q = (v2->y - v1->y) / (v3->y - v1->y);
@@ -273,9 +276,15 @@ int SceneRenderer::GetPixelColor()
 
 	glm::vec3 baseNormal = glm::normalize(normalInterpolator.getValue());
 	glm::mat3 tbn = tbnInterpolator.getValue();
-	glm::vec3 normal = glm::normalize(tbn * material.normalSampler->sample(uv));
+	tbn[0] = glm::normalize(tbn[0]);
+	tbn[1] = glm::normalize(tbn[1]);
+	tbn[2] = baseNormal;
+	
+	glm::vec3 normal = glm::normalize(tbn * material.normalSampler->sample(
+		uv * 3.0f));
 
 	glm::vec3 worldPosition = worldPosInterpolator.getValue();
+
 	glm::vec3 toObserver = glm::normalize(scene->getMainCamera().GetPosition() - worldPosition);
 
 	glm::vec3 color = material.ambient * ambientLight;
@@ -283,19 +292,19 @@ int SceneRenderer::GetPixelColor()
 	for (Light* light : scene->GetLights())
 	{
 		glm::vec3 toLightVector = light->getPosition()-worldPosition;
-		if (glm::dot(toLightVector, baseNormal) >= 0.0f)
-		{
+		//if (glm::dot(toLightVector, baseNormal) >= 0.0f)
+		//{
 			float dist = glm::length(toLightVector);
 			toLightVector /= dist;
 			glm::vec3 reflect =
 				2 * glm::dot(toLightVector, normal) * normal - toLightVector;
 			color +=
 				(light->getDiffuseColor() *
-					objectColor * glm::dot(toLightVector, normal) +
+					objectColor * glm::max(glm::dot(toLightVector, normal), 0.0f) +
 					light->getSpecularColor() *
-					material.specular * glm::pow(glm::dot(reflect, toObserver), material.shininess))
+					material.specular * glm::pow(glm::max(glm::dot(reflect, toObserver),0.0f), material.shininess))
 				* light->getAttenuation(dist);
-		}
+		//}
 	}
 	color = glm::clamp(color, { 0,0,0 }, { 1,1,1 });
 	return floatToIntColor(glm::vec4(color, 1));
@@ -308,7 +317,7 @@ void SceneRenderer::drawNormalLine(int x, int y)
 	const Material& material = renderedObject->GetMaterial();
 	glm::vec3 normal = glm::normalize(tbn * material.normalSampler->sample(uv));
 	glm::vec4 lineEndWorldPos = glm::vec4(worldPosInterpolator.getValue()
-		+ normal * 0.1f, 1);
+		+ normal * 0.02f, 1);
 	glm::vec4 lineEndViewPos = viewportMatrix
 		* viewProjectionMatrix * lineEndWorldPos;
 	lineEndViewPos /= lineEndViewPos.w;

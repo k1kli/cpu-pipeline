@@ -80,6 +80,9 @@ void Camera::SetViewport(float offset_x, float offset_y, float screen_width, flo
 
 void Camera::LookAt(glm::vec3 pos, glm::vec3 front, glm::vec3 up)
 {
+	m_position = pos;
+	m_up_vector = up;
+	m_forward_vector = front;
 	m_world_matrix = glm::lookAt(pos, pos+front, up);
 }
 

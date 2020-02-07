@@ -160,8 +160,8 @@ int main(int, char**)
 	FrameBuffer fb(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	fb.InitGL();
 
-	Image image = Image("data/Image.jpg");
-	Image normalImage = Image("data/Normals.jpg");
+	Image image = Image("data/uvtexture.png");
+	Image normalImage = Image("data/brick_normalmap.png");
 	normalImage.transform(normalTransformation);
 
 	
@@ -169,20 +169,26 @@ int main(int, char**)
 	Scene scene;
 	SceneRenderer sceneRenderer(fb);
 	sceneRenderer.SetScene(scene);
-	Mesh cubeMesh = meshGenerator.getCylinderMesh(30);
+	Mesh cubeMesh = meshGenerator.getSphereMesh(1.0f, 20, 20);
 	Material cubeMaterial = Material(
-		0.9f, 0.1f, 0.1f, 100.0f,
-		ImageSampler(image),
-		//StaticColorSampler({ 1.0f,0.0f,0.0f }),
+		0.9f, 0.1f, 0.1f, 190.0f,
+		//ImageSampler(image),
+		StaticColorSampler({ 0.0f,0.2f,0.2f }),
 		//StaticColorSampler({ 0.0f,0.0f,1.0f }));
 		ImageSampler(normalImage));
 	SceneObject cube = SceneObject(cubeMesh, glm::identity<glm::mat4>(), cubeMaterial);
-	Light light1 = Light({ 3.0f,0.0f,0 }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 1.0f },
+	Light light1 = Light({ 2.0f,0.0f,0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
 		1.0f, 0.09f, 0.032f);
-	Light light2 = Light({ -1.0f,1.5f,0.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 1.0f },
+	Light light2 = Light({ -2.0f,0.0f,0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
+		1.0f, 0.09f, 0.032f);
+	Light light3 = Light({ 0.0f,0.0f,2.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
+		1.0f, 0.09f, 0.032f);
+	Light light4 = Light({ 0.0f,0.0f,-2.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
 		1.0f, 0.09f, 0.032f);
 	scene.AddLight(light1);
 	scene.AddLight(light2);
+	scene.AddLight(light3);
+	scene.AddLight(light4);
 	
 	scene.AddSceneObject(cube);
 
@@ -209,10 +215,10 @@ int main(int, char**)
 		glm::mat4 modelBase = TransformationMatrices::getScalingMatrix({ 0.2,0.2,0.2 });
 
 
-		glm::mat4 rotation = TransformationMatrices::getRotationMatrix(
-			(float)currentTime, glm::vec3(1.0f, 0.0f, 0.0f));
+		//glm::mat4 rotation = TransformationMatrices::getRotationMatrix(
+		//	(float)currentTime, glm::vec3(1.0f, 0.0f, 0.0f));
 		glm::mat4 translation = TransformationMatrices::getTranslationMatrix({ 0.1,0.1,0 });
-		cube.SetWorldMatrix(rotation * modelBase);
+		cube.SetWorldMatrix(modelBase);
 		camera->SetViewport(0, 0, (float)current_width, (float)current_height);
 		camera->SetPerspective(fov, (float)current_height / current_width, 0.1f, 12);
 		camera->LookAt(cameraPos, cameraFront, cameraUp);
