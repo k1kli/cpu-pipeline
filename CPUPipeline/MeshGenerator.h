@@ -4,7 +4,8 @@ class MeshGenerator
 {
 public:
 	Mesh getCubeMesh();
-	Mesh getCylinderMesh(int netDivisions);
+	Mesh getCylinderMesh(float H, float R, int netDivisions);
 	Mesh getSphereMesh(float R, int netVerticalLinesCount, int netHorizontalLinesCount);
+	Mesh getConeMesh(float H, float R, int netDivisions);
 };
 

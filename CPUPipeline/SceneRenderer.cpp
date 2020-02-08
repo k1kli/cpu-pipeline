@@ -93,7 +93,6 @@ void SceneRenderer::DrawTriangle(int triangleId, int color)
 {
 
 	DrawClippedTriangle(triangleId, color);
-	//WireFrame(triangleId, 0xFF00FFFF);
 }
 void SceneRenderer::DrawClippedTriangle(int triangleId, int color)
 {
@@ -119,6 +118,7 @@ void SceneRenderer::DrawClippedTriangle(int triangleId, int color)
 		}
 		for (auto i = 1; i < poly.size()-1; i++)
 		{
+			WireFrame(&poly[0], &poly[i], &poly[i + 1], 0xFF00FFFF);
 			ScanLine(&poly[0], &poly[i], &poly[i + 1], color);
 		}
 	}
@@ -155,30 +155,23 @@ void SceneRenderer::InitInterpolators(int triangleId,
 		UVs[triangleUV.z]
 	);
 }
-void SceneRenderer::WireFrame(int triangleId, int color)
+void SceneRenderer::WireFrame(glm::vec4* v1, glm::vec4* v2, glm::vec4* v3, int color)
 {
-	const std::vector<glm::uvec3> triangles = renderedObject->GetMesh().getTriangles();
-	glm::vec4& v1 = viewportMatrix * transformedVertices[triangles[triangleId].x];
-	glm::vec4& v2 = viewportMatrix * transformedVertices[triangles[triangleId].y];
-	glm::vec4& v3 = viewportMatrix * transformedVertices[triangles[triangleId].z];
-	v1 /= v1.w;
-	v2 /= v2.w;
-	v3 /= v3.w;
 	frameBuffer.DrawLine(
-		v1.x,
-		v1.y,
-		v2.x,
-		v2.y, 0xFF00FFFF);
+		v1->x,
+		v1->y,
+		v2->x,
+		v2->y, 0xFF00FFFF);
 	frameBuffer.DrawLine(
-		v2.x,
-		v2.y,
-		v3.x,
-		v3.y, 0xFF00FFFF);
+		v2->x,
+		v2->y,
+		v3->x,
+		v3->y, 0xFF00FFFF);
 	frameBuffer.DrawLine(
-		v3.x,
-		v3.y,
-		v1.x,
-		v1.y, 0xFF00FFFF);
+		v3->x,
+		v3->y,
+		v1->x,
+		v1->y, 0xFF00FFFF);
 }
 void SceneRenderer::ScanLine(glm::vec4 * v1, glm::vec4 * v2, glm::vec4 * v3, int color)
 {
@@ -245,16 +238,16 @@ void SceneRenderer::ScanLineHorizontalBase(
 			interpolatorsManager.updatePosition(x, y);
 			q = (float)(x - (int)minX) / xDiff;
 			float depth = lineDepth1 * (1 - q) + lineDepth2 * q;
-			frameBuffer.SetPixel(x, y, GetPixelColor(), depth);
+			//frameBuffer.SetPixel(x, y, GetPixelColor(), depth);
 
-			/*if(y % 20 == 0 && x % 20 == 0)
+			if(y % 20 == 0 && x % 20 == 0)
 			{
 				drawNormalLine(x, y);
 			}
 			else
 			{
 				frameBuffer.SetPixel(x, y, GetPixelColor(), depth);
-			}*/
+			}
 		}
 		minX += antitangent1;
 		maxX += antitangent2;
@@ -281,8 +274,7 @@ int SceneRenderer::GetPixelColor()
 	tbn[2] = baseNormal;
 	
 	glm::vec3 normal = glm::normalize(tbn * material.normalSampler->sample(
-		uv * 3.0f));
-
+		uv));
 	glm::vec3 worldPosition = worldPosInterpolator.getValue();
 
 	glm::vec3 toObserver = glm::normalize(scene->getMainCamera().GetPosition() - worldPosition);

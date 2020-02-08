@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include "Shader.hpp"
 
+
 #undef RGB
 #define RGB(r, g, b) ( ((r) & 0xff) + (((g) & 0xff)<<8) + ( ( (b) & 0xff) <<16) + (0xff<<24) )
 #define RGBA(r, g, b, a) ( (r) + (g<<8) + (b<<16) + (a<<24) )

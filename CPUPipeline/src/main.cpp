@@ -156,7 +156,6 @@ int main(int, char**)
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
-
 	FrameBuffer fb(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	fb.InitGL();
 
@@ -169,13 +168,13 @@ int main(int, char**)
 	Scene scene;
 	SceneRenderer sceneRenderer(fb);
 	sceneRenderer.SetScene(scene);
-	Mesh cubeMesh = meshGenerator.getSphereMesh(1.0f, 20, 20);
+	Mesh cubeMesh = meshGenerator.getSphereMesh(1.0f,5, 5);
 	Material cubeMaterial = Material(
 		0.9f, 0.1f, 0.1f, 190.0f,
-		//ImageSampler(image),
-		StaticColorSampler({ 0.0f,0.2f,0.2f }),
-		//StaticColorSampler({ 0.0f,0.0f,1.0f }));
-		ImageSampler(normalImage));
+		ImageSampler(image),
+		//StaticColorSampler({ 0.0f,0.2f,0.2f }),
+		StaticColorSampler({ 0.0f,0.0f,1.0f }));
+		//ImageSampler(normalImage));
 	SceneObject cube = SceneObject(cubeMesh, glm::identity<glm::mat4>(), cubeMaterial);
 	Light light1 = Light({ 2.0f,0.0f,0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
 		1.0f, 0.09f, 0.032f);
@@ -183,7 +182,7 @@ int main(int, char**)
 		1.0f, 0.09f, 0.032f);
 	Light light3 = Light({ 0.0f,0.0f,2.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
 		1.0f, 0.09f, 0.032f);
-	Light light4 = Light({ 0.0f,0.0f,-2.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
+	Light light4 = Light({ 0.0f,2.0f,0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
 		1.0f, 0.09f, 0.032f);
 	scene.AddLight(light1);
 	scene.AddLight(light2);
