@@ -19,11 +19,8 @@ private:
 
 
 	void validateParameters();
-
 	void resizeVectors();
-
 	void setValues();
-
 	void setTriangles();
 
 	int getNonPoleVertNormTangIndex(int horizontalLine, int verticalLine);

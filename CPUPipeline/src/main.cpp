@@ -168,7 +168,7 @@ int main(int, char**)
 	Scene scene;
 	SceneRenderer sceneRenderer(fb);
 	sceneRenderer.SetScene(scene);
-	Mesh cubeMesh = meshGenerator.getSphereMesh(1.0f,5, 5);
+	Mesh cubeMesh = meshGenerator.getCuboidMesh(0.5f, 1.0f, 1.0f);
 	Material cubeMaterial = Material(
 		0.9f, 0.1f, 0.1f, 190.0f,
 		ImageSampler(image),
@@ -182,7 +182,7 @@ int main(int, char**)
 		1.0f, 0.09f, 0.032f);
 	Light light3 = Light({ 0.0f,0.0f,2.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
 		1.0f, 0.09f, 0.032f);
-	Light light4 = Light({ 0.0f,2.0f,0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
+	Light light4 = Light({ 0.0f,-2.0f,0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
 		1.0f, 0.09f, 0.032f);
 	scene.AddLight(light1);
 	scene.AddLight(light2);

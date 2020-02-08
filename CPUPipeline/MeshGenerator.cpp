@@ -1,64 +1,11 @@
 #include "MeshGenerator.h"
 #include "TransformationMatrices.h"
 #include "SphereMeshGenerator.h"
-Mesh MeshGenerator::getCubeMesh()
+#include "CuboidMeshGenerator.h"
+Mesh MeshGenerator::getCuboidMesh(float width, float height, float depth)
 {
-	Mesh resMesh;
-	resMesh.setVertices({
-		   {0.0f,0.0f,0.0f}, {0.0f,1.0f,0.0f}, {1.0f,1.0f,0.0f}, {1.0f,0.0f,0.0f},
-		   {0.0f,0.0f,1.0f}, {0.0f,1.0f,1.0f}, {1.0f,1.0f,1.0f}, {1.0f,0.0f,1.0f}
-		});
-	//front, back, right, left, up, down
-	resMesh.setNormals({
-		{0.0f,0.0f,1.0f},{0.0f,0.0f,-1.0f},
-		{1.0f,0.0f,0.0f},{-1.0f,0.0f,0.0f},
-		{0.0f,1.0f,0.0f},{0.0f,-1.0f,0.0f},
-		});
-	resMesh.setTangents({
-		{1.0f,0.0f,0.0f},{-1.0f,0.0f,0.0f},
-		{0.0f,0.0f,-1.0f},{0.0f,0.0f,1.0f},
-		{1.0f,0.0f,0.0f},{1.0f,0.0f,0.0f}
-		});
-	//cube:
-	//right handed mesh
-	//back:
-	//1 2
-	//0 3
-
-	//front:
-	//5 6
-	//4 7
-	resMesh.setTriangles({
-			{4,7,6},{4,6,5},//front
-			{3,0,1},{3,1,2},//back
-			{7,3,2},{7,2,6},//right
-			{0,4,5},{0,5,1},//left
-			{5,6,2},{5,2,1},//up
-			{0,7,4},{0,3,7}//down
-		});
-	resMesh.setTrianglesNormals({
-			{0,0,0},{0,0,0},//front
-			{1,1,1},{1,1,1},//back
-			{2,2,2},{2,2,2},//right
-			{3,3,3},{3,3,3},//left
-			{4,4,4},{4,4,4},//up
-			{5,5,5},{5,5,5}//down
-		});
-	resMesh.setUV({
-		{0,0},//bottom left
-		{0,1},//top left
-		{1,0},//bottom right
-		{1,1}//top right
-		});
-	resMesh.setTrianglesUV({
-		{0,2,3},{0,3,1},
-		{0,2,3},{0,3,1},
-		{0,2,3},{0,3,1},
-		{0,2,3},{0,3,1},
-		{0,2,3},{0,3,1},
-		{0,3,1},{0,2,3}
-		});
-	return resMesh;
+	CuboidMeshGenerator generator(width, height, depth);
+	return generator.getMesh();
 }
 
 Mesh MeshGenerator::getCylinderMesh(float H, float R, int netDivisions)

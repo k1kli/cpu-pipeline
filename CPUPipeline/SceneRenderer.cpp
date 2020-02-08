@@ -118,7 +118,7 @@ void SceneRenderer::DrawClippedTriangle(int triangleId, int color)
 		}
 		for (auto i = 1; i < poly.size()-1; i++)
 		{
-			WireFrame(&poly[0], &poly[i], &poly[i + 1], 0xFF00FFFF);
+			//WireFrame(&poly[0], &poly[i], &poly[i + 1], 0xFF00FFFF);
 			ScanLine(&poly[0], &poly[i], &poly[i + 1], color);
 		}
 	}
@@ -233,6 +233,7 @@ void SceneRenderer::ScanLineHorizontalBase(
 		float lineDepth1 = depth1 * (1 - q) + depth3 * q;
 		float lineDepth2 = depth2 * (1 - q) + depth3 * q;
 		int xDiff = maxX - minX;
+		if (xDiff == 0) return;
 		for (int x = minX; x <= maxX; x++)
 		{
 			interpolatorsManager.updatePosition(x, y);
