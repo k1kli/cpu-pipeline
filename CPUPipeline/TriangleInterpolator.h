@@ -18,7 +18,7 @@ public:
 		const T& vert2Value,
 		const T& vert3Value);
 	void setBarycentricWeights(float w1, float w2, float w3);
-	T getValue();
+	T getValue() const;
 };
 
 template<class T>
@@ -44,7 +44,7 @@ void TriangleInterpolator<T>::setBarycentricWeights(float w1, float w2, float w3
 
 
 template<class T>
-T TriangleInterpolator<T>::getValue()
+T TriangleInterpolator<T>::getValue() const
 {
 	return w1 * vert1Value + w2 * vert2Value + w3 * vert3Value;
 }

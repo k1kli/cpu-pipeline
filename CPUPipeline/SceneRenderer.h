@@ -4,6 +4,8 @@
 #include "InterpolatorsManager.h"
 #include "TriangleInterpolator.h"
 #include "TriangleClipper.h"
+#include "Interpolators.h"
+#include "RenderThread.h"
 class SceneRenderer
 {
 	const Scene * scene = nullptr;
@@ -11,16 +13,15 @@ class SceneRenderer
 	glm::mat4 viewProjectionMatrix;
 	glm::mat4 modelViewProjectionMatrix;
 	glm::mat4 viewportMatrix;
+	Interpolators interpolators;
 	std::vector<glm::vec4> transformedVertices;
 	std::vector<glm::vec3> transformedNormals;
 	std::vector<glm::mat3> transformedTBN;
 	std::vector<glm::vec4> worldPosVertices;
 	InterpolatorsManager interpolatorsManager;
-	TriangleInterpolator<glm::vec3> normalInterpolator;
-	TriangleInterpolator<glm::mat3> tbnInterpolator;
-	TriangleInterpolator<glm::vec3> worldPosInterpolator;
-	TriangleInterpolator<glm::vec2> uvInterpolator;
 	TriangleClipper triangleClipper;
+	RenderThread * renderThread = nullptr;
+	Buffer<ScanLineProduct> scanLineQueue;
 	const SceneObject * renderedObject;
 	void DrawSceneObject(int color);
 	void TransformVertices();

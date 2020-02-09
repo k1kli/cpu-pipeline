@@ -10,15 +10,17 @@ SceneRenderer::SceneRenderer(FrameBuffer& frameBuffer):frameBuffer(frameBuffer)
 	viewProjectionMatrix = glm::identity<glm::mat4>();
 	viewportMatrix = glm::identity<glm::mat4>();
 	renderedObject = nullptr;
-	interpolatorsManager.addInterpolator(normalInterpolator);
-	interpolatorsManager.addInterpolator(worldPosInterpolator);
-	interpolatorsManager.addInterpolator(uvInterpolator);
-	interpolatorsManager.addInterpolator(tbnInterpolator);
+	interpolatorsManager.addInterpolator(interpolators.normal);
+	interpolatorsManager.addInterpolator(interpolators.worldPos);
+	interpolatorsManager.addInterpolator(interpolators.uv);
+	interpolatorsManager.addInterpolator(interpolators.tbn);
 }
 
 void SceneRenderer::SetScene(const Scene& scene)
 {
 	this->scene = &scene;
+	renderThread = new RenderThread(scene, frameBuffer, interpolatorsManager, interpolators, scanLineQueue);
+	new std::thread(*renderThread, nullptr);
 }
 
 void SceneRenderer::RenderScene()
@@ -36,13 +38,14 @@ void SceneRenderer::RenderScene()
 		renderedObject = sceneObjects[i];
 		DrawSceneObject(0xFFFF0000);
 	}
+	DrawLights();
+	scanLineQueue.waitUntilEmpty();
 }
 void SceneRenderer::DrawSceneObject(int color)
 {
 	TransformVertices();
 	TransformNormals();
 	DrawObjectsTriangles(color);
-	DrawLights();
 }
 void SceneRenderer::TransformVertices()
 {
@@ -73,6 +76,7 @@ void SceneRenderer::TransformNormals()
 }
 void SceneRenderer::DrawObjectsTriangles(int color)
 {
+	renderThread->setRenderedObject(*renderedObject);
 	const std::vector<glm::uvec3> triangles = renderedObject->GetMesh().getTriangles();
 	for (auto i = 0; i < triangles.size(); i++)
 	{	
@@ -134,22 +138,22 @@ void SceneRenderer::InitInterpolators(int triangleId,
 		v2InViewport,
 		v3InViewport);
 	glm::uvec3 triangleNormals = renderedObject->GetMesh().getTrianglesNormals()[triangleId];
-	normalInterpolator.initTriangleValues(
+	interpolators.normal.initTriangleValues(
 		transformedNormals[triangleNormals.x],
 		transformedNormals[triangleNormals.y],
 		transformedNormals[triangleNormals.z]);
-	tbnInterpolator.initTriangleValues(
+	interpolators.tbn.initTriangleValues(
 		transformedTBN[triangleNormals.x],
 		transformedTBN[triangleNormals.y],
 		transformedTBN[triangleNormals.z]);
-	worldPosInterpolator.initTriangleValues(
+	interpolators.worldPos.initTriangleValues(
 		worldPosVertices[triangle.x],
 		worldPosVertices[triangle.y],
 		worldPosVertices[triangle.z]
 	);
 	glm::uvec3 triangleUV = renderedObject->GetMesh().getTrianglesUV()[triangleId];
 	auto UVs = renderedObject->GetMesh().getUV();
-	uvInterpolator.initTriangleValues(
+	interpolators.uv.initTriangleValues(
 		UVs[triangleUV.x],
 		UVs[triangleUV.y],
 		UVs[triangleUV.z]
@@ -234,82 +238,64 @@ void SceneRenderer::ScanLineHorizontalBase(
 		float lineDepth2 = depth2 * (1 - q) + depth3 * q;
 		int xDiff = maxX - minX;
 		if (xDiff == 0) return;
-		for (int x = minX; x <= maxX; x++)
-		{
-			interpolatorsManager.updatePosition(x, y);
-			q = (float)(x - (int)minX) / xDiff;
-			float depth = lineDepth1 * (1 - q) + lineDepth2 * q;
-			//frameBuffer.SetPixel(x, y, GetPixelColor(), depth);
-
-			if(y % 20 == 0 && x % 20 == 0)
-			{
-				drawNormalLine(x, y);
-			}
-			else
-			{
-				frameBuffer.SetPixel(x, y, GetPixelColor(), depth);
-			}
-		}
+		scanLineQueue.add(new ScanLineProduct(y, minX, maxX, lineDepth1, lineDepth2));
 		minX += antitangent1;
 		maxX += antitangent2;
 	}
 }
-int floatToIntColor(const glm::vec4& floatColor)
-{
-	uint8_t r = (uint8_t)(std::clamp<float>(floatColor.r, 0.f, 1.f) * 255);
-	uint8_t g = (uint8_t)(std::clamp<float>(floatColor.g, 0.f, 1.f) * 255);
-	uint8_t b = (uint8_t)(std::clamp<float>(floatColor.b, 0.f, 1.f) * 255);
-	uint8_t a = (uint8_t)(std::clamp<float>(floatColor.a, 0.f, 1.f) * 255);
-	return RGBA(r, g, b, a);
-}
-int SceneRenderer::GetPixelColor()
-{
-	const Material& material = renderedObject->GetMaterial();
-	glm::vec3 ambientLight = { 1.0f, 1.0f, 1.0f };
-	glm::vec2 uv = uvInterpolator.getValue();
-
-	glm::vec3 baseNormal = glm::normalize(normalInterpolator.getValue());
-	glm::mat3 tbn = tbnInterpolator.getValue();
-	tbn[0] = glm::normalize(tbn[0]);
-	tbn[1] = glm::normalize(tbn[1]);
-	tbn[2] = baseNormal;
-	
-	glm::vec3 normal = glm::normalize(tbn * material.normalSampler->sample(
-		uv));
-	glm::vec3 worldPosition = worldPosInterpolator.getValue();
-
-	glm::vec3 toObserver = glm::normalize(scene->getMainCamera().GetPosition() - worldPosition);
-
-	glm::vec3 color = material.ambient * ambientLight;
-	glm::vec3 objectColor = material.colorSampler->sample(uv);
-	for (Light* light : scene->GetLights())
-	{
-		glm::vec3 toLightVector = light->getPosition()-worldPosition;
-		//if (glm::dot(toLightVector, baseNormal) >= 0.0f)
-		//{
-			float dist = glm::length(toLightVector);
-			toLightVector /= dist;
-			glm::vec3 reflect =
-				2 * glm::dot(toLightVector, normal) * normal - toLightVector;
-			color +=
-				(light->getDiffuseColor() *
-					objectColor * glm::max(glm::dot(toLightVector, normal), 0.0f) +
-					light->getSpecularColor() *
-					material.specular * glm::pow(glm::max(glm::dot(reflect, toObserver),0.0f), material.shininess))
-				* light->getAttenuation(dist);
-		//}
-	}
-	color = glm::clamp(color, { 0,0,0 }, { 1,1,1 });
-	return floatToIntColor(glm::vec4(color, 1));
-}
+//int floatToIntColor(const glm::vec4& floatColor)
+//{
+//	uint8_t r = (uint8_t)(std::clamp<float>(floatColor.r, 0.f, 1.f) * 255);
+//	uint8_t g = (uint8_t)(std::clamp<float>(floatColor.g, 0.f, 1.f) * 255);
+//	uint8_t b = (uint8_t)(std::clamp<float>(floatColor.b, 0.f, 1.f) * 255);
+//	uint8_t a = (uint8_t)(std::clamp<float>(floatColor.a, 0.f, 1.f) * 255);
+//	return RGBA(r, g, b, a);
+//}
+//int SceneRenderer::GetPixelColor()
+//{
+//	const Material& material = renderedObject->GetMaterial();
+//	glm::vec3 ambientLight = { 1.0f, 1.0f, 1.0f };
+//	glm::vec2 uv = interpolators.uv.getValue();
+//
+//	glm::vec3 baseNormal = glm::normalize(interpolators.normal.getValue());
+//	glm::mat3 tbn = interpolators.tbn.getValue();
+//	tbn[0] = glm::normalize(tbn[0]);
+//	tbn[1] = glm::normalize(tbn[1]);
+//	tbn[2] = baseNormal;
+//	
+//	glm::vec3 normal = glm::normalize(tbn * material.normalSampler->sample(
+//		uv));
+//	glm::vec3 worldPosition = interpolators.worldPos.getValue();
+//
+//	glm::vec3 toObserver = glm::normalize(scene->getMainCamera().GetPosition() - worldPosition);
+//
+//	glm::vec3 color = material.ambient * ambientLight;
+//	glm::vec3 objectColor = material.colorSampler->sample(uv);
+//	for (Light* light : scene->GetLights())
+//	{
+//		glm::vec3 toLightVector = light->getPosition()-worldPosition;
+//		float dist = glm::length(toLightVector);
+//		toLightVector /= dist;
+//		glm::vec3 reflect =
+//			2 * glm::dot(toLightVector, normal) * normal - toLightVector;
+//		color +=
+//			(light->getDiffuseColor() *
+//				objectColor * glm::max(glm::dot(toLightVector, normal), 0.0f) +
+//				light->getSpecularColor() *
+//				material.specular * glm::pow(glm::max(glm::dot(reflect, toObserver),0.0f), material.shininess))
+//			* light->getAttenuation(dist);
+//	}
+//	color = glm::clamp(color, { 0,0,0 }, { 1,1,1 });
+//	return floatToIntColor(glm::vec4(color, 1));
+//}
 
 void SceneRenderer::drawNormalLine(int x, int y)
 {
-	glm::mat3 tbn = tbnInterpolator.getValue();
-	glm::vec2 uv = uvInterpolator.getValue();
+	glm::mat3 tbn = interpolators.tbn.getValue();
+	glm::vec2 uv = interpolators.uv.getValue();
 	const Material& material = renderedObject->GetMaterial();
 	glm::vec3 normal = glm::normalize(tbn * material.normalSampler->sample(uv));
-	glm::vec4 lineEndWorldPos = glm::vec4(worldPosInterpolator.getValue()
+	glm::vec4 lineEndWorldPos = glm::vec4(interpolators.worldPos.getValue()
 		+ normal * 0.02f, 1);
 	glm::vec4 lineEndViewPos = viewportMatrix
 		* viewProjectionMatrix * lineEndWorldPos;
