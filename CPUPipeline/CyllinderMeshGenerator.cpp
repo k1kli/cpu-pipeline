@@ -24,7 +24,6 @@ void CyllinderMeshGenerator::resizeVectors()
 
 	//at the left edge of the texture u must be one so it can't be the same as the start,
 	//for top and bottom circle: one for each edge vertex and one for center
-	//touching the center, so additional netDivisions uvs need to be defined
 	uv.resize(2 * (netDivisions + 1) + 2 * (netDivisions + 1));
 }
 
@@ -132,47 +131,47 @@ void CyllinderMeshGenerator::setTriangles()
 	}
 }
 
-int CyllinderMeshGenerator::getCenterVertexIndex(int topOrBottom)
+inline int CyllinderMeshGenerator::getCenterVertexIndex(int topOrBottom)
 {
 	return netDivisions * 2 + topOrBottom;
 }
 
-int CyllinderMeshGenerator::getCenterNormTangIndex(int topOrBottom)
+inline int CyllinderMeshGenerator::getCenterNormTangIndex(int topOrBottom)
 {
 	return netDivisions + topOrBottom;
 }
 
-int CyllinderMeshGenerator::getWallVertexIndex(int topOrBottom, int wallId)
+inline int CyllinderMeshGenerator::getWallVertexIndex(int topOrBottom, int wallId)
 {
 	return topOrBottom * netDivisions + (wallId % netDivisions);
 }
 
-int CyllinderMeshGenerator::getWallNormTangIndex(int wallId)
+inline int CyllinderMeshGenerator::getWallNormTangIndex(int wallId)
 {
 	return wallId % netDivisions;
 }
 
-int CyllinderMeshGenerator::getWallUVIndex(int topOrBottom, int wallId)
+inline int CyllinderMeshGenerator::getWallUVIndex(int topOrBottom, int wallId)
 {
 	return (netDivisions + 1) * topOrBottom + wallId;
 }
 
-int CyllinderMeshGenerator::getCircleEdgeUVIndex(int topOrBottom, int i)
+inline int CyllinderMeshGenerator::getCircleEdgeUVIndex(int topOrBottom, int i)
 {
 	return (netDivisions + 1) * (2 + topOrBottom) + i % netDivisions;
 }
 
-int CyllinderMeshGenerator::getCenterUVIndex(int topOrBottom)
+inline int CyllinderMeshGenerator::getCenterUVIndex(int topOrBottom)
 {
 	return (netDivisions + 1) * (2 + topOrBottom) + netDivisions;
 }
 
-int CyllinderMeshGenerator::getWallTriangleIndex(int wallId, int triangleInPair)
+inline int CyllinderMeshGenerator::getWallTriangleIndex(int wallId, int triangleInPair)
 {
 	return wallId + netDivisions * triangleInPair;
 }
 
-int CyllinderMeshGenerator::getCircleTriangleIndex(int topOrBottom, int onCircleId)
+inline int CyllinderMeshGenerator::getCircleTriangleIndex(int topOrBottom, int onCircleId)
 {
 	return onCircleId + netDivisions * (2 + topOrBottom);
 }

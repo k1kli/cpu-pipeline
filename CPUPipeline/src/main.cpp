@@ -168,7 +168,7 @@ int main(int, char**)
 	Scene scene;
 	SceneRenderer sceneRenderer(fb);
 	sceneRenderer.SetScene(scene);
-	Mesh cubeMesh = meshGenerator.getCylinderMesh(2.0f, 0.7f, 10);
+	Mesh cubeMesh = meshGenerator.getConeMesh(2.0f, 0.7f, 10);
 	Material cubeMaterial = Material(
 		0.9f, 0.1f, 0.1f, 190.0f,
 		ImageSampler(image),

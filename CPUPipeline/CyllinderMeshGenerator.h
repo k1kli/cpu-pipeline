@@ -26,6 +26,7 @@ private:
 	int getWallUVIndex(int topOrBottom, int wallId);
 	int getCircleEdgeUVIndex(int topOrBottom, int i);
 	int getCenterUVIndex(int topOrBottom);
+
 	int getWallTriangleIndex(int wallId, int triangleInPair);
 	int getCircleTriangleIndex(int topOrBottom, int onCircleId);
 };

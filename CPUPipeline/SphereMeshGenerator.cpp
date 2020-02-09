@@ -171,39 +171,39 @@ void SphereMeshGenerator::setTriangles()
 
 
 
-int SphereMeshGenerator::getNonPoleVertNormTangIndex(int horizontalLine, int verticalLine)
+inline int SphereMeshGenerator::getNonPoleVertNormTangIndex(int horizontalLine, int verticalLine)
 {
 	return horizontalLine * netVerticalLinesCount + verticalLine % netVerticalLinesCount;
 }
 
-int SphereMeshGenerator::getPoleVertexIndex(int pole)
+inline int SphereMeshGenerator::getPoleVertexIndex(int pole)
 {
 	return netHorizontalLinesCount * netVerticalLinesCount + pole;
 }
 
-int SphereMeshGenerator::getPoleNormTangIndex(int pole, int touchingTriangleId)
+inline int SphereMeshGenerator::getPoleNormTangIndex(int pole, int touchingTriangleId)
 {
 	return netHorizontalLinesCount * netVerticalLinesCount
 		+ pole * netVerticalLinesCount + touchingTriangleId;
 }
 
-int SphereMeshGenerator::getNonPoleTriangleIndex(int horizontalLine, int verticalLine, int triangleInPair)
+inline int SphereMeshGenerator::getNonPoleTriangleIndex(int horizontalLine, int verticalLine, int triangleInPair)
 {
 	return horizontalLine * netVerticalLinesCount + verticalLine
 		+ netHorizontalLinesCount * netVerticalLinesCount * triangleInPair;
 }
 
-int SphereMeshGenerator::getPoleTriangleIndex(int pole, int touchingTriangleId)
+inline int SphereMeshGenerator::getPoleTriangleIndex(int pole, int touchingTriangleId)
 {
 	return (netHorizontalLinesCount - 1) * netVerticalLinesCount
 		+ netHorizontalLinesCount * netVerticalLinesCount * pole
 		+ touchingTriangleId;
 }
-int SphereMeshGenerator::getNonPoleUVIndex(int horizontalLine, int verticalLine)
+inline int SphereMeshGenerator::getNonPoleUVIndex(int horizontalLine, int verticalLine)
 {
 	return horizontalLine * (netVerticalLinesCount + 1) + verticalLine;
 }
-int SphereMeshGenerator::getPoleUVIndex(int pole, int touchingTriangleId)
+inline int SphereMeshGenerator::getPoleUVIndex(int pole, int touchingTriangleId)
 {
 	return netHorizontalLinesCount * (netVerticalLinesCount + 1)
 		+ netVerticalLinesCount
