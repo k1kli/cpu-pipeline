@@ -5,23 +5,31 @@ void RenderThreadManagement::addToQueue(ScanLineProduct* scanLineProduct)
 	scanLineQueue.add(scanLineProduct);
 }
 
-void RenderThreadManagement::startThreads(const Scene& scene, FrameBuffer& fb)
+void RenderThreadManagement::startThreads(const Scene& scene, FrameBuffer& fb, int threadCount)
 {
-	renderThread = new RenderThread(scene, fb, scanLineQueue);
-	thread = new std::thread(*renderThread, nullptr);
+	renderThreads.resize(threadCount);
+	threads.resize(threadCount);
+	for (int i = 0; i < threadCount; i++)
+	{
+		renderThreads[i] = new RenderThread(scene, fb, scanLineQueue, i);
+		threads[i] = new std::thread(*(renderThreads[i]), nullptr);
+	}
 }
 
 void RenderThreadManagement::endThreads()
 {
-	if (thread != nullptr)
+	for (int i = 0; i < threads.size(); i++)
 	{
 		scanLineQueue.add(new ScanLineProduct(0, 0, 0, 0, 0, nullptr, nullptr, nullptr));
-		thread->join();
-		delete thread;
 	}
-	if (renderThread != nullptr) delete renderThread;
-	thread = nullptr;
-	renderThread = nullptr;
+	for (int i = 0; i < threads.size(); i++)
+	{
+		threads[i]->join();
+		delete threads[i];
+		delete renderThreads[i];
+	}
+	threads.clear();
+	renderThreads.clear();
 }
 
 RenderThreadManagement::~RenderThreadManagement()

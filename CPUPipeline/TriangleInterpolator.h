@@ -7,18 +7,30 @@ class TriangleInterpolator : public TriangleInterpolatorManagementInterface
 	T vert2Value;
 	T vert3Value;
 
-	float w1 = 0.0f;
-	float w2 = 0.0f;
-	float w3 = 0.0f;
+	float * w1 = nullptr;
+	float* w2 = nullptr;
+	float* w3 = nullptr;
 
 
 public:
+	TriangleInterpolator(int instanceCount)
+	{
+		w1 = new float[instanceCount];
+		w2 = new float[instanceCount];
+		w3 = new float[instanceCount];
+	}
+	~TriangleInterpolator()
+	{
+		delete[] w1;
+		delete[] w2;
+		delete[] w3;
+	}
 	void initTriangleValues(
 		const T& vert1Value,
 		const T& vert2Value,
 		const T& vert3Value);
-	void setBarycentricWeights(float w1, float w2, float w3);
-	T getValue() const;
+	void setBarycentricWeights(float w1, float w2, float w3, int instance);
+	T getValue(int instance) const;
 };
 
 template<class T>
@@ -35,18 +47,18 @@ void TriangleInterpolator<T>::initTriangleValues(
 
 
 template<class T>
-void TriangleInterpolator<T>::setBarycentricWeights(float w1, float w2, float w3)
+void TriangleInterpolator<T>::setBarycentricWeights(float w1, float w2, float w3, int instance)
 {
-	this->w1 = w1;
-	this->w2 = w2;
-	this->w3 = w3;
+	this->w1[instance] = w1;
+	this->w2[instance] = w2;
+	this->w3[instance] = w3;
 }
 
 
 template<class T>
-T TriangleInterpolator<T>::getValue() const
+T TriangleInterpolator<T>::getValue(int instance) const
 {
-	return w1 * vert1Value + w2 * vert2Value + w3 * vert3Value;
+	return w1[instance] * vert1Value + w2[instance] * vert2Value + w3[instance] * vert3Value;
 }
 
 

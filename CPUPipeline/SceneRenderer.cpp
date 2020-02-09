@@ -23,7 +23,7 @@ void SceneRenderer::RenderScene()
 	{
 		throw "Set scene first";
 	}
-	renderThreadManagement.startThreads(*scene, frameBuffer);
+	renderThreadManagement.startThreads(*scene, frameBuffer, renderThreadCount);
 	const Camera& camera = scene->getMainCamera();
 	viewProjectionMatrix = camera.GetProjectionMatrix() * camera.GetViewMatrix();
 	viewportMatrix = camera.GetViewportMatrix();
@@ -137,7 +137,7 @@ void SceneRenderer::InitInterpolators(int triangleId,
 {
 	glm::uvec3 triangle = renderedObject->GetMesh().getTriangles()[triangleId];
 	interpolatorsManager = new InterpolatorsManager();
-	interpolators = new Interpolators();
+	interpolators = new Interpolators(renderThreadCount);
 	interpolatorsManager->addInterpolator(interpolators->normal);
 	interpolatorsManager->addInterpolator(interpolators->worldPos);
 	interpolatorsManager->addInterpolator(interpolators->uv);
@@ -303,19 +303,19 @@ void SceneRenderer::ScanLineHorizontalBase(
 //	return floatToIntColor(glm::vec4(color, 1));
 //}
 
-void SceneRenderer::drawNormalLine(int x, int y)
-{
-	glm::mat3 tbn = interpolators->tbn.getValue();
-	glm::vec2 uv = interpolators->uv.getValue();
-	const Material& material = renderedObject->GetMaterial();
-	glm::vec3 normal = glm::normalize(tbn * material.normalSampler->sample(uv));
-	glm::vec4 lineEndWorldPos = glm::vec4(interpolators->worldPos.getValue()
-		+ normal * 0.02f, 1);
-	glm::vec4 lineEndViewPos = viewportMatrix
-		* viewProjectionMatrix * lineEndWorldPos;
-	lineEndViewPos /= lineEndViewPos.w;
-	frameBuffer.DrawLine(x, y, lineEndViewPos.x, lineEndViewPos.y, 0xFFFF00FF);
-}
+//void SceneRenderer::drawNormalLine(int x, int y)
+//{
+//	glm::mat3 tbn = interpolators->tbn.getValue(0);
+//	glm::vec2 uv = interpolators->uv.getValue(0);
+//	const Material& material = renderedObject->GetMaterial();
+//	glm::vec3 normal = glm::normalize(tbn * material.normalSampler->sample(uv));
+//	glm::vec4 lineEndWorldPos = glm::vec4(interpolators->worldPos.getValue(0)
+//		+ normal * 0.02f, 1);
+//	glm::vec4 lineEndViewPos = viewportMatrix
+//		* viewProjectionMatrix * lineEndWorldPos;
+//	lineEndViewPos /= lineEndViewPos.w;
+//	frameBuffer.DrawLine(x, y, lineEndViewPos.x, lineEndViewPos.y, 0xFFFF00FF);
+//}
 
 void SceneRenderer::DrawLights()
 {

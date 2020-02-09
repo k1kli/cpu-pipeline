@@ -4,12 +4,12 @@ class RenderThreadManagement
 {
 public:
 	void addToQueue(ScanLineProduct* scanLineProduct);
-	void startThreads(const Scene& scene, FrameBuffer& fb);
+	void startThreads(const Scene& scene, FrameBuffer& fb, int threadCount);
 	void endThreads();
 	~RenderThreadManagement();
 private:
-	RenderThread* renderThread = nullptr;
-	std::thread* thread = nullptr;
+	std::vector<RenderThread*> renderThreads;
+	std::vector <std::thread*> threads;
 	Buffer<ScanLineProduct> scanLineQueue;
 };
 
