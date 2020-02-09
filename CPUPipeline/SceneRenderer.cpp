@@ -19,8 +19,7 @@ SceneRenderer::SceneRenderer(FrameBuffer& frameBuffer):frameBuffer(frameBuffer)
 void SceneRenderer::SetScene(const Scene& scene)
 {
 	this->scene = &scene;
-	renderThread = new RenderThread(scene, frameBuffer, interpolatorsManager, interpolators, scanLineQueue);
-	new std::thread(*renderThread, nullptr);
+	renderThreadManagement.startThreads(scene, frameBuffer, interpolatorsManager, interpolators);
 }
 
 void SceneRenderer::RenderScene()
@@ -39,7 +38,6 @@ void SceneRenderer::RenderScene()
 		DrawSceneObject(0xFFFF0000);
 	}
 	DrawLights();
-	scanLineQueue.waitUntilEmpty();
 }
 void SceneRenderer::DrawSceneObject(int color)
 {
@@ -76,7 +74,7 @@ void SceneRenderer::TransformNormals()
 }
 void SceneRenderer::DrawObjectsTriangles(int color)
 {
-	renderThread->setRenderedObject(*renderedObject);
+	renderThreadManagement.setRenderedObject(*renderedObject);
 	const std::vector<glm::uvec3> triangles = renderedObject->GetMesh().getTriangles();
 	for (auto i = 0; i < triangles.size(); i++)
 	{	
@@ -238,7 +236,7 @@ void SceneRenderer::ScanLineHorizontalBase(
 		float lineDepth2 = depth2 * (1 - q) + depth3 * q;
 		int xDiff = maxX - minX;
 		if (xDiff == 0) return;
-		scanLineQueue.add(new ScanLineProduct(y, minX, maxX, lineDepth1, lineDepth2));
+		renderThreadManagement.addToQueue(new ScanLineProduct(y, minX, maxX, lineDepth1, lineDepth2));
 		minX += antitangent1;
 		maxX += antitangent2;
 	}

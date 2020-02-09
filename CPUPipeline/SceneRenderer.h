@@ -5,7 +5,7 @@
 #include "TriangleInterpolator.h"
 #include "TriangleClipper.h"
 #include "Interpolators.h"
-#include "RenderThread.h"
+#include "RenderThreadManagement.h"
 class SceneRenderer
 {
 	const Scene * scene = nullptr;
@@ -20,8 +20,7 @@ class SceneRenderer
 	std::vector<glm::vec4> worldPosVertices;
 	InterpolatorsManager interpolatorsManager;
 	TriangleClipper triangleClipper;
-	RenderThread * renderThread = nullptr;
-	Buffer<ScanLineProduct> scanLineQueue;
+	RenderThreadManagement renderThreadManagement;
 	const SceneObject * renderedObject;
 	void DrawSceneObject(int color);
 	void TransformVertices();

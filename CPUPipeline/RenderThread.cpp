@@ -10,6 +10,11 @@ void RenderThread::operator()(void* params)
 	while (true)
 	{
 		ScanLineProduct * scanLine = scanLineBuffer.remove();
+		if (scanLine->y == INT32_MAX)
+		{
+			delete scanLine;
+			break;
+		}
 		renderedObject = *renderedObjectPtr;
 		int xDiff = scanLine->endX - scanLine->startX;
 		for (int x = scanLine->startX; x <= scanLine->endX; x++)
