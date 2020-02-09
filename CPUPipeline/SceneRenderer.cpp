@@ -10,16 +10,11 @@ SceneRenderer::SceneRenderer(FrameBuffer& frameBuffer):frameBuffer(frameBuffer)
 	viewProjectionMatrix = glm::identity<glm::mat4>();
 	viewportMatrix = glm::identity<glm::mat4>();
 	renderedObject = nullptr;
-	interpolatorsManager.addInterpolator(interpolators.normal);
-	interpolatorsManager.addInterpolator(interpolators.worldPos);
-	interpolatorsManager.addInterpolator(interpolators.uv);
-	interpolatorsManager.addInterpolator(interpolators.tbn);
 }
 
 void SceneRenderer::SetScene(const Scene& scene)
 {
 	this->scene = &scene;
-	renderThreadManagement.startThreads(scene, frameBuffer, interpolatorsManager, interpolators);
 }
 
 void SceneRenderer::RenderScene()
@@ -28,6 +23,7 @@ void SceneRenderer::RenderScene()
 	{
 		throw "Set scene first";
 	}
+	renderThreadManagement.startThreads(*scene, frameBuffer);
 	const Camera& camera = scene->getMainCamera();
 	viewProjectionMatrix = camera.GetProjectionMatrix() * camera.GetViewMatrix();
 	viewportMatrix = camera.GetViewportMatrix();
@@ -38,6 +34,16 @@ void SceneRenderer::RenderScene()
 		DrawSceneObject(0xFFFF0000);
 	}
 	DrawLights();
+	renderThreadManagement.endThreads();
+	for (int i = 0; i < previousInterpolators.size(); i++)
+	{
+		delete previousInterpolators[i];
+		delete previousInterpolatorsManagers[i];
+		previousInterpolators[i] = nullptr;
+		previousInterpolatorsManagers[i] = nullptr;
+	}
+	previousInterpolators.clear();
+	previousInterpolatorsManagers.clear();
 }
 void SceneRenderer::DrawSceneObject(int color)
 {
@@ -74,7 +80,6 @@ void SceneRenderer::TransformNormals()
 }
 void SceneRenderer::DrawObjectsTriangles(int color)
 {
-	renderThreadManagement.setRenderedObject(*renderedObject);
 	const std::vector<glm::uvec3> triangles = renderedObject->GetMesh().getTriangles();
 	for (auto i = 0; i < triangles.size(); i++)
 	{	
@@ -131,31 +136,39 @@ void SceneRenderer::InitInterpolators(int triangleId,
 	glm::vec4 v3InViewport)
 {
 	glm::uvec3 triangle = renderedObject->GetMesh().getTriangles()[triangleId];
-	interpolatorsManager.initTriangle(
+	interpolatorsManager = new InterpolatorsManager();
+	interpolators = new Interpolators();
+	interpolatorsManager->addInterpolator(interpolators->normal);
+	interpolatorsManager->addInterpolator(interpolators->worldPos);
+	interpolatorsManager->addInterpolator(interpolators->uv);
+	interpolatorsManager->addInterpolator(interpolators->tbn);
+	interpolatorsManager->initTriangle(
 		v1InViewport,
 		v2InViewport,
 		v3InViewport);
 	glm::uvec3 triangleNormals = renderedObject->GetMesh().getTrianglesNormals()[triangleId];
-	interpolators.normal.initTriangleValues(
+	interpolators->normal.initTriangleValues(
 		transformedNormals[triangleNormals.x],
 		transformedNormals[triangleNormals.y],
 		transformedNormals[triangleNormals.z]);
-	interpolators.tbn.initTriangleValues(
+	interpolators->tbn.initTriangleValues(
 		transformedTBN[triangleNormals.x],
 		transformedTBN[triangleNormals.y],
 		transformedTBN[triangleNormals.z]);
-	interpolators.worldPos.initTriangleValues(
+	interpolators->worldPos.initTriangleValues(
 		worldPosVertices[triangle.x],
 		worldPosVertices[triangle.y],
 		worldPosVertices[triangle.z]
 	);
 	glm::uvec3 triangleUV = renderedObject->GetMesh().getTrianglesUV()[triangleId];
 	auto UVs = renderedObject->GetMesh().getUV();
-	interpolators.uv.initTriangleValues(
+	interpolators->uv.initTriangleValues(
 		UVs[triangleUV.x],
 		UVs[triangleUV.y],
 		UVs[triangleUV.z]
 	);
+	previousInterpolators.push_back(interpolators);
+	previousInterpolatorsManagers.push_back(interpolatorsManager);
 }
 void SceneRenderer::WireFrame(glm::vec4* v1, glm::vec4* v2, glm::vec4* v3, int color)
 {
@@ -236,7 +249,10 @@ void SceneRenderer::ScanLineHorizontalBase(
 		float lineDepth2 = depth2 * (1 - q) + depth3 * q;
 		int xDiff = maxX - minX;
 		if (xDiff == 0) return;
-		renderThreadManagement.addToQueue(new ScanLineProduct(y, minX, maxX, lineDepth1, lineDepth2));
+		renderThreadManagement.addToQueue(
+			new ScanLineProduct(
+				y, minX, maxX, lineDepth1, lineDepth2,
+				interpolators, interpolatorsManager, renderedObject));
 		minX += antitangent1;
 		maxX += antitangent2;
 	}
@@ -289,11 +305,11 @@ void SceneRenderer::ScanLineHorizontalBase(
 
 void SceneRenderer::drawNormalLine(int x, int y)
 {
-	glm::mat3 tbn = interpolators.tbn.getValue();
-	glm::vec2 uv = interpolators.uv.getValue();
+	glm::mat3 tbn = interpolators->tbn.getValue();
+	glm::vec2 uv = interpolators->uv.getValue();
 	const Material& material = renderedObject->GetMaterial();
 	glm::vec3 normal = glm::normalize(tbn * material.normalSampler->sample(uv));
-	glm::vec4 lineEndWorldPos = glm::vec4(interpolators.worldPos.getValue()
+	glm::vec4 lineEndWorldPos = glm::vec4(interpolators->worldPos.getValue()
 		+ normal * 0.02f, 1);
 	glm::vec4 lineEndViewPos = viewportMatrix
 		* viewProjectionMatrix * lineEndWorldPos;

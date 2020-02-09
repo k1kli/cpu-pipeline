@@ -5,25 +5,26 @@ void RenderThreadManagement::addToQueue(ScanLineProduct* scanLineProduct)
 	scanLineQueue.add(scanLineProduct);
 }
 
-void RenderThreadManagement::startThreads(const Scene& scene, FrameBuffer& fb,
-	InterpolatorsManager& interpolatorsManager, const Interpolators& interpolators)
+void RenderThreadManagement::startThreads(const Scene& scene, FrameBuffer& fb)
 {
-	renderThread = new RenderThread(scene, fb, interpolatorsManager, interpolators, scanLineQueue);
+	renderThread = new RenderThread(scene, fb, scanLineQueue);
 	thread = new std::thread(*renderThread, nullptr);
 }
 
-void RenderThreadManagement::setRenderedObject(const SceneObject& renderedObject)
+void RenderThreadManagement::endThreads()
 {
-	renderThread->setRenderedObject(renderedObject);
+	if (thread != nullptr)
+	{
+		scanLineQueue.add(new ScanLineProduct(0, 0, 0, 0, 0, nullptr, nullptr, nullptr));
+		thread->join();
+		delete thread;
+	}
+	if (renderThread != nullptr) delete renderThread;
+	thread = nullptr;
+	renderThread = nullptr;
 }
 
 RenderThreadManagement::~RenderThreadManagement()
 {
-	if (renderThread != nullptr) delete renderThread;
-	if (thread != nullptr)
-	{
-		scanLineQueue.add(new ScanLineProduct(INT32_MAX, 0, 0, 0, 0));
-		thread->join();
-		delete thread;
-	}
+	endThreads();
 }

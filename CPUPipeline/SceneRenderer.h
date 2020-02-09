@@ -13,12 +13,14 @@ class SceneRenderer
 	glm::mat4 viewProjectionMatrix;
 	glm::mat4 modelViewProjectionMatrix;
 	glm::mat4 viewportMatrix;
-	Interpolators interpolators;
+	Interpolators * interpolators;
+	InterpolatorsManager* interpolatorsManager;
+	std::vector<Interpolators*> previousInterpolators;
+	std::vector<InterpolatorsManager*> previousInterpolatorsManagers;
 	std::vector<glm::vec4> transformedVertices;
 	std::vector<glm::vec3> transformedNormals;
 	std::vector<glm::mat3> transformedTBN;
 	std::vector<glm::vec4> worldPosVertices;
-	InterpolatorsManager interpolatorsManager;
 	TriangleClipper triangleClipper;
 	RenderThreadManagement renderThreadManagement;
 	const SceneObject * renderedObject;
@@ -33,7 +35,7 @@ class SceneRenderer
 		glm::vec4 v2InViewport,
 		glm::vec4 v3InViewport);
 	void WireFrame(glm::vec4* v1, glm::vec4* v2, glm::vec4* v3, int color);
-	int GetPixelColor();
+	//int GetPixelColor();
 	void drawNormalLine(int x, int y);
 	void DrawLights();
 	void ScanLine(glm::vec4* v1, glm::vec4* v2, glm::vec4* v3, int color);

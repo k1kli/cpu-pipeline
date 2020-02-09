@@ -4,9 +4,8 @@ class RenderThreadManagement
 {
 public:
 	void addToQueue(ScanLineProduct* scanLineProduct);
-	void startThreads(const Scene& scene, FrameBuffer& fb,
-		InterpolatorsManager& interpolatorsManager, const Interpolators& interpolators);
-	void setRenderedObject(const SceneObject& renderedObject);
+	void startThreads(const Scene& scene, FrameBuffer& fb);
+	void endThreads();
 	~RenderThreadManagement();
 private:
 	RenderThread* renderThread = nullptr;

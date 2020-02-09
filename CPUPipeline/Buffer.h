@@ -9,7 +9,7 @@ public:
 		while (true) {
 			std::unique_lock<std::mutex> locker(mu);
 			cond.wait(locker, [this]() {return buffer_.size() < size_; });
-			buffer_.push_back(obj);
+			buffer_.push(obj);
 			locker.unlock();
 			cond.notify_all();
 			return;
@@ -20,8 +20,8 @@ public:
 		{
 			std::unique_lock<std::mutex> locker(mu);
 			cond.wait(locker, [this]() {return buffer_.size() > 0; });
-			T* back = buffer_.back();
-			buffer_.pop_back();
+			T* back = buffer_.front();
+			buffer_.pop();
 			locker.unlock();
 			cond.notify_all();
 			emptyCond.notify_all();
@@ -43,6 +43,6 @@ private:
 	std::mutex emptyMu;
 	std::condition_variable emptyCond;
 
-	std::deque<T *> buffer_;
+	std::queue<T *> buffer_;
 	const unsigned int size_ = 10;
 };

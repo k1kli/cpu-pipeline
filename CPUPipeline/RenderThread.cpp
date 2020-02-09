@@ -1,25 +1,23 @@
 #include "RenderThread.h"
 
-void RenderThread::setRenderedObject(const SceneObject& renderedObject)
-{
-	this->renderedObject = &renderedObject;
-}
 
 void RenderThread::operator()(void* params)
 {
 	while (true)
 	{
 		ScanLineProduct * scanLine = scanLineBuffer.remove();
-		if (scanLine->y == INT32_MAX)
+		if (scanLine->interpolators == nullptr)
 		{
 			delete scanLine;
 			break;
 		}
-		renderedObject = *renderedObjectPtr;
+		renderedObject = scanLine->renderedObject;
+		interpolatorsManager = scanLine->interpolatorsManager;
+		interpolators = scanLine->interpolators;
 		int xDiff = scanLine->endX - scanLine->startX;
 		for (int x = scanLine->startX; x <= scanLine->endX; x++)
 		{
-			interpolatorsManager.updatePosition(x, scanLine->y);
+			interpolatorsManager->updatePosition(x, scanLine->y);
 			float q = (float)(x - scanLine->startX) / xDiff;
 			float depth = scanLine->startDepth * (1 - q) + scanLine->endDepth * q;
 			fb.SetPixel(x, scanLine->y, GetPixelColor(), depth);
@@ -41,17 +39,17 @@ int RenderThread::GetPixelColor()
 {
 	const Material& material = renderedObject->GetMaterial();
 	glm::vec3 ambientLight = { 1.0f, 1.0f, 1.0f };
-	glm::vec2 uv = interpolators.uv.getValue();
+	glm::vec2 uv = interpolators->uv.getValue();
 
-	glm::vec3 baseNormal = glm::normalize(interpolators.normal.getValue());
-	glm::mat3 tbn = interpolators.tbn.getValue();
+	glm::vec3 baseNormal = glm::normalize(interpolators->normal.getValue());
+	glm::mat3 tbn = interpolators->tbn.getValue();
 	tbn[0] = glm::normalize(tbn[0]);
 	tbn[1] = glm::normalize(tbn[1]);
 	tbn[2] = baseNormal;
 
 	glm::vec3 normal = glm::normalize(tbn * material.normalSampler->sample(
 		uv));
-	glm::vec3 worldPosition = interpolators.worldPos.getValue();
+	glm::vec3 worldPosition = interpolators->worldPos.getValue();
 
 	glm::vec3 toObserver = glm::normalize(scene.getMainCamera().GetPosition() - worldPosition);
 

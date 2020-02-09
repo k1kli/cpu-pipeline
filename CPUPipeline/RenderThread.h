@@ -9,11 +9,9 @@ class RenderThread
 {
 public:
 	RenderThread(const Scene& scene, FrameBuffer& fb,
-		InterpolatorsManager& interpolatorsManager, const Interpolators& interpolators,
 		Buffer<ScanLineProduct> & scanLineBuffer)
-		:scene(scene), fb(fb), interpolatorsManager(interpolatorsManager), interpolators(interpolators),
+		:scene(scene), fb(fb),
 		scanLineBuffer(scanLineBuffer){}
-	void setRenderedObject(const SceneObject& renderedObject);
 	void operator()(void* params);
 
 	int GetPixelColor();
@@ -22,10 +20,9 @@ private:
 	const Scene& scene;
 	FrameBuffer& fb;
 	Buffer<ScanLineProduct>& scanLineBuffer;
-	InterpolatorsManager& interpolatorsManager;
-	const Interpolators& interpolators;
+	InterpolatorsManager * interpolatorsManager = nullptr;
+	const Interpolators * interpolators = nullptr;
 	const SceneObject* renderedObject = nullptr;
-	const SceneObject** renderedObjectPtr = &renderedObject;
 
 };
 
