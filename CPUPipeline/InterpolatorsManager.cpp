@@ -27,13 +27,16 @@ void InterpolatorsManager::updatePosition(int x, int y, int instance)
 	float w2 = (d11 * d20 - d01 * d21) / denom;
 	float w3 = (d00 * d21 - d01 * d20) / denom;
 	float w1 = 1.0f - w3 - w2;
-	w1 /= v1DepthFix;
-	w2 /= v2DepthFix;
-	w3 /= v3DepthFix;
-	float sumInv = 1.0f/(w1 + w2 + w3);
-	w1 *= sumInv;
-	w2 *= sumInv;
-	w3 *= sumInv;
+	if (perspectiveFix)
+	{
+		w1 /= v1DepthFix;
+		w2 /= v2DepthFix;
+		w3 /= v3DepthFix;
+		float sumInv = 1.0f / (w1 + w2 + w3);
+		w1 *= sumInv;
+		w2 *= sumInv;
+		w3 *= sumInv;
+	}
 	const int iSize = interpolators.size();
 	for (auto i = 0; i < iSize; i++)
 	{

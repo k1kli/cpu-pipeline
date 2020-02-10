@@ -10,6 +10,11 @@ public:
 		:guiController(guiController), sceneRenderer(sceneRenderer), scene(scene),
 		defaultHelpLabel({ 0,0 }, "press H for help", 30), window(window), fb(fb)
 	{
+
+		for (int i = 0; i < GLFW_KEY_LAST + 1; i++)
+		{
+			pressedPreviousFrame[i] = false;
+		}
 		defaultHelpLabel.setColor(RGB(255, 255, 255));
 		guiController.addDisplayable(defaultHelpLabel);
 	}
@@ -28,5 +33,6 @@ private:
 	double oldYPos = 0;
 	double currentWidth = 0;
 	double currentHeight = 0;
+	bool pressedPreviousFrame[GLFW_KEY_LAST + 1];
 };
 

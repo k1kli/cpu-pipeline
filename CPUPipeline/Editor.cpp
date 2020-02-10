@@ -9,7 +9,37 @@ void Editor::processInput(float deltaTime)
 		glfwSetWindowShouldClose(window, true);
 	moveCamera(deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
-		sceneRenderer.toggleBackfaceCulling();
+	{
+		if (!pressedPreviousFrame[GLFW_KEY_P])
+			sceneRenderer.toggleBackfaceCulling();
+		pressedPreviousFrame[GLFW_KEY_P] = true;
+	}
+	else
+		pressedPreviousFrame[GLFW_KEY_P] = false;
+	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+	{
+		if (!pressedPreviousFrame[GLFW_KEY_O])
+			sceneRenderer.togglePerspectiveFix();
+		pressedPreviousFrame[GLFW_KEY_O] = true;
+	}
+	else
+		pressedPreviousFrame[GLFW_KEY_O]= false;
+	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+	{
+		if (!pressedPreviousFrame[GLFW_KEY_I])
+			fb.toggleDepthBuffering();
+		pressedPreviousFrame[GLFW_KEY_I] = true;
+	}
+	else
+		pressedPreviousFrame[GLFW_KEY_I] = false;
+	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
+	{
+		if (!pressedPreviousFrame[GLFW_KEY_U])
+			sceneRenderer.toggleWireframe();
+		pressedPreviousFrame[GLFW_KEY_U] = true;
+	}
+	else
+		pressedPreviousFrame[GLFW_KEY_U] = false;
 }
 void Editor::moveCamera(float deltaTime)
 {

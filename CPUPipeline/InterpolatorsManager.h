@@ -14,7 +14,9 @@ class InterpolatorsManager
 	float d11;
 	glm::vec2 va, vb;
 	std::vector<TriangleInterpolatorManagementInterface*> interpolators;
+	bool perspectiveFix;
 public:
+	InterpolatorsManager(bool perspectiveFix) :perspectiveFix(perspectiveFix) {}
 	void addInterpolator(TriangleInterpolatorManagementInterface& interpolator);
 	void initTriangle(
 		glm::vec4 v1, glm::vec4 v2, glm::vec4 v3);

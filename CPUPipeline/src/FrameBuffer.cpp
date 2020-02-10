@@ -114,7 +114,7 @@ void FrameBuffer::SetPixel(int x, int y, int color, float depth)
 	if (x < 0 || y < 0 || x >= m_width || y >= m_height)
 		return;
 	int id = y * m_width + x;
-	if (depthBuffer[id] < depth) return;
+	if (depthBuffering && depthBuffer[id] < depth) return;
 	int idx = m_bytesPerPixel * id;
 	m_color_buffer[idx] = RED(color);
 	m_color_buffer[idx + 1] = GREEN(color);
@@ -218,6 +218,11 @@ int FrameBuffer::getWidth()
 int FrameBuffer::getHeight()
 {
 	return this->m_height;
+}
+
+void FrameBuffer::toggleDepthBuffering()
+{
+	depthBuffering = !depthBuffering;
 }
 
 

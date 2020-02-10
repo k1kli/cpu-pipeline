@@ -25,6 +25,8 @@ class SceneRenderer
 	TriangleClipper triangleClipper;
 	RenderThreadManagement renderThreadManagement;
 	bool backfaceCulling = true;
+	bool perspectiveFix = true;
+	bool wireframe = false;
 	const SceneObject * renderedObject;
 	void DrawSceneObject(int color);
 	void TransformVertices();
@@ -47,5 +49,7 @@ public:
 	void SetScene(const Scene & scene);
 	void RenderScene();
 	void toggleBackfaceCulling();
+	void togglePerspectiveFix();
+	void toggleWireframe();
 };
 

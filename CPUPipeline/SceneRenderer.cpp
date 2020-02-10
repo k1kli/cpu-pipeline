@@ -49,6 +49,14 @@ void SceneRenderer::toggleBackfaceCulling()
 {
 	backfaceCulling = !backfaceCulling;
 }
+void SceneRenderer::togglePerspectiveFix()
+{
+	perspectiveFix = !perspectiveFix;
+}
+void SceneRenderer::toggleWireframe()
+{
+	wireframe = !wireframe;
+}
 void SceneRenderer::DrawSceneObject(int color)
 {
 	TransformVertices();
@@ -129,8 +137,12 @@ void SceneRenderer::DrawClippedTriangle(int triangleId, int color)
 		}
 		for (auto i = 1; i < poly.size()-1; i++)
 		{
-			//WireFrame(&poly[0], &poly[i], &poly[i + 1], 0xFF00FFFF);
-			ScanLine(&poly[0], &poly[i], &poly[i + 1], color);
+			if(wireframe)
+				WireFrame(&poly[0], &poly[i], &poly[i + 1], 0xFF00FFFF);
+			else
+			{
+				ScanLine(&poly[0], &poly[i], &poly[i + 1], color);
+			}
 		}
 	}
 }
@@ -140,7 +152,7 @@ void SceneRenderer::InitInterpolators(int triangleId,
 	glm::vec4 v3InViewport)
 {
 	glm::uvec3 triangle = renderedObject->GetMesh().getTriangles()[triangleId];
-	interpolatorsManager = new InterpolatorsManager();
+	interpolatorsManager = new InterpolatorsManager(perspectiveFix);
 	interpolators = new Interpolators(renderThreadCount);
 	interpolatorsManager->addInterpolator(interpolators->worldPos);
 	interpolatorsManager->addInterpolator(interpolators->uv);

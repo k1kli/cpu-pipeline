@@ -24,17 +24,7 @@ private:
 	unsigned int tex = 0;
 
 	Ref<Shader> shader;
-
-	//void DrawTriangle(const glm::vec3& v1, const glm::vec3& v2, const glm::vec3& v3, int color);
-	//void ScanLineHorizontalBase(
-	//	const glm::vec3& v1baseLeft,
-	//	const glm::vec3& v2baseRight,
-	//	const glm::vec3& v3peak,
-	//	int color);
-	//void ScanLine(
-	//	glm::vec3 v1,
-	//	glm::vec3 v2,
-	//	glm::vec3 v3, int color);
+	bool depthBuffering = true;
 
 public:
 	FrameBuffer(int _w, int _h);
@@ -54,8 +44,7 @@ public:
 	void DrawRect(int x0, int y0, int x1, int y1, int color);
 	int getWidth();
 	int getHeight();
-	//void DrawTriangles(std::vector<glm::vec3> vertices,
-	//	std::vector<glm::uvec3> triangles, int color);
+	void toggleDepthBuffering();
 
 };
 
