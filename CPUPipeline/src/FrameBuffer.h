@@ -58,3 +58,5 @@ public:
 
 };
 
+int floatToIntColor(const glm::vec4& floatColor);
+

@@ -178,3 +178,13 @@ int FrameBuffer::getHeight()
 }
 
 
+int floatToIntColor(const glm::vec4& floatColor)
+{
+	uint8_t r = (uint8_t)(std::clamp<float>(floatColor.r, 0.f, 1.f) * 255);
+	uint8_t g = (uint8_t)(std::clamp<float>(floatColor.g, 0.f, 1.f) * 255);
+	uint8_t b = (uint8_t)(std::clamp<float>(floatColor.b, 0.f, 1.f) * 255);
+	uint8_t a = (uint8_t)(std::clamp<float>(floatColor.a, 0.f, 1.f) * 255);
+	return RGBA(r, g, b, a);
+}
+
+

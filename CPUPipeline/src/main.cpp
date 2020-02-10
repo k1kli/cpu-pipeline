@@ -159,8 +159,8 @@ int main(int, char**)
 	FrameBuffer fb(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	fb.InitGL();
 
-	Image image = Image("data/uvtexture.png");
-	Image normalImage = Image("data/brick_normalmap.png");
+	//Image image = Image("data/Image.jpg");
+	Image normalImage = Image("data/marbleNormalMap.png");
 	normalImage.transform(normalTransformation);
 
 	
@@ -168,14 +168,16 @@ int main(int, char**)
 	Scene scene;
 	SceneRenderer sceneRenderer(fb);
 	sceneRenderer.SetScene(scene);
-	Mesh cubeMesh = meshGenerator.getConeMesh(2.0f, 0.7f, 10);
+	Mesh cubeMesh = meshGenerator.getSphereMesh(1.0f, 10, 10);
 	Material cubeMaterial = Material(
 		0.9f, 0.1f, 0.1f, 190.0f,
-		ImageSampler(image),
-		//StaticColorSampler({ 0.0f,0.2f,0.2f }),
-		StaticColorSampler({ 0.0f,0.0f,1.0f }));
-		//ImageSampler(normalImage));
+		//ImageSampler(image),
+		StaticColorSampler({ 0.0f,0.2f,0.2f }),
+		//StaticColorSampler({ 0.0f,0.0f,1.0f }));
+		ImageSampler(normalImage));
 	SceneObject cube = SceneObject(cubeMesh, glm::identity<glm::mat4>(), cubeMaterial);
+	SceneObject cube2 = SceneObject(
+		cubeMesh, glm::identity<glm::mat4>(), cubeMaterial);
 	Light light1 = Light({ 2.0f,0.0f,0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
 		1.0f, 0.09f, 0.032f);
 	Light light2 = Light({ -2.0f,0.0f,0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
@@ -190,6 +192,7 @@ int main(int, char**)
 	scene.AddLight(light4);
 	
 	scene.AddSceneObject(cube);
+	scene.AddSceneObject(cube2);
 
 	cameraPos = { 0,0,1 };
 	cameraFront = { 0,0,-1 };
@@ -214,10 +217,12 @@ int main(int, char**)
 		glm::mat4 modelBase = TransformationMatrices::getScalingMatrix({ 0.2,0.2,0.2 });
 
 
-		//glm::mat4 rotation = TransformationMatrices::getRotationMatrix(
-		//	(float)currentTime, glm::vec3(1.0f, 0.0f, 0.0f));
-		glm::mat4 translation = TransformationMatrices::getTranslationMatrix({ 0.1,0.1,0 });
-		cube.SetWorldMatrix(modelBase);
+		glm::mat4 rotation = TransformationMatrices::getRotationMatrix(
+			(float)currentTime, glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::mat4 translation = TransformationMatrices::getTranslationMatrix({ -0.2,-0.2,0 });
+		cube.SetWorldMatrix(translation * rotation * modelBase);
+		modelBase = TransformationMatrices::getTranslationMatrix({ 3.0f, 0.0f, 0.0f }) * modelBase;
+		cube2.SetWorldMatrix(modelBase);
 		camera->SetViewport(0, 0, (float)current_width, (float)current_height);
 		camera->SetPerspective(fov, (float)current_height / current_width, 0.1f, 12);
 		camera->LookAt(cameraPos, cameraFront, cameraUp);

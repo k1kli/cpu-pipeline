@@ -18,6 +18,6 @@ public:
 	void addInterpolator(TriangleInterpolatorManagementInterface& interpolator);
 	void initTriangle(
 		glm::vec4 v1, glm::vec4 v2, glm::vec4 v3);
-	void updatePosition(int x, int y);
+	void updatePosition(int x, int y, int instance);
 };
 

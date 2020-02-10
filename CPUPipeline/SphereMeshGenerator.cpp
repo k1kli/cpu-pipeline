@@ -206,7 +206,7 @@ inline int SphereMeshGenerator::getNonPoleUVIndex(int horizontalLine, int vertic
 inline int SphereMeshGenerator::getPoleUVIndex(int pole, int touchingTriangleId)
 {
 	return netHorizontalLinesCount * (netVerticalLinesCount + 1)
-		+ netVerticalLinesCount
+		+ netVerticalLinesCount * pole
 		+ touchingTriangleId;
 }
 
