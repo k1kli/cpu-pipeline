@@ -138,7 +138,6 @@ void SceneRenderer::InitInterpolators(int triangleId,
 	glm::uvec3 triangle = renderedObject->GetMesh().getTriangles()[triangleId];
 	interpolatorsManager = new InterpolatorsManager();
 	interpolators = new Interpolators(renderThreadCount);
-	interpolatorsManager->addInterpolator(interpolators->normal);
 	interpolatorsManager->addInterpolator(interpolators->worldPos);
 	interpolatorsManager->addInterpolator(interpolators->uv);
 	interpolatorsManager->addInterpolator(interpolators->tbn);
@@ -147,10 +146,6 @@ void SceneRenderer::InitInterpolators(int triangleId,
 		v2InViewport,
 		v3InViewport);
 	glm::uvec3 triangleNormals = renderedObject->GetMesh().getTrianglesNormals()[triangleId];
-	interpolators->normal.initTriangleValues(
-		transformedNormals[triangleNormals.x],
-		transformedNormals[triangleNormals.y],
-		transformedNormals[triangleNormals.z]);
 	interpolators->tbn.initTriangleValues(
 		transformedTBN[triangleNormals.x],
 		transformedTBN[triangleNormals.y],

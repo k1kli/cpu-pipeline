@@ -41,11 +41,10 @@ int RenderThread::GetPixelColor()
 	glm::vec3 ambientLight = { 1.0f, 1.0f, 1.0f };
 	glm::vec2 uv = interpolators->uv.getValue(id);
 
-	glm::vec3 baseNormal = glm::normalize(interpolators->normal.getValue(id));
 	glm::mat3 tbn = interpolators->tbn.getValue(id);
 	tbn[0] = glm::normalize(tbn[0]);
 	tbn[1] = glm::normalize(tbn[1]);
-	tbn[2] = baseNormal;
+	tbn[2] = glm::normalize(tbn[2]);
 
 	glm::vec3 normal = glm::normalize(tbn * material.normalSampler->sample(
 		uv));
