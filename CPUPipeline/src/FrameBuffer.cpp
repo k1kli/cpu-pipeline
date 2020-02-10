@@ -123,8 +123,9 @@ void FrameBuffer::SetPixel(int x, int y, int color, float depth)
 	depthBuffer[id] = depth;
 }
 
-void FrameBuffer::DrawPixmap(int startX, int startY, int width, int height, unsigned char* buffer)
+void FrameBuffer::DrawPixmap(int startX, int startY, int width, int height, unsigned char* buffer, int color)
 {
+	glm::vec3 colorF = { RED(color) / 255.0f,GREEN(color) / 255.0f, BLUE(color) / 255.0f };
 	if (startY < 0)
 	{
 		height += startY;
@@ -144,9 +145,9 @@ void FrameBuffer::DrawPixmap(int startX, int startY, int width, int height, unsi
 			int idx = m_bytesPerPixel * id;
 			if (buffer[mapY * width + mapX] != 0)
 			{
-				m_color_buffer[idx] = buffer[mapY * width + mapX];
-				m_color_buffer[idx + 1] = buffer[mapY * width + mapX];
-				m_color_buffer[idx + 2] = buffer[mapY * width + mapX];
+				m_color_buffer[idx] = buffer[mapY * width + mapX] * colorF.r;
+				m_color_buffer[idx + 1] = buffer[mapY * width + mapX] * colorF.g;
+				m_color_buffer[idx + 2] = buffer[mapY * width + mapX] * colorF.b;
 				m_color_buffer[idx + 3] = 255;
 			}
 		}

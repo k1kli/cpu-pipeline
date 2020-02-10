@@ -15,9 +15,9 @@
 #include "../Image.h"
 #include "../ImageSampler.h"
 #include "../MeshGenerator.h"
-#include "../TextDrawer.h"
 #include "../Panel.h"
 #include "../GUIController.h"
+#include "../Label.h"
 
 #define DEFAULT_WIDTH 1280
 #define DEFAULT_HEIGHT 720
@@ -161,10 +161,11 @@ int main(int, char**)
 	FrameBuffer fb(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	fb.InitGL();
 
-	TextDrawer textDrawer(fb);
 	GUIController guiController(fb);
-
-	guiController.addDisplayable(Panel(RGBA(255, 255, 255, 200), { 0,0 }, 300, -1));
+	Panel panel(RGBA(255, 255, 255, 200), { 0,0 }, 300, -1);
+	Label label({ 50, 50 }, std::string("abc"), 30);
+	panel.addChild(label);
+	guiController.addDisplayable(panel);
 
 	Image image = Image("data/lion.jpg");
 	Image normalImage = Image("data/drop.png");

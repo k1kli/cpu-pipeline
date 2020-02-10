@@ -16,7 +16,7 @@ void Displayable::setPrefferedSize(glm::uvec2 prefferedSize)
 	this->prefferedSize = prefferedSize;
 }
 
-void Displayable::Display(FrameBuffer& fb, int startX, int startY, int parentWidth, int parentHeight)
+void Displayable::Display(GUIUtils& guiUtils, int startX, int startY, int parentWidth, int parentHeight)
 {
 	int width = prefferedSize.x;
 	int height = prefferedSize.y;
@@ -30,7 +30,7 @@ void Displayable::Display(FrameBuffer& fb, int startX, int startY, int parentWid
 		startY = 0;
 		height = parentHeight;
 	}
-	onPaint(fb, startX, startY, width, height);
+	onPaint(guiUtils, startX, startY, width, height);
 }
 
 

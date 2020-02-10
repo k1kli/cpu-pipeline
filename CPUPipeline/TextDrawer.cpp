@@ -16,15 +16,9 @@ TextDrawer::TextDrawer(FrameBuffer & fb):fb(fb)
 	}
 }
 
-void TextDrawer::DrawTextAt(std::string text, int x, int y)
+void TextDrawer::DrawTextAt(std::string text, int x, int y, int color, unsigned int charHeight)
 {
-	int error = FT_Set_Char_Size(
-		face,
-		4 * 64,
-		8 * 64,
-		fb.getWidth(),
-		fb.getHeight()
-	);
+	int error = FT_Set_Pixel_Sizes(face, charHeight, charHeight);
 	for (int i = 0; i < text.size(); i++)
 	{
 		if (text.at(i) == ' ')
@@ -36,8 +30,8 @@ void TextDrawer::DrawTextAt(std::string text, int x, int y)
 		error = FT_Load_Glyph(face, glyph_index, FT_LOAD_DEFAULT);
 		error = FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL);
 
-		fb.DrawPixmap(x, y, face->glyph->bitmap.width, face->glyph->bitmap.rows, face->glyph->bitmap.buffer);
-		x += face->glyph->bitmap.width;
+		fb.DrawPixmap(x, y, face->glyph->bitmap.width, face->glyph->bitmap.rows, face->glyph->bitmap.buffer, color);
+		x += face->glyph->bitmap.width*1.1f;
 	}
 	
 }

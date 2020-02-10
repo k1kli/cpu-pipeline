@@ -2,6 +2,7 @@
 #include <FrameBuffer.h>
 #include "Displayable.h"
 #include "Panel.h"
+#include "GUIUtils.h"
 class GUIController
 {
 public:
@@ -9,7 +10,7 @@ public:
 	void Render();
 	void addDisplayable(Displayable& displayable);
 private:
-	FrameBuffer& fb;
+	GUIUtils guiUtils;
 	Panel masterPanel;
 };
 
