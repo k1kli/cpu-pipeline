@@ -24,6 +24,7 @@ class SceneRenderer
 	std::vector<glm::vec4> worldPosVertices;
 	TriangleClipper triangleClipper;
 	RenderThreadManagement renderThreadManagement;
+	bool backfaceCulling = true;
 	const SceneObject * renderedObject;
 	void DrawSceneObject(int color);
 	void TransformVertices();
@@ -45,5 +46,6 @@ public:
 	SceneRenderer(FrameBuffer& frameBuffer);
 	void SetScene(const Scene & scene);
 	void RenderScene();
+	void toggleBackfaceCulling();
 };
 

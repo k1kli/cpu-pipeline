@@ -6,7 +6,7 @@
 
 Camera::Camera(glm::vec3 pos, glm::vec3 forward, glm::vec3 up)
 {
-	m_world_matrix = glm::lookAt(pos, forward+pos, up);
+	LookAt(pos, forward, up);
 }
 
 void Camera::SetOrthographic(float left, float right, float top, float bottom, float near, float far)
@@ -89,4 +89,12 @@ void Camera::LookAt(glm::vec3 pos, glm::vec3 front, glm::vec3 up)
 const glm::vec3& Camera::GetPosition() const
 {
 	return m_position;
+}
+const glm::vec3& Camera::GetUp() const
+{
+	return m_up_vector;
+}
+const glm::vec3& Camera::GetForward() const
+{
+	return m_forward_vector;
 }

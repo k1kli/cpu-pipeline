@@ -23,39 +23,17 @@
 #define DEFAULT_WIDTH 1280
 #define DEFAULT_HEIGHT 720
 
-glm::vec3 cameraPos, cameraFront, cameraUp;
 float fov = 60.f;
 int current_width = DEFAULT_WIDTH;
 int current_height = DEFAULT_HEIGHT;
-double oldXpos = 0;
-double oldYpos = 0;
-Camera* camera = nullptr;
+Editor* mainEditor = nullptr;
 
 static void glfw_error_callback(int error, const char* description)
 {
 	fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-void processInput(GLFWwindow* window, float deltaTime)
-{
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, true);
 
-	//TODO: Write camera input control here
-	glm::vec3 right = cross(cameraFront, cameraUp);
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		cameraPos += cameraFront * deltaTime;
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		cameraPos += -right * deltaTime;
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		cameraPos += -cameraFront * deltaTime;
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		cameraPos += right * deltaTime;
-	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-		cameraPos += cameraUp * deltaTime;
-	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-		cameraPos += -cameraUp * deltaTime;
-}
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -66,32 +44,13 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-	xpos = xpos-current_width/2.0;
-	ypos = ypos-current_height/2.0;
-	double xDiff = xpos - oldXpos;
-	double yDiff = ypos - oldYpos;
-	oldXpos = xpos;
-	oldYpos = ypos;
-	yDiff /= current_height / 2.0;
-	if (abs(yDiff) > 0.001)
-	{
-		glm::vec3 right = glm::cross(cameraFront, cameraUp);
-		cameraFront = TransformationMatrices::getRotationMatrix(-(float)yDiff * 0.6f, right)
-			* glm::vec4(cameraFront, 1);
-
-	}
-	xDiff /= current_width / 2.0;
-	if (abs(xDiff) > 0.001)
-	{
-		cameraFront = TransformationMatrices::getRotationMatrix(-(float)xDiff * 1.6f, cameraUp)
-			* glm::vec4(cameraFront, 1);
-	}
+	mainEditor->processMouse(xpos, ypos);
+	
 
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	//TODO: mouse scroll
 	fov += (float)yoffset;
 }
 
@@ -155,7 +114,6 @@ int main(int, char**)
 
 	// Set callback for resizing window
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
@@ -173,7 +131,7 @@ int main(int, char**)
 	Scene scene;
 	SceneRenderer sceneRenderer(fb);
 	sceneRenderer.SetScene(scene);
-	Mesh cubeMesh = meshGenerator.getCylinderMesh(2.0f, 0.5f, 10);
+	Mesh cubeMesh = meshGenerator.getCuboidMesh(3.0f, 3.0f, 3.0f);
 	Material cubeMaterial = Material(
 		0.1f, 0.1f, 0.1f, 1.0f,
 		ImageSampler(image),
@@ -199,14 +157,12 @@ int main(int, char**)
 	scene.AddSceneObject(cube);
 	scene.AddSceneObject(cube2);
 
-	Editor editor(guiController, sceneRenderer, &scene);
+	Editor editor(guiController, sceneRenderer, &scene, window,fb);
+	mainEditor = &editor;
 
-	cameraPos = { 0,0,1 };
-	cameraFront = { 0,0,-1 };
-	cameraUp = { 0,1,0 };
 
 	//TODO: initialize camera
-	camera = new Camera(cameraPos, cameraFront, cameraUp);
+	Camera * camera = new Camera({ 0,0,1 }, { 0,0,-1 }, { 0,1,0 });
 	scene.SetMainCamera(*camera);
 
 	double deltaTime = 0.0;
@@ -217,7 +173,7 @@ int main(int, char**)
 	{
 		glfwPollEvents();
 		timeMeasurement(window, deltaTime, currentTime);
-		processInput(window, (float)deltaTime);
+		editor.processInput((float)deltaTime);
 
 		// Update scene
 
@@ -232,7 +188,6 @@ int main(int, char**)
 		cube2.SetWorldMatrix(modelBase);
 		camera->SetViewport(0, 0, (float)current_width, (float)current_height);
 		camera->SetPerspective(fov, (float)current_height / current_width, 0.1f, 12);
-		camera->LookAt(cameraPos, cameraFront, cameraUp);
 		float t = (float)(currentTime) * 0.05f;
 		light1.setPosition({ 3.0f * glm::cos(t), 1.1f, -3.0f * glm::sin(t) });
 		//fb.ClearColor(0.5f, 0.5f, 1.0f);

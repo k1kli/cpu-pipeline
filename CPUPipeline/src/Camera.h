@@ -20,6 +20,10 @@ public:
 
 	const glm::vec3& GetPosition() const;
 
+	const glm::vec3& GetUp() const;
+
+	const glm::vec3& GetForward() const;
+
 private:
 	glm::vec3 m_position;
 	glm::vec3 m_up_vector;

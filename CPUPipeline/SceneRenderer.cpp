@@ -45,6 +45,10 @@ void SceneRenderer::RenderScene()
 	previousInterpolators.clear();
 	previousInterpolatorsManagers.clear();
 }
+void SceneRenderer::toggleBackfaceCulling()
+{
+	backfaceCulling = !backfaceCulling;
+}
 void SceneRenderer::DrawSceneObject(int color)
 {
 	TransformVertices();
@@ -90,7 +94,7 @@ void SceneRenderer::DrawObjectsTriangles(int color)
 		glm::vec3 v3 = glm::vec3(transformedVertices[triangles[i].z]
 			/ transformedVertices[triangles[i].z].w);
 		glm::vec3 normal = glm::normalize(glm::cross(v2-v1, v3-v1));
-		if (dot({ 0,0,-1 }, normal) < 0)
+		if (!backfaceCulling || dot({ 0,0,-1 }, normal) < 0)
 		{
 			DrawTriangle(i, color);
 		}

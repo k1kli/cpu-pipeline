@@ -15,7 +15,7 @@ void CuboidMeshGenerator::setValues()
 {
 	vertices = {
 		   {0.0f,0.0f,0.0f}, {0.0f,height,0.0f}, {width,height,0.0f}, {width,0.0f,0.0f},
-		   {0.0f,0.0f,1.0f}, {0.0f,height,depth}, {width,height,depth}, {width,0.0f,depth}
+		   {0.0f,0.0f,depth}, {0.0f,height,depth}, {width,height,depth}, {width,0.0f,depth}
 		};
 	//front, back, right, left, up, down
 	normals = {
