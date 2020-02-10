@@ -16,6 +16,8 @@
 #include "../ImageSampler.h"
 #include "../MeshGenerator.h"
 #include "../TextDrawer.h"
+#include "../Panel.h"
+#include "../GUIController.h"
 
 #define DEFAULT_WIDTH 1280
 #define DEFAULT_HEIGHT 720
@@ -160,6 +162,9 @@ int main(int, char**)
 	fb.InitGL();
 
 	TextDrawer textDrawer(fb);
+	GUIController guiController(fb);
+
+	guiController.addDisplayable(Panel(RGBA(255, 255, 255, 200), { 0,0 }, 300, -1));
 
 	Image image = Image("data/lion.jpg");
 	Image normalImage = Image("data/drop.png");
@@ -239,6 +244,7 @@ int main(int, char**)
 
 		sceneRenderer.RenderScene();
 		//textDrawer.DrawTextAt(std::string("abc def"),0 , currentTime * 200);
+		guiController.Render();
 		// Rendering
 		int display_w, display_h;
 		glfwGetFramebufferSize(window, &display_w, &display_h);

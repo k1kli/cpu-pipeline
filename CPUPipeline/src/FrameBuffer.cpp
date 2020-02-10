@@ -187,13 +187,21 @@ void FrameBuffer::DrawLine(int x0, int y0, int x1, int y1, int color)
 
 void FrameBuffer::DrawRect(int x0, int y0, int x1, int y1, int color)
 {
+	if (ALPHA(color) == 0) return;
+	float q = ALPHA(color) / 255.0f;
+	color = RGB((int)(RED(color) * q), (int)(GREEN(color) * q), (int)(BLUE(color) * q));
+	
 	int dx = abs(x1 - x0);
 	int dy = -abs(y1 - y0);
 	int sx = x0 < x1 ? 1 : -1;
 	int sy = y0 < y1 ? 1 : -1;
 	for (int x = x0; x != x1; x += sx) {
 		for (int y = y0; y != y1; y += sy) {
-			SetPixel(x, y, color, 0);
+			int baseColor = GetPixel(x, y);
+			unsigned char changedColorR = RED(baseColor) * (1 - q) + RED(color);
+			unsigned char changedColorG = GREEN(baseColor) * (1 - q) + GREEN(color);
+			unsigned char changedColorB = BLUE(baseColor) * (1 - q) + BLUE(color);
+			SetPixel(x, y, RGB(changedColorR, changedColorG, changedColorB), -INFINITY);
 		}
 	}
 }
