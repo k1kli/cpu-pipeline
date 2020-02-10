@@ -9,3 +9,8 @@ void Label::onPaint(GUIUtils& guiUtils, int startX, int startY, int width, int h
 {
 	guiUtils.textDrawer.DrawTextAt(text, startX, startY, color, height);
 }
+
+void Label::setColor(int color)
+{
+	this->color = color;
+}

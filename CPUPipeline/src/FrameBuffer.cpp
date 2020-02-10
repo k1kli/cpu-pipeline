@@ -125,19 +125,23 @@ void FrameBuffer::SetPixel(int x, int y, int color, float depth)
 
 void FrameBuffer::DrawPixmap(int startX, int startY, int width, int height, unsigned char* buffer, int color)
 {
+
+	//TODO fix text rendering
 	glm::vec3 colorF = { RED(color) / 255.0f,GREEN(color) / 255.0f, BLUE(color) / 255.0f };
-	if (startY < 0)
-	{
-		height += startY;
-		startY = 0;
-	}
+	
 	int mapStartX = 0;
 	if (startX < 0)
 	{
 		mapStartX -= startX;
 		startX = 0;
 	}
-	for (int fbY = startY, mapY = height-1; mapY >= 0 && fbY < m_height; mapY--, fbY++)
+	int mapStartY = 0;
+	if (startY < 0)
+	{
+		mapStartY -= startY;
+		startY = 0;
+	}
+	for (int fbY = startY, mapY = 0; mapY < height && fbY >= 0; mapY++, fbY--)
 	{
 		for (int fbX = startX, mapX = mapStartX; mapX < width && fbX < m_width; fbX++, mapX++)
 		{

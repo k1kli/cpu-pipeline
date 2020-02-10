@@ -20,3 +20,14 @@ void Panel::addChild(Displayable& child)
 {
 	children.push_back(&child);
 }
+void Panel::removeChild(const Displayable* child)
+{
+	for (auto it = children.begin(); it < children.end(); it++)
+	{
+		if (*it == child)
+		{
+			children.erase(it);
+			return;
+		}
+	}
+}

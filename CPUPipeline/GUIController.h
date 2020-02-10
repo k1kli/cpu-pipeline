@@ -9,6 +9,7 @@ public:
 	GUIController(FrameBuffer& fb);
 	void Render();
 	void addDisplayable(Displayable& displayable);
+	void RemoveDisplayable(const Displayable* displayable);
 private:
 	GUIUtils guiUtils;
 	Panel masterPanel;
