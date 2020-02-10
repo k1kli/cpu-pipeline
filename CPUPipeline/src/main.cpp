@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
 #include "FrameBuffer.h"
 #include "Camera.h"
@@ -16,6 +15,7 @@
 #include "../Image.h"
 #include "../ImageSampler.h"
 #include "../MeshGenerator.h"
+#include "../TextDrawer.h"
 
 #define DEFAULT_WIDTH 1280
 #define DEFAULT_HEIGHT 720
@@ -159,8 +159,10 @@ int main(int, char**)
 	FrameBuffer fb(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	fb.InitGL();
 
-	//Image image = Image("data/Image.jpg");
-	Image normalImage = Image("data/marbleNormalMap.png");
+	TextDrawer textDrawer(fb);
+
+	Image image = Image("data/lion.jpg");
+	Image normalImage = Image("data/drop.png");
 	normalImage.transform(normalTransformation);
 
 	
@@ -168,13 +170,13 @@ int main(int, char**)
 	Scene scene;
 	SceneRenderer sceneRenderer(fb);
 	sceneRenderer.SetScene(scene);
-	Mesh cubeMesh = meshGenerator.getSphereMesh(1.0f, 10, 10);
+	Mesh cubeMesh = meshGenerator.getCylinderMesh(2.0f, 0.5f, 10);
 	Material cubeMaterial = Material(
-		0.9f, 0.1f, 0.1f, 190.0f,
-		//ImageSampler(image),
-		StaticColorSampler({ 0.0f,0.2f,0.2f }),
-		//StaticColorSampler({ 0.0f,0.0f,1.0f }));
-		ImageSampler(normalImage));
+		0.1f, 0.1f, 0.1f, 1.0f,
+		ImageSampler(image),
+		//StaticColorSampler({ 0.5f,0.2f,0.2f }),
+		StaticColorSampler({ 0.0f,0.0f,1.0f }));
+		//ImageSampler(normalImage));
 	SceneObject cube = SceneObject(cubeMesh, glm::identity<glm::mat4>(), cubeMaterial);
 	SceneObject cube2 = SceneObject(
 		cubeMesh, glm::identity<glm::mat4>(), cubeMaterial);
@@ -235,9 +237,8 @@ int main(int, char**)
 
 
 
-		//TODO: calculate point positions
 		sceneRenderer.RenderScene();
-
+		//textDrawer.DrawTextAt(std::string("abc def"),0 , currentTime * 200);
 		// Rendering
 		int display_w, display_h;
 		glfwGetFramebufferSize(window, &display_w, &display_h);
@@ -246,7 +247,6 @@ int main(int, char**)
 		//glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-
 		fb.RenderGL();
 
 		glfwSwapBuffers(window);

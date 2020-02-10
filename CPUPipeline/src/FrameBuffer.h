@@ -47,6 +47,7 @@ public:
 	void Save(std::string file_name);
 
 	void SetPixel(int x, int y, int color, float depth);
+	void DrawPixmap(int x, int y, int width, int height, unsigned char* buffer);
 	int GetPixel(int x, int y);
 
 	void DrawLine(int x0, int y0, int x1, int y1, int color);

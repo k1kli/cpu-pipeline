@@ -123,6 +123,36 @@ void FrameBuffer::SetPixel(int x, int y, int color, float depth)
 	depthBuffer[id] = depth;
 }
 
+void FrameBuffer::DrawPixmap(int startX, int startY, int width, int height, unsigned char* buffer)
+{
+	if (startY < 0)
+	{
+		height += startY;
+		startY = 0;
+	}
+	int mapStartX = 0;
+	if (startX < 0)
+	{
+		mapStartX -= startX;
+		startX = 0;
+	}
+	for (int fbY = startY, mapY = height-1; mapY >= 0 && fbY < m_height; mapY--, fbY++)
+	{
+		for (int fbX = startX, mapX = mapStartX; mapX < width && fbX < m_width; fbX++, mapX++)
+		{
+			int id = fbY * m_width + fbX;
+			int idx = m_bytesPerPixel * id;
+			if (buffer[mapY * width + mapX] != 0)
+			{
+				m_color_buffer[idx] = buffer[mapY * width + mapX];
+				m_color_buffer[idx + 1] = buffer[mapY * width + mapX];
+				m_color_buffer[idx + 2] = buffer[mapY * width + mapX];
+				m_color_buffer[idx + 3] = 255;
+			}
+		}
+	}
+}
+
 int FrameBuffer::GetPixel(int x, int y)
 {
 	//ASSERT(x < 0 || y < 0 || x >= m_width || y >= m_height, "GetPixel out of range!")
