@@ -20,6 +20,7 @@
 #include "../Label.h"
 #include "../Editor.h"
 #include "../Input.h"
+#include "../Raycast.h"
 
 #define DEFAULT_WIDTH 1280
 #define DEFAULT_HEIGHT 720
@@ -97,6 +98,9 @@ int floatToIntColor(const glm::vec3& floatColor)
 
 int main(int, char**)
 {
+
+
+
 	// Setup window
 	glfwSetErrorCallback(glfw_error_callback);
 	if (!glfwInit())
@@ -168,14 +172,13 @@ int main(int, char**)
 	scene.AddSceneObject(cube);
 	scene.AddSceneObject(cube2);
 
-	sceneRenderer.selectObject(cube);
 	input = new Input();
 
 	Editor editor(guiController, sceneRenderer, &scene, *input,fb, window);
 
 
 	//TODO: initialize camera
-	Camera * camera = new Camera({ 0,0,1 }, { 0,0,-1 }, { 0,1,0 });
+	Camera * camera = new Camera({ -0.5f,0.5f,0.5f }, { 1,0,0 }, { 0,1,0 });
 	scene.SetMainCamera(*camera);
 
 	double deltaTime = 0.0;
@@ -189,7 +192,6 @@ int main(int, char**)
 		timeMeasurement(window, deltaTime, currentTime);
 		input->updateMouseInput();
 
-		editor.handleInput((float)deltaTime);
 
 		// Update scene
 
@@ -208,6 +210,7 @@ int main(int, char**)
 		fb.ClearColor(0.1f, 0.15f, 0.15f);
 
 		//write your render pipeline here
+		editor.handleInput((float)deltaTime);
 
 
 

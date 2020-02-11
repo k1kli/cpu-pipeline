@@ -55,6 +55,6 @@ public:
 	void toggleBackfaceCulling();
 	void togglePerspectiveFix();
 	void toggleWireframe();
-	void selectObject(const SceneObject& objectToSelect);
+	void selectObject(const SceneObject* objectToSelect);
 };
 

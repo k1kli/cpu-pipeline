@@ -1,5 +1,6 @@
 #include "Editor.h"
 #include <TransformationMatrices.h>
+#include "Raycast.h"
 
 void Editor::handleInput(float deltaTime)
 {
@@ -15,6 +16,8 @@ void Editor::handleInput(float deltaTime)
 		fb.toggleDepthBuffering();
 	if (input.getKeyDown(GLFW_KEY_U))
 		sceneRenderer.toggleWireframe();
+	if (input.getKeyDown(GLFW_KEY_X))
+		selectObjectInFrontOfCamera();
 }
 void Editor::moveCamera(float deltaTime)
 {
@@ -58,4 +61,12 @@ void Editor::rotateCamera()
 			* glm::vec4(forward, 1);
 	}
 	camera.LookAt(camera.GetPosition(), forward, up);
+}
+
+void Editor::selectObjectInFrontOfCamera()
+{
+	Raycast raycast(*scene);
+	Camera& camera = scene->getMainCamera();
+	selectedObject = raycast.castRay(camera.GetPosition(), camera.GetForward());
+	sceneRenderer.selectObject(selectedObject);
 }

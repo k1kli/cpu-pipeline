@@ -34,6 +34,10 @@ void SceneRenderer::RenderScene()
 		DrawSceneObject();
 	}
 	DrawLights();
+	glm::vec4 p = viewportMatrix * viewProjectionMatrix 
+		* glm::vec4(camera.GetPosition() + camera.GetForward(),1);
+	p /= p.w;
+	frameBuffer.DrawRect(p.x - 10, p.y - 10, p.x + 10, p.y + 10, RGBA(255, 255, 255, 50));
 	renderThreadManagement.endThreads();
 	for (int i = 0; i < previousInterpolators.size(); i++)
 	{
@@ -57,9 +61,9 @@ void SceneRenderer::toggleWireframe()
 {
 	wireframe = !wireframe;
 }
-void SceneRenderer::selectObject(const SceneObject& objectToSelect)
+void SceneRenderer::selectObject(const SceneObject* objectToSelect)
 {
-	selectedObject = &objectToSelect;
+	selectedObject = objectToSelect;
 }
 void SceneRenderer::DrawSceneObject()
 {

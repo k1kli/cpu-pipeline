@@ -4,7 +4,7 @@ class Raycast
 {
 public:
 	Raycast(Scene& scene) :scene(scene) {}
-	SceneObject& castRay(glm::vec3 from, glm::vec3 direction);
+	SceneObject* castRay(glm::vec3 from, glm::vec3 direction);
 private:
 	Scene& scene;
 	glm::vec3 from = { 0,0,0 };
@@ -14,8 +14,9 @@ private:
 	SceneObject* sceneObject;
 
 	void prepareTriangles();
-	bool checkTriangles();
-	bool intersectPlane(const glm::vec3& planeNormal, const glm::vec3& p0, float* tRes);
-	bool insideTriangle(const glm::vec3& point, const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2);
+	bool checkTriangles(float * distRes);
+	bool rayIntersectsTriangle(
+		const glm::vec3& vertex0, const glm::vec3& vertex1, const glm::vec3& vertex2, float * tRes);
+	
 };
 

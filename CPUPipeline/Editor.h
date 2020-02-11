@@ -18,6 +18,7 @@ public:
 	void handleInput(float deltaTime);
 	void moveCamera(float deltaTime);
 	void rotateCamera();
+	void selectObjectInFrontOfCamera();
 private:
 	GUIController& guiController;
 	SceneRenderer& sceneRenderer;
@@ -26,5 +27,6 @@ private:
 	GLFWwindow* window;
 	FrameBuffer & fb;
 	const Input& input;
+	SceneObject* selectedObject;
 };
 
