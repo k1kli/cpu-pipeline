@@ -16,9 +16,6 @@ public:
 		guiController.addDisplayable(defaultHelpLabel);
 	}
 	void handleInput(float deltaTime);
-	void moveCamera(float deltaTime);
-	void rotateCamera();
-	void selectObjectInFrontOfCamera();
 private:
 	GUIController& guiController;
 	SceneRenderer& sceneRenderer;
@@ -28,5 +25,10 @@ private:
 	FrameBuffer & fb;
 	const Input& input;
 	SceneObject* selectedObject;
+
+	void moveCamera(float deltaTime);
+	void rotateCamera();
+	void selectObjectInFrontOfCamera();
+	void deleteSelectedObject();
 };
 

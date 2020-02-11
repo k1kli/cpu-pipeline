@@ -1,6 +1,7 @@
 #include "Editor.h"
 #include <TransformationMatrices.h>
 #include "Raycast.h"
+#include <algorithm>
 
 void Editor::handleInput(float deltaTime)
 {
@@ -16,8 +17,10 @@ void Editor::handleInput(float deltaTime)
 		fb.toggleDepthBuffering();
 	if (input.getKeyDown(GLFW_KEY_U))
 		sceneRenderer.toggleWireframe();
-	if (input.getKeyDown(GLFW_KEY_X))
+	if (input.getKeyDown(GLFW_KEY_R))
 		selectObjectInFrontOfCamera();
+	if (input.getKeyDown(GLFW_KEY_X))
+		deleteSelectedObject();
 }
 void Editor::moveCamera(float deltaTime)
 {
@@ -69,4 +72,15 @@ void Editor::selectObjectInFrontOfCamera()
 	Camera& camera = scene->getMainCamera();
 	selectedObject = raycast.castRay(camera.GetPosition(), camera.GetForward());
 	sceneRenderer.selectObject(selectedObject);
+}
+
+void Editor::deleteSelectedObject()
+{
+	if (selectedObject != nullptr)
+	{
+		std::vector<SceneObject *>& sceneObjects = scene->GetSceneObjects();
+		sceneObjects.erase(
+			std::remove(sceneObjects.begin(), sceneObjects.end(), selectedObject), sceneObjects.end());
+		selectedObject = nullptr;
+	}
 }
