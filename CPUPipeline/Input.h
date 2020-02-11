@@ -2,10 +2,11 @@
 #include <GLFW\glfw3.h>
 #include <glm/glm.hpp>
 #include <vector>
+#include <string>
 class Input
 {
 public:
-	Input();
+	Input(GLFWwindow * window);
 	void setMousePos(double newX, double newY);
 	void setWindowDim(double newWidth, double newHeight);
 	void updateKeyboardInput();
@@ -18,6 +19,7 @@ public:
 	const bool getKeyDown(int keyCode) const;
 	const bool getKey(int keyCode) const;
 	const std::vector<char>& getCharactersTyped() const;
+	std::string getClipboardString() const;
 private:
 	glm::vec2 mousePos = { 0,0 };
 	glm::vec2 mouseDiff = { 0,0 };
@@ -27,5 +29,6 @@ private:
 	bool pressedThisFrame[GLFW_KEY_LAST + 1];
 	bool pressedPreviousFrame[GLFW_KEY_LAST + 1];
 	std::vector<char> charactersReceivedThisFrame;
+	GLFWwindow* window;
 };
 

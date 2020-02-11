@@ -5,18 +5,17 @@
 class Material
 {
 public:
-	float specular;
-	float diffuse;
-	float ambient;
+	glm::vec3 specular;
+	glm::vec3 ambient;
 	float shininess;
 	std::shared_ptr<Sampler> colorSampler;
 	std::shared_ptr<Sampler> normalSampler;
 	Material(
-		float specular, float diffuse,
-		float ambient, float shininess,
+		glm::vec3 specular,
+		glm::vec3 ambient, float shininess,
 		std::shared_ptr<Sampler> colorSampler,
 		std::shared_ptr<Sampler> normalSampler)
-		:specular(specular), diffuse(diffuse),
+		:specular(specular),
 		ambient(ambient), shininess(shininess),
 		colorSampler(colorSampler),
 		normalSampler(normalSampler) {}

@@ -2,8 +2,10 @@
 #include <string>
 #include <glm/glm.hpp>
 #include <functional>
+#include "ImageStorage.h"
 class Image
 {
+	friend class ImageStorage;
 	glm::vec3 * data;
 	int x;
 	int y;

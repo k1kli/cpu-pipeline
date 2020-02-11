@@ -180,7 +180,7 @@ int main(int, char**)
 	/*scene.AddSceneObject(cube);
 	scene.AddSceneObject(cube2);*/
 
-	input = new Input();
+	input = new Input(window);
 
 	Editor editor(guiController, sceneRenderer, &scene, *input,fb, window);
 

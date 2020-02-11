@@ -46,6 +46,16 @@ const Camera& Scene::getMainCamera() const
 	return *mainCamera;
 }
 
+ImageStorage& Scene::getImageStorage()
+{
+	return imageStorage;
+}
+
+const ImageStorage& Scene::getImageStorage() const
+{
+	return imageStorage;
+}
+
 Scene::~Scene()
 {
 	for (int i = 0; i < sceneObjects.size(); i++)

@@ -1,6 +1,8 @@
 #include "Input.h"
+#include <string>
 
-Input::Input()
+
+Input::Input(GLFWwindow* window):window(window)
 {
 	for (int i = 0; i < GLFW_KEY_LAST + 1; i++)
 	{
@@ -71,4 +73,10 @@ const bool Input::getKey(int keyCode) const
 const std::vector<char>& Input::getCharactersTyped() const
 {
 	return charactersReceivedThisFrame;
+}
+
+std::string Input::getClipboardString() const
+{
+	
+	return std::string(glfwGetClipboardString(window));
 }
