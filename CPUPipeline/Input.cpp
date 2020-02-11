@@ -26,6 +26,7 @@ void Input::updateKeyboardInput()
 	{
 		pressedPreviousFrame[i] = pressedThisFrame[i];
 	}
+	charactersReceivedThisFrame.clear();
 }
 void Input::updateMouseInput()
 {
@@ -40,6 +41,11 @@ void Input::setKeyPressed(int key)
 void Input::setKeyReleased(int key)
 {
 	pressedThisFrame[key] = false;
+}
+
+void Input::characterTyped(char c)
+{
+	charactersReceivedThisFrame.push_back(c);
 }
 
 const glm::vec2& Input::getMousePos() const
@@ -60,4 +66,9 @@ const bool Input::getKeyDown(int keyCode) const
 const bool Input::getKey(int keyCode) const
 {
 	return keyCode < GLFW_KEY_LAST + 1 && pressedThisFrame[keyCode];
+}
+
+const std::vector<char>& Input::getCharactersTyped() const
+{
+	return charactersReceivedThisFrame;
 }

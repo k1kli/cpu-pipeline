@@ -6,7 +6,7 @@ CyllinderMeshGenerator::CyllinderMeshGenerator(float height, float radius, int n
 {
 	parameters = { height, radius, (float)netDivisions };
 }
-std::shared_ptr<VirtualMeshGenerator> CyllinderMeshGenerator::getInstance()
+std::shared_ptr<VirtualMeshGenerator> CyllinderMeshGenerator::getInstance() const
 {
 	return std::shared_ptr<VirtualMeshGenerator>(new CyllinderMeshGenerator(*this));
 }

@@ -33,5 +33,6 @@ public:
 	const std::vector<glm::uvec3>& getTrianglesNormals() const;
 	const std::vector<glm::uvec3>& getTrianglesUV() const;
 	const std::vector<glm::vec2>& getUV() const;
+	const VirtualMeshGenerator& getGenerator() const;
 };
 

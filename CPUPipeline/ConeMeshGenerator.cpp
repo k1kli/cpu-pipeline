@@ -6,7 +6,7 @@ ConeMeshGenerator::ConeMeshGenerator(float height, float radius, int netDivision
 	parameters = { height, radius, (float)netDivisions };
 }
 
-std::shared_ptr<VirtualMeshGenerator> ConeMeshGenerator::getInstance()
+std::shared_ptr<VirtualMeshGenerator> ConeMeshGenerator::getInstance() const
 {
 	return std::shared_ptr<VirtualMeshGenerator>(new ConeMeshGenerator(*this));
 }

@@ -1,6 +1,6 @@
 #include "Scene.h"
 
-void Scene::AddSceneObject(SceneObject * sceneObject)
+void Scene::addSceneObject(SceneObject * sceneObject)
 {
 	sceneObjects.push_back(sceneObject);
 }

@@ -16,6 +16,7 @@ CreateObjectScreen::CreateObjectScreen(std::function<void(SceneObject*)> doneCal
 	sidePanel.addChild(sphereLabel);
 	sidePanel.addChild(cyllinderLabel);
 	sidePanel.addChild(coneLabel);
+	sidePanel.addChild(pressCAgainToLeave);
 
 }
 
@@ -37,7 +38,7 @@ void CreateObjectScreen::handleInput(const Input& input)
 	{
 		createMesh(ConeMeshGenerator(1.0f, 0.5f, 10));
 	}
-	if (input.getKey(GLFW_KEY_BACKSPACE))
+	if (input.getKeyDown(GLFW_KEY_C))
 	{
 		doneCallback(nullptr);
 	}

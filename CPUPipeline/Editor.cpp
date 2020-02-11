@@ -3,6 +3,7 @@
 #include "Raycast.h"
 #include <algorithm>
 #include "CreateObjectScreen.h"
+#include "EditObjectScreen.h"
 
 void Editor::handleInput(float deltaTime)
 {
@@ -29,6 +30,8 @@ void Editor::handleInput(float deltaTime)
 		deleteSelectedObject();
 	if (input.getKeyDown(GLFW_KEY_C))
 		showCreateScreen();
+	if (input.getKeyDown(GLFW_KEY_V))
+		showEditObjectScreen();
 }
 void Editor::moveCamera(float deltaTime)
 {
@@ -95,8 +98,17 @@ void Editor::deleteSelectedObject()
 
 void Editor::showCreateScreen()
 {
+	guiController.removeDisplayable(&defaultHelpLabel);
 	currentScreen = new CreateObjectScreen(
 		[this](SceneObject* res)->void {this->createdCallback(res); }, &scene->getMainCamera());
+	guiController.addDisplayable(*currentScreen);
+}
+void Editor::showEditObjectScreen()
+{
+	if (selectedObject == nullptr) return;
+	guiController.removeDisplayable(&defaultHelpLabel);
+	currentScreen = new EditObjectScreen(
+		[this]()->void {this->defaultScreenCallback(); }, *selectedObject);
 	guiController.addDisplayable(*currentScreen);
 }
 
@@ -104,9 +116,15 @@ void Editor::createdCallback(SceneObject* createdObject)
 {
 	if (createdObject != nullptr)
 	{
-		scene->AddSceneObject(createdObject);
+		scene->addSceneObject(createdObject);
 	}
-	guiController.RemoveDisplayable(currentScreen);
+	defaultScreenCallback();
+}
+
+void Editor::defaultScreenCallback()
+{
+	guiController.removeDisplayable(currentScreen);
 	delete currentScreen;
 	currentScreen = nullptr;
+	guiController.addDisplayable(defaultHelpLabel);
 }

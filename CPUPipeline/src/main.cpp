@@ -65,6 +65,14 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 }
 
+void character_callback(GLFWwindow* window, unsigned int codepoint)
+{
+	if (codepoint < 256)
+	{
+		input->characterTyped(codepoint);
+	}
+}
+
 void timeMeasurement(GLFWwindow* win, double& deltaTime, double& currentTime)
 {
 	static int nbFrames = 0;
@@ -132,6 +140,7 @@ int main(int, char**)
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 	glfwSetKeyCallback(window, key_callback);
+	glfwSetCharCallback(window, character_callback);
 	FrameBuffer fb(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	fb.InitGL();
 

@@ -5,7 +5,7 @@ CuboidMeshGenerator::CuboidMeshGenerator(float width, float height, float depth)
 {
 	parameters = { width, height, depth };
 }
-std::shared_ptr<VirtualMeshGenerator> CuboidMeshGenerator::getInstance()
+std::shared_ptr<VirtualMeshGenerator> CuboidMeshGenerator::getInstance() const
 {
 	return std::shared_ptr<VirtualMeshGenerator>(new CuboidMeshGenerator(*this));
 }

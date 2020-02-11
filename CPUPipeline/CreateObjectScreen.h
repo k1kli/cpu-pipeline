@@ -24,6 +24,7 @@ private:
 	Label sphereLabel = Label({ 30, -260 }, std::string("2. sphere"), 25);
 	Label cyllinderLabel = Label({ 30, -300 }, std::string("3. cyllinder"), 25);
 	Label coneLabel = Label({ 30, -340 }, std::string("4. cone"), 25);
+	Label pressCAgainToLeave = Label({ 30, 80 }, std::string("press C again to leave"), 15);
 
 	void createMesh(VirtualMeshGenerator & meshGenerator);
 };

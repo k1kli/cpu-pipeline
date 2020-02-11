@@ -19,7 +19,6 @@ TextDrawer::TextDrawer(FrameBuffer & fb):fb(fb)
 void TextDrawer::DrawTextAt(std::string text, int x, int y, int color, unsigned int charHeight)
 {
 	int error = FT_Set_Pixel_Sizes(face, charHeight, charHeight);
-	y += charHeight;
 	for (int i = 0; i < text.size(); i++)
 	{
 		if (text.at(i) == ' ')
@@ -35,5 +34,22 @@ void TextDrawer::DrawTextAt(std::string text, int x, int y, int color, unsigned 
 			face->glyph->bitmap.rows, face->glyph->bitmap.buffer, color);
 		x += face->glyph->bitmap.width + charHeight/10;
 	}
-	
+}
+int TextDrawer::GetTextWidth(std::string text, unsigned int charHeight)
+{
+	int error = FT_Set_Pixel_Sizes(face, charHeight, charHeight);
+	int x = 0;
+	for (int i = 0; i < text.size(); i++)
+	{
+		if (text.at(i) == ' ')
+		{
+			x += face->glyph->advance.x >> 6;
+			continue;
+		}
+		int glyph_index = FT_Get_Char_Index(face, text.at(i));
+		error = FT_Load_Glyph(face, glyph_index, FT_LOAD_DEFAULT);
+		error = FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL);
+		x += face->glyph->bitmap.width + charHeight / 10;
+	}
+	return x;
 }

@@ -6,7 +6,7 @@ SphereMeshGenerator::SphereMeshGenerator(float R, int netVerticalLinesCount, int
 {
 	parameters = { R, (float)netVerticalLinesCount, (float)netHorizontalLinesCount };
 }
-std::shared_ptr<VirtualMeshGenerator> SphereMeshGenerator::getInstance()
+std::shared_ptr<VirtualMeshGenerator> SphereMeshGenerator::getInstance() const
 {
 	return std::shared_ptr<VirtualMeshGenerator>(new SphereMeshGenerator(*this));
 }

@@ -6,7 +6,7 @@ class SphereMeshGenerator : public VirtualMeshGenerator
 public:
 
 	SphereMeshGenerator(float R, int netVerticalLinesCount, int netHorizontalLinesCount);
-	std::shared_ptr<VirtualMeshGenerator> getInstance();
+	std::shared_ptr<VirtualMeshGenerator> getInstance() const;
 private:
 	const int SOUTH_POLE = 0;
 	const int NORTH_POLE = 1;

@@ -9,18 +9,19 @@ public:
 	VirtualMeshGenerator(std::vector<std::string> parameterNames, std::string meshName)
 		:parameterNames(parameterNames), meshName(meshName) {}
 	Mesh getMesh();
-	virtual const std::vector<std::string>& getParameterNames() const;
+	const std::vector<std::string>& getParameterNames() const;
 	const std::vector<float>& getParameterValues() const;
+	virtual std::shared_ptr<VirtualMeshGenerator> getInstance() const = 0;
+	const std::string& getName() const;
 	void setParameters(std::vector<float> parameters);
 private:
 
-	Mesh * resMesh;
+	Mesh * resMesh = nullptr;
 
 protected:
 	std::vector<float> parameters;
 	std::vector<std::string> parameterNames;
 	std::string meshName;
-	virtual std::shared_ptr<VirtualMeshGenerator> getInstance() = 0;
 	virtual void validateParameters() = 0;
 	virtual void resizeVectors() = 0;
 	virtual void setValues() = 0;

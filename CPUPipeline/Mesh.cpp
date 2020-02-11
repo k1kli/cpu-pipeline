@@ -120,3 +120,8 @@ const std::vector<glm::vec2>& Mesh::getUV() const
 {
 	return uv;
 }
+
+const VirtualMeshGenerator& Mesh::getGenerator() const
+{
+	return *generator;
+}

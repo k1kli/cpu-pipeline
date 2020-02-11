@@ -32,6 +32,12 @@ const std::vector<float>& VirtualMeshGenerator::getParameterValues() const
 	return parameters;
 }
 
+const std::string& VirtualMeshGenerator::getName() const
+{
+	return meshName;
+}
+
 void VirtualMeshGenerator::setParameters(std::vector<float> parameters)
 {
+	this->parameters = parameters;
 }

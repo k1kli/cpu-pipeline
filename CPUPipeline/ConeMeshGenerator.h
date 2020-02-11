@@ -13,7 +13,7 @@ private:
 	int netDivisions;
 
 
-	std::shared_ptr<VirtualMeshGenerator> getInstance();
+	std::shared_ptr<VirtualMeshGenerator> getInstance() const;
 	void validateParameters();
 	void resizeVectors();
 	void setValues();
