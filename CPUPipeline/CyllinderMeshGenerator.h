@@ -3,10 +3,8 @@
 class CyllinderMeshGenerator : public VirtualMeshGenerator
 {
 public:
-	CyllinderMeshGenerator(float height, float radius, int netDivisions)
-		:height(height),
-		radius(radius),
-		netDivisions(netDivisions) {}
+	CyllinderMeshGenerator(float height, float radius, int netDivisions);
+	std::shared_ptr<VirtualMeshGenerator> getInstance();
 private:
 	const int BOTTOM = 0;
 	const int TOP = 1;

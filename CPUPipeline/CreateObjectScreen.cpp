@@ -27,7 +27,7 @@ void CreateObjectScreen::handleInput(const Input& input)
 	}
 	if (input.getKey(GLFW_KEY_2))
 	{
-		createMesh(SphereMeshGenerator(1.0f, 10, 10));
+		createMesh(SphereMeshGenerator(0.5f, 10, 10));
 	}
 	if (input.getKey(GLFW_KEY_3))
 	{

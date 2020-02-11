@@ -1,7 +1,9 @@
 #include "Mesh.h"
 
 
-Mesh::~Mesh()
+
+Mesh::Mesh(std::shared_ptr<VirtualMeshGenerator> generator)
+	:generator(generator)
 {
 }
 

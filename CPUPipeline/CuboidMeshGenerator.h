@@ -3,10 +3,8 @@
 class CuboidMeshGenerator : public VirtualMeshGenerator
 {
 public:
-	CuboidMeshGenerator(float width, float height, float depth)
-		:width(width),
-		height(height),
-		depth(depth) {}
+	CuboidMeshGenerator(float width, float height, float depth);
+	std::shared_ptr<VirtualMeshGenerator> getInstance();
 private:
 	float width;
 	float height;

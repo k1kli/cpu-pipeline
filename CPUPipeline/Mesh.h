@@ -4,6 +4,9 @@
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
+#include "VirtualMeshGenerator.h"
+#include <memory>
+class VirtualMeshGenerator;
 class Mesh
 {
 	std::vector<glm::uvec3> triangles;
@@ -13,8 +16,9 @@ class Mesh
 	std::vector<glm::uvec3> trianglesUV;
 	std::vector<glm::vec2> uv;
 	std::vector<glm::mat3> tbn;
+	std::shared_ptr<VirtualMeshGenerator> generator;
 public:
-	virtual ~Mesh();
+	Mesh(std::shared_ptr<VirtualMeshGenerator> generator);
 	void setVertices(const std::vector<glm::vec3> & vertices);
 	void setNormals(const std::vector<glm::vec3> & normals);
 	void setTangents(const std::vector<glm::vec3>& tangents);

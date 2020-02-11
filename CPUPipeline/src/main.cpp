@@ -137,25 +137,24 @@ int main(int, char**)
 
 	GUIController guiController(fb);
 
-	Image image = Image("data/lion.jpg");
+	/*Image image = Image("data/lion.jpg");
 	Image normalImage = Image("data/drop.png");
-	normalImage.transform(normalTransformation);
+	normalImage.transform(normalTransformation);*/
 
 	
-	MeshGenerator meshGenerator;
 	Scene scene;
 	SceneRenderer sceneRenderer(fb);
 	sceneRenderer.SetScene(scene);
-	Mesh cubeMesh = meshGenerator.getCuboidMesh(1.0f, 1.0f, 1.0f);
-	Material cubeMaterial = Material(
-		0.1f, 0.1f, 0.1f, 1.0f,
-		std::make_shared<ImageSampler>(ImageSampler(image)),
-		//StaticColorSampler({ 0.5f,0.2f,0.2f }),
-		std::make_shared<StaticColorSampler>(StaticColorSampler({ 0.0f,0.0f,1.0f })));
-		//ImageSampler(normalImage));
-	SceneObject * cube = new SceneObject(cubeMesh, cubeMaterial);
+	//Mesh cubeMesh = meshGenerator.getCuboidMesh(1.0f, 1.0f, 1.0f);
+	//Material cubeMaterial = Material(
+	//	0.1f, 0.1f, 0.1f, 1.0f,
+	//	std::make_shared<ImageSampler>(ImageSampler(image)),
+	//	//StaticColorSampler({ 0.5f,0.2f,0.2f }),
+	//	std::make_shared<StaticColorSampler>(StaticColorSampler({ 0.0f,0.0f,1.0f })));
+	//	//ImageSampler(normalImage));
+	/*SceneObject * cube = new SceneObject(cubeMesh, cubeMaterial);
 	SceneObject* cube2 = new SceneObject(
-		cubeMesh, cubeMaterial);
+		cubeMesh, cubeMaterial);*/
 	Light light1 = Light({ 2.0f,0.0f,0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
 		1.0f, 0.09f, 0.032f);
 	Light light2 = Light({ -2.0f,0.0f,0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
@@ -169,8 +168,8 @@ int main(int, char**)
 	scene.AddLight(light3);
 	scene.AddLight(light4);
 	
-	scene.AddSceneObject(cube);
-	scene.AddSceneObject(cube2);
+	/*scene.AddSceneObject(cube);
+	scene.AddSceneObject(cube2);*/
 
 	input = new Input();
 
@@ -197,11 +196,11 @@ int main(int, char**)
 
 
 
-		cube->GetTransform().SetScale({ 0.2,0.2,0.2 });
-		cube->GetTransform().SetPosition({ -0.2,-0.2,0 });
-		cube->GetTransform().SetEulerAngles({ 0,currentTime,0 });
-		cube2->GetTransform().SetScale({ 0.2,0.2,0.2 });
-		cube2->GetTransform().SetPosition({ 2.8,-0.2,0 });
+		//cube->GetTransform().SetScale({ 0.2,0.2,0.2 });
+		//cube->GetTransform().SetPosition({ -0.2,-0.2,0 });
+		//cube->GetTransform().SetEulerAngles({ 0,currentTime,0 });
+		//cube2->GetTransform().SetScale({ 0.2,0.2,0.2 });
+		//cube2->GetTransform().SetPosition({ 2.8,-0.2,0 });
 		camera->SetViewport(0, 0, (float)current_width, (float)current_height);
 		camera->SetPerspective(fov, (float)current_height / current_width, 0.1f, 12);
 		float t = (float)(currentTime) * 0.05f;
