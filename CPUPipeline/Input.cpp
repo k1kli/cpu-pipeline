@@ -77,6 +77,6 @@ const std::vector<char>& Input::getCharactersTyped() const
 
 std::string Input::getClipboardString() const
 {
-	
-	return std::string(glfwGetClipboardString(window));
+	const char * clipboard = glfwGetClipboardString(window);
+	return std::string(clipboard ? clipboard : "");
 }

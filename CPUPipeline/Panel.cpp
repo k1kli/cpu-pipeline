@@ -31,3 +31,7 @@ void Panel::removeChild(const Displayable* child)
 		}
 	}
 }
+void Panel::removeAllChildren()
+{
+	children.clear();
+}

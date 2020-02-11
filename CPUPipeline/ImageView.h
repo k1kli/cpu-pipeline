@@ -6,14 +6,18 @@ class Image;
 class ImageView
 {
 public:
-	ImageView(const Image& image, ImageStorage& storage, int imageId);
+	ImageView(Image * image, ImageStorage * storage, int imageId, bool valid);
+	ImageView();
 	ImageView(const ImageView& other);
 	~ImageView();
-	ImageView& operator=(const ImageView& other) = delete;
+	ImageView& operator=(const ImageView& other);
 	const Image& getImage() const;
+	Image& getImage();
+	const bool isValid() const;
 private:
 	int imageId;
-	const Image& image;
-	ImageStorage& storage;
+	Image * image;
+	ImageStorage * storage;
+	bool valid;
 };
 

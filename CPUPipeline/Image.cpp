@@ -5,6 +5,10 @@ Image::Image(const char * filename)
 {
 	int channels;
 	unsigned char * dataC = stbi_load(filename, &x, &y, &channels, 3);
+	if (dataC == nullptr)
+	{
+		throw "invalid file";
+	}
 	data = new glm::vec3[x * y];
 	for (int yi = 0; yi < y; yi++)
 	{

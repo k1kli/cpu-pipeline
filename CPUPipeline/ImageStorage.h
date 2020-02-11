@@ -7,7 +7,7 @@ class Image;
 class ImageStorage
 {
 public:
-	int addImage(Image* image);
+	ImageView addImage(const char * filepath);
 	ImageView acquireImage(int imageId);
 private:
 	int nextId = 0;

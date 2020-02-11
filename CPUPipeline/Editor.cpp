@@ -108,7 +108,7 @@ void Editor::showEditObjectScreen()
 	if (selectedObject == nullptr) return;
 	guiController.removeDisplayable(&defaultHelpLabel);
 	currentScreen = new EditObjectScreen(
-		[this]()->void {this->defaultScreenCallback(); }, *selectedObject);
+		[this]()->void {this->defaultScreenCallback(); }, *selectedObject, scene->getImageStorage());
 	guiController.addDisplayable(*currentScreen);
 }
 

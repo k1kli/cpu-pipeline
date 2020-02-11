@@ -1,16 +1,16 @@
 #include "EditObjectScreen.h"
 #include <sstream>
 #include "StaticColorSampler.h"
+#include "ImageSampler.h"
+#include <algorithm>
 
-EditObjectScreen::EditObjectScreen(std::function<void()> doneCallback, SceneObject& sceneObjectToModify)
-	:doneCallback(doneCallback), sceneObjectToModify(sceneObjectToModify)
+EditObjectScreen::EditObjectScreen(std::function<void()> doneCallback, SceneObject& sceneObjectToModify,
+	ImageStorage & imageStorage)
+	:doneCallback(doneCallback), sceneObjectToModify(sceneObjectToModify), sceneImageStorage(imageStorage)
 {
 	this->addChild(sidePanel);
 	
-	sidePanel.addChild(pressVAgainToLeave);
-	sidePanel.addChild(pressTabToJumpToNextField);
-	sidePanel.addChild(pressEnterToApply);
-	sidePanel.addChild(pressNToLoadNormal);
+	
 
 	loadEditor();
 }
@@ -21,19 +21,32 @@ void EditObjectScreen::handleInput(const Input& input)
 	{
 		doneCallback();
 	}
-	if (input.getKeyDown(GLFW_KEY_TAB))
+	else if (input.getKeyDown(GLFW_KEY_TAB))
 	{
 		selectNextParameter();
 	}
-	if (input.getKeyDown(GLFW_KEY_ENTER))
+	else if (input.getKeyDown(GLFW_KEY_ENTER))
 	{
 		tryApply();
 	}
-	if (input.getKeyDown(GLFW_KEY_N))
+	else if (input.getKeyDown(GLFW_KEY_N))
 	{
-		loadNormalMapFromClipboard();
+		loadNormalMapFromClipboard(input);
 	}
-	parameterValuesTextBoxes[selectedParameterId]->handleInput(input);
+	else if (input.getKeyDown(GLFW_KEY_L))
+	{
+		loadTextureFromClipboard(input);
+	}
+	else if (input.getKeyDown(GLFW_KEY_M))
+	{
+		textureFromClipboard = ImageView();
+		sceneObjectToModify.GetMaterial().colorSampler = std::make_shared<StaticColorSampler>(glm::vec3(1.0f, 1.0f, 1.0f));
+		loadEditor();
+	}
+	else
+	{
+		parameterValuesTextBoxes[selectedParameterId]->handleInput(input);
+	}
 }
 
 EditObjectScreen::~EditObjectScreen()
@@ -98,14 +111,32 @@ void EditObjectScreen::createMaterial()
 		newMaterial.ambient.g = glm::clamp(stof(parameterValuesTextBoxes[meshParametersEnd + 4]->getText()), 0.0f, 1.0f);
 		newMaterial.ambient.b = glm::clamp(stof(parameterValuesTextBoxes[meshParametersEnd + 5]->getText()), 0.0f, 1.0f);
 
-		glm::vec3 diffuse;
+		newMaterial.shininess = glm::clamp(stof(parameterValuesTextBoxes[meshParametersEnd + 6]->getText()), 1.0f, 200.0f);
 
-		diffuse.r = glm::clamp(stof(parameterValuesTextBoxes[meshParametersEnd + 6]->getText()), 0.0f, 1.0f);
-		diffuse.g = glm::clamp(stof(parameterValuesTextBoxes[meshParametersEnd + 7]->getText()), 0.0f, 1.0f);
-		diffuse.b = glm::clamp(stof(parameterValuesTextBoxes[meshParametersEnd + 8]->getText()), 0.0f, 1.0f);
-		newMaterial.colorSampler = std::make_shared<StaticColorSampler>(diffuse);
+		if (textureFromClipboard.isValid())
+		{
+			newMaterial.colorSampler = std::make_shared <ImageSampler>(textureFromClipboard);
+			textureFromClipboard = ImageView();
+			pressLToLoadTexture.setText("press L to load texture from clipboard filename");
+		}
+		else if (!diffuseFromTexture)
+		{
+			glm::vec3 diffuse;
 
-		newMaterial.shininess = glm::clamp(stof(parameterValuesTextBoxes[meshParametersEnd + 9]->getText()), 1.0f, 200.0f);
+			diffuse.r = glm::clamp(stof(parameterValuesTextBoxes[meshParametersEnd + 7]->getText()), 0.0f, 1.0f);
+			diffuse.g = glm::clamp(stof(parameterValuesTextBoxes[meshParametersEnd + 8]->getText()), 0.0f, 1.0f);
+			diffuse.b = glm::clamp(stof(parameterValuesTextBoxes[meshParametersEnd + 9]->getText()), 0.0f, 1.0f);
+			newMaterial.colorSampler = std::make_shared<StaticColorSampler>(diffuse);
+		}
+
+		if (normalMapFromClipboard.isValid())
+		{
+			newMaterial.normalSampler = std::make_shared <ImageSampler>(normalMapFromClipboard);
+			normalMapFromClipboard = ImageView();
+			pressNToLoadNormal.setText("press N to load normal map from clipboard filename");
+		}
+
+
 
 	}
 	catch(...)
@@ -117,11 +148,21 @@ void EditObjectScreen::createMaterial()
 
 void EditObjectScreen::loadEditor()
 {
+	sidePanel.removeAllChildren();
+	sidePanel.addChild(pressVAgainToLeave);
+	sidePanel.addChild(pressTabToJumpToNextField);
+	sidePanel.addChild(pressEnterToApply);
+	sidePanel.addChild(pressNToLoadNormal);
+	sidePanel.addChild(pressLToLoadTexture);
 	int y = -100;
 	parameterNamesLabels.clear();
 	parameterValuesTextBoxes.clear();
 	loadMeshEditor(y);
 	loadMaterialEditor(y);
+	if (selectedParameterId >= parameterNamesLabels.size())
+	{
+		selectedParameterId = parameterNamesLabels.size() - 1;
+	}
 	parameterValuesTextBoxes[selectedParameterId]->setSelected(true);
 }
 
@@ -161,15 +202,23 @@ void EditObjectScreen::loadMaterialEditor(int &y)
 	addEditorField(y, "ambient G (0-1)", oldMaterial.ambient.g);
 	addEditorField(y, "ambient B (0-1)", oldMaterial.ambient.b);
 
-	if (StaticColorSampler* sts = dynamic_cast<StaticColorSampler*>(oldMaterial.colorSampler.get()))
+	addEditorField(y, "shininess (1-200)", oldMaterial.shininess);
+
+	if (ImageSampler* imageSampler = dynamic_cast<ImageSampler*>(oldMaterial.colorSampler.get()))
+	{
+		diffuseFromTexture = true;
+		sidePanel.addChild(pressMToSwitchColorSampler);
+		
+	}
+	else if (StaticColorSampler* sts = dynamic_cast<StaticColorSampler*>(oldMaterial.colorSampler.get()))
 	{
 		glm::vec3 diffuse = sts->getColor();
 		addEditorField(y, "diffuse R (0-1)", diffuse.r);
 		addEditorField(y, "diffuse G (0-1)", diffuse.g);
 		addEditorField(y, "diffuse B (0-1)", diffuse.b);
+		diffuseFromTexture = false;
 	}
 
-	addEditorField(y, "shininess (1-200)", oldMaterial.shininess);
 
 }
 
@@ -184,6 +233,27 @@ void EditObjectScreen::addEditorField(int& y, std::string name, float value)
 	y -= 30;
 }
 
-void EditObjectScreen::loadNormalMapFromClipboard()
+void EditObjectScreen::loadNormalMapFromClipboard(const Input & input)
 {
+	std::string clipboardString = input.getClipboardString();
+	
+	normalMapFromClipboard = sceneImageStorage.addImage(clipboardString.c_str());
+	pressNToLoadNormal.setText(normalMapFromClipboard.isValid()
+		? std::string("normal map loaded, press enter")
+		: std::string("map failed to load"));
+	if (normalMapFromClipboard.isValid())
+	{
+		normalMapFromClipboard.getImage().transform(normalTransformation);
+	}
+}
+
+void EditObjectScreen::loadTextureFromClipboard(const Input& input)
+{
+	std::string clipboardString = input.getClipboardString();
+
+	textureFromClipboard = sceneImageStorage.addImage(clipboardString.c_str());
+	pressLToLoadTexture.setText(textureFromClipboard.isValid()
+		? std::string("texture loaded, press enter")
+		: std::string("map failed to load"));
+	
 }
