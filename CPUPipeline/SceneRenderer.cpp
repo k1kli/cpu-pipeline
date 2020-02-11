@@ -65,8 +65,8 @@ void SceneRenderer::DrawSceneObject(int color)
 }
 void SceneRenderer::TransformVertices()
 {
-	const glm::mat4 & worldMatrix = renderedObject->GetWorldMatrix();
-	modelViewProjectionMatrix = viewProjectionMatrix*renderedObject->GetWorldMatrix();
+	const glm::mat4 & worldMatrix = renderedObject->GetTransform().GetWorldMatrix();
+	modelViewProjectionMatrix = viewProjectionMatrix* worldMatrix;
 	auto vertices = renderedObject->GetMesh().getVertices();
 	transformedVertices.resize(vertices.size());
 	worldPosVertices.resize(vertices.size());
@@ -79,7 +79,7 @@ void SceneRenderer::TransformVertices()
 }
 void SceneRenderer::TransformNormals()
 {
-	glm::mat3 inverseWorldMatrix = glm::inverse(glm::transpose(renderedObject->GetWorldMatrix()));
+	glm::mat3 inverseWorldMatrix = glm::inverse(glm::transpose(renderedObject->GetTransform().GetWorldMatrix()));
 	auto normals = renderedObject->GetMesh().getNormals();
 	auto tbns = renderedObject->GetMesh().getTBN();
 	transformedNormals.resize(normals.size());

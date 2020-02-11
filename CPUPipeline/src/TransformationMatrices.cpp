@@ -33,6 +33,30 @@ namespace TransformationMatrices {
 		rotation[3][3] = 1;
 		return rotation;
 	}
+	glm::mat4 getXRotationMatrix(float angle)
+	{
+		return glm::mat4(
+			1,				0,				0,				0,
+			0,				cos(angle),		-sin(angle),	0,
+			0,				sin(angle),		cos(angle),		0,
+			0,				0,				0,				1);
+	}
+	glm::mat4 getYRotationMatrix(float angle)
+	{
+		return glm::mat4(
+			cos(angle),		0,				sin(angle),		0,
+			0,				1,				0,				0,
+			-sin(angle),	0,				cos(angle),		0,
+			0,				0,				0,				1);
+	}
+	glm::mat4 getZRotationMatrix(float angle)
+	{
+		return glm::mat4(
+			cos(angle),		-sin(angle),	0,				0,
+			sin(angle),		cos(angle),		0,				0,
+			0,				0,				1,				0,
+			0,				0,				0,				1);
+	}
 	glm::mat4 getTranslationMatrix(glm::vec3 translateVector)
 	{
 		glm::mat4 translation;

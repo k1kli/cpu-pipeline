@@ -8,6 +8,9 @@
 #include <glm\gtc\type_ptr.hpp>
 namespace TransformationMatrices {
 	glm::mat4 getRotationMatrix(float angle, glm::vec3 axis);
+	glm::mat4 getXRotationMatrix(float angle);
+	glm::mat4 getYRotationMatrix(float angle);
+	glm::mat4 getZRotationMatrix(float angle);
 	glm::mat4 getTranslationMatrix(glm::vec3 translateVector);
 	glm::mat4 getScalingMatrix(glm::vec3 scaleVector);
 }
