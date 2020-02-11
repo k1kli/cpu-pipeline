@@ -83,7 +83,20 @@ void Camera::LookAt(glm::vec3 pos, glm::vec3 front, glm::vec3 up)
 	m_position = pos;
 	m_up_vector = up;
 	m_forward_vector = front;
-	m_world_matrix = glm::lookAt(pos, pos+front, up);
+	glm::vec3 F = glm::normalize(-front);
+	glm::vec3 R = glm::normalize(glm::cross(up, F));
+	glm::vec3 U = glm::normalize(glm::cross(F, R));
+	m_world_matrix = glm::transpose(glm::mat4(
+		R.x, R.y, R.z, 0,
+		U.x, U.y, U.z, 0,
+		F.x, F.y, F.z, 0,
+		0, 0, 0, 1
+	)) * glm::transpose(glm::mat4(
+		1, 0, 0, -m_position.x,
+		0, 1, 0, -m_position.y,
+		0, 0, 1, -m_position.z,
+		0, 0, 0, 1
+	));
 }
 
 const glm::vec3& Camera::GetPosition() const
