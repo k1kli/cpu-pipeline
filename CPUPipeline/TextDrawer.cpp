@@ -33,7 +33,7 @@ void TextDrawer::DrawTextAt(std::string text, int x, int y, int color, unsigned 
 		fb.DrawPixmap(x+face->glyph->bitmap_left,
 			y+face->glyph->bitmap_top, face->glyph->bitmap.width,
 			face->glyph->bitmap.rows, face->glyph->bitmap.buffer, color);
-		x += face->glyph->bitmap.width*1.1f;
+		x += face->glyph->bitmap.width + charHeight/10;
 	}
 	
 }

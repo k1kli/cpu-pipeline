@@ -2,11 +2,17 @@
 #include <TransformationMatrices.h>
 #include "Raycast.h"
 #include <algorithm>
+#include "CreateObjectScreen.h"
 
 void Editor::handleInput(float deltaTime)
 {
 	if(input.getKey(GLFW_KEY_ESCAPE))
 		glfwSetWindowShouldClose(window, true);
+	if (currentScreen != nullptr)
+	{
+		currentScreen->handleInput(input);
+		return;
+	}
 	moveCamera(deltaTime);
 	rotateCamera();
 	if(input.getKeyDown(GLFW_KEY_P))
@@ -21,6 +27,8 @@ void Editor::handleInput(float deltaTime)
 		selectObjectInFrontOfCamera();
 	if (input.getKeyDown(GLFW_KEY_X))
 		deleteSelectedObject();
+	if (input.getKeyDown(GLFW_KEY_C))
+		showCreateScreen();
 }
 void Editor::moveCamera(float deltaTime)
 {
@@ -83,4 +91,22 @@ void Editor::deleteSelectedObject()
 			std::remove(sceneObjects.begin(), sceneObjects.end(), selectedObject), sceneObjects.end());
 		selectedObject = nullptr;
 	}
+}
+
+void Editor::showCreateScreen()
+{
+	currentScreen = new CreateObjectScreen(
+		[this](SceneObject* res)->void {this->createdCallback(res); });
+	guiController.addDisplayable(*currentScreen);
+}
+
+void Editor::createdCallback(SceneObject* createdObject)
+{
+	if (createdObject != nullptr)
+	{
+		scene->AddSceneObject(*createdObject);
+	}
+	guiController.RemoveDisplayable(currentScreen);
+	delete currentScreen;
+	currentScreen = nullptr;
 }

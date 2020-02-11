@@ -122,12 +122,23 @@ void FrameBuffer::SetPixel(int x, int y, int color, float depth)
 	m_color_buffer[idx + 3] = ALPHA(color);
 	depthBuffer[id] = depth;
 }
+void FrameBuffer::SetPixelWithAlpha(int x, int y, int color)
+{
+	if (x < 0 || y < 0 || x >= m_width || y >= m_height)
+		return;
+	if (ALPHA(color) == 0) return;
+	float q = ALPHA(color) / 255.0f;
+	color = RGB((int)(RED(color) * q), (int)(GREEN(color) * q), (int)(BLUE(color) * q));
+	int id = y * m_width + x;
+	int idx = m_bytesPerPixel * id;
+	m_color_buffer[idx] = m_color_buffer[idx] * (1 - q) + RED(color);
+	m_color_buffer[idx + 1] = m_color_buffer[idx + 1] * (1 - q) + GREEN(color);
+	m_color_buffer[idx + 2] = m_color_buffer[idx + 2] * (1 - q) + BLUE(color);
+}
 
 void FrameBuffer::DrawPixmap(int startX, int startY, int width, int height, unsigned char* buffer, int color)
 {
 
-	//TODO fix text rendering
-	glm::vec3 colorF = { RED(color) / 255.0f,GREEN(color) / 255.0f, BLUE(color) / 255.0f };
 	
 	int mapStartX = 0;
 	if (startX < 0)
@@ -136,10 +147,10 @@ void FrameBuffer::DrawPixmap(int startX, int startY, int width, int height, unsi
 		startX = 0;
 	}
 	int mapStartY = 0;
-	if (startY < 0)
+	if (startY >= m_height)
 	{
-		mapStartY -= startY;
-		startY = 0;
+		mapStartY += startY - (m_width - 1);
+		startY = m_width-1;
 	}
 	for (int fbY = startY, mapY = 0; mapY < height && fbY >= 0; mapY++, fbY--)
 	{
@@ -149,10 +160,8 @@ void FrameBuffer::DrawPixmap(int startX, int startY, int width, int height, unsi
 			int idx = m_bytesPerPixel * id;
 			if (buffer[mapY * width + mapX] != 0)
 			{
-				m_color_buffer[idx] = buffer[mapY * width + mapX] * colorF.r;
-				m_color_buffer[idx + 1] = buffer[mapY * width + mapX] * colorF.g;
-				m_color_buffer[idx + 2] = buffer[mapY * width + mapX] * colorF.b;
-				m_color_buffer[idx + 3] = 255;
+				int newCol = RGBA(RED(color), GREEN(color), BLUE(color), buffer[mapY * width + mapX]);
+				SetPixelWithAlpha(fbX, fbY, newCol);
 			}
 		}
 	}
@@ -193,8 +202,6 @@ void FrameBuffer::DrawLine(int x0, int y0, int x1, int y1, int color)
 void FrameBuffer::DrawRect(int x0, int y0, int x1, int y1, int color)
 {
 	if (ALPHA(color) == 0) return;
-	float q = ALPHA(color) / 255.0f;
-	color = RGB((int)(RED(color) * q), (int)(GREEN(color) * q), (int)(BLUE(color) * q));
 	
 	int dx = abs(x1 - x0);
 	int dy = -abs(y1 - y0);
@@ -202,11 +209,7 @@ void FrameBuffer::DrawRect(int x0, int y0, int x1, int y1, int color)
 	int sy = y0 < y1 ? 1 : -1;
 	for (int x = x0; x != x1; x += sx) {
 		for (int y = y0; y != y1; y += sy) {
-			int baseColor = GetPixel(x, y);
-			unsigned char changedColorR = RED(baseColor) * (1 - q) + RED(color);
-			unsigned char changedColorG = GREEN(baseColor) * (1 - q) + GREEN(color);
-			unsigned char changedColorB = BLUE(baseColor) * (1 - q) + BLUE(color);
-			SetPixel(x, y, RGB(changedColorR, changedColorG, changedColorB), -INFINITY);
+			SetPixelWithAlpha(x, y, color);
 		}
 	}
 }

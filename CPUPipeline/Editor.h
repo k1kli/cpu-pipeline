@@ -3,6 +3,7 @@
 #include "GUIController.h"
 #include "Label.h"
 #include "Input.h"
+#include "Screen.h"
 class Editor
 {
 public:
@@ -25,10 +26,13 @@ private:
 	FrameBuffer & fb;
 	const Input& input;
 	SceneObject* selectedObject;
+	Screen* currentScreen = nullptr;
 
 	void moveCamera(float deltaTime);
 	void rotateCamera();
 	void selectObjectInFrontOfCamera();
 	void deleteSelectedObject();
+	void showCreateScreen();
+	void createdCallback(SceneObject* createdObject);
 };
 

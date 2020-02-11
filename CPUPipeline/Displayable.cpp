@@ -20,16 +20,14 @@ void Displayable::Display(GUIUtils& guiUtils, int startX, int startY, int parent
 {
 	int width = prefferedSize.x;
 	int height = prefferedSize.y;
+	if (startX < 0)
+		startX += parentWidth;
+	if (startY < 0)
+		startY += parentHeight;
 	if (prefferedSize.x == -1)
-	{
-		startX = 0;
-		width = parentWidth;
-	}
+		width = parentWidth - startX;
 	if (prefferedSize.y == -1)
-	{
-		startY = 0;
-		height = parentHeight;
-	}
+		height = parentHeight - startY;
 	onPaint(guiUtils, startX, startY, width, height);
 }
 

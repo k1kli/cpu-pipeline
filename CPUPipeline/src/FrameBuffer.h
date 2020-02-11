@@ -37,6 +37,7 @@ public:
 	void Save(std::string file_name);
 
 	void SetPixel(int x, int y, int color, float depth);
+	void SetPixelWithAlpha(int x, int y, int color);
 	void DrawPixmap(int x, int y, int width, int height, unsigned char* buffer, int color);
 	int GetPixel(int x, int y);
 
