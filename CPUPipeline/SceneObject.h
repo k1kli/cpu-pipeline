@@ -8,7 +8,7 @@ class SceneObject
 	Material material;
 	Transform transform;
 public:
-	SceneObject(const Mesh& mesh, const Material& material);
+	SceneObject(const Mesh& mesh, const Material& material, Transform transform = Transform());
 	Mesh& GetMesh();
 	const Mesh& GetMesh() const;
 	void SetMaterial(const Material & material);

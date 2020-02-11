@@ -1,8 +1,8 @@
 #include "SceneObject.h"
 #include <TransformationMatrices.h>
 
-SceneObject::SceneObject(const Mesh& mesh, const Material& material)
-	:mesh(mesh), material(material)
+SceneObject::SceneObject(const Mesh& mesh, const Material& material, Transform transform)
+	:mesh(mesh), material(material), transform(transform)
 {
 }
 

@@ -11,7 +11,7 @@ class Scene
 	std::vector<Light*> lights;
 	Camera * mainCamera;
 public:
-	void AddSceneObject(SceneObject & sceneObject);
+	void AddSceneObject(SceneObject * sceneObject);
 	void AddLight(Light& light);
 	std::vector<SceneObject *>& GetSceneObjects();
 	const std::vector<SceneObject *>& GetSceneObjects() const;
@@ -20,5 +20,6 @@ public:
 	void SetMainCamera(Camera& camera);
 	Camera& getMainCamera();
 	const Camera& getMainCamera() const;
+	~Scene();
 };
 

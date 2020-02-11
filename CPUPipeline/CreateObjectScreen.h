@@ -4,14 +4,18 @@
 #include "SceneObject.h"
 #include "Label.h"
 #include "VirtualMeshGenerator.h"
+#include "Material.h"
+#include "StaticColorSampler.h"
+#include "Camera.h"
 class CreateObjectScreen :
 	public Screen
 {
 public:
-	CreateObjectScreen(std::function<void (SceneObject*)> doneCallback);
+	CreateObjectScreen(std::function<void (SceneObject*)> doneCallback, const Camera* currentCamera);
 	void handleInput(const Input& input);
 private:
 	std::function<void(SceneObject*)> doneCallback;
+	const Camera* currentCamera;
 
 	Panel sidePanel = Panel(RGBA(255, 255, 255, 100), { 0,0 }, 300, -1);
 	Label chooseMeshLabel = Label({ 30, -160 }, std::string("Choose mesh"), 30);

@@ -96,7 +96,7 @@ void Editor::deleteSelectedObject()
 void Editor::showCreateScreen()
 {
 	currentScreen = new CreateObjectScreen(
-		[this](SceneObject* res)->void {this->createdCallback(res); });
+		[this](SceneObject* res)->void {this->createdCallback(res); }, &scene->getMainCamera());
 	guiController.addDisplayable(*currentScreen);
 }
 
@@ -104,7 +104,7 @@ void Editor::createdCallback(SceneObject* createdObject)
 {
 	if (createdObject != nullptr)
 	{
-		scene->AddSceneObject(*createdObject);
+		scene->AddSceneObject(createdObject);
 	}
 	guiController.RemoveDisplayable(currentScreen);
 	delete currentScreen;

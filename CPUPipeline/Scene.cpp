@@ -1,8 +1,8 @@
 #include "Scene.h"
 
-void Scene::AddSceneObject(SceneObject& sceneObject)
+void Scene::AddSceneObject(SceneObject * sceneObject)
 {
-	sceneObjects.push_back(&sceneObject);
+	sceneObjects.push_back(sceneObject);
 }
 
 void Scene::AddLight(Light& light)
@@ -44,4 +44,12 @@ Camera& Scene::getMainCamera()
 const Camera& Scene::getMainCamera() const
 {
 	return *mainCamera;
+}
+
+Scene::~Scene()
+{
+	for (int i = 0; i < sceneObjects.size(); i++)
+	{
+		delete sceneObjects[i];
+	}
 }
