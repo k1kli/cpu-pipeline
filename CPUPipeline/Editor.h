@@ -2,26 +2,22 @@
 #include "SceneRenderer.h"
 #include "GUIController.h"
 #include "Label.h"
+#include "Input.h"
 class Editor
 {
 public:
-	Editor(GUIController& guiController, SceneRenderer& sceneRenderer, Scene* scene, GLFWwindow* window,
-		FrameBuffer & fb)
+	Editor(GUIController& guiController, SceneRenderer& sceneRenderer, Scene* scene, const Input & input,
+		FrameBuffer & fb, GLFWwindow * window)
 		:guiController(guiController), sceneRenderer(sceneRenderer), scene(scene),
-		defaultHelpLabel({ 0,0 }, "press H for help", 30), window(window), fb(fb)
+		defaultHelpLabel({ 0,0 }, "press H for help", 30), input(input), fb(fb), window(window)
 	{
 
-		for (int i = 0; i < GLFW_KEY_LAST + 1; i++)
-		{
-			pressedPreviousFrame[i] = false;
-		}
 		defaultHelpLabel.setColor(RGB(255, 255, 255));
 		guiController.addDisplayable(defaultHelpLabel);
 	}
-	void processInput(float deltaTime);
+	void handleInput(float deltaTime);
 	void moveCamera(float deltaTime);
-	void processMouse(double xPos, double yPos);
-	void rotateCamera(double xDiff, double yDiff);
+	void rotateCamera();
 private:
 	GUIController& guiController;
 	SceneRenderer& sceneRenderer;
@@ -29,10 +25,6 @@ private:
 	Label defaultHelpLabel;
 	GLFWwindow* window;
 	FrameBuffer & fb;
-	double oldXPos = 0;
-	double oldYPos = 0;
-	double currentWidth = 0;
-	double currentHeight = 0;
-	bool pressedPreviousFrame[GLFW_KEY_LAST + 1];
+	const Input& input;
 };
 

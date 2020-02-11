@@ -1,45 +1,20 @@
 #include "Editor.h"
 #include <TransformationMatrices.h>
 
-void Editor::processInput(float deltaTime)
+void Editor::handleInput(float deltaTime)
 {
-	currentWidth = fb.getWidth();
-	currentHeight = fb.getHeight();
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+	if(input.getKey(GLFW_KEY_ESCAPE))
 		glfwSetWindowShouldClose(window, true);
 	moveCamera(deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
-	{
-		if (!pressedPreviousFrame[GLFW_KEY_P])
-			sceneRenderer.toggleBackfaceCulling();
-		pressedPreviousFrame[GLFW_KEY_P] = true;
-	}
-	else
-		pressedPreviousFrame[GLFW_KEY_P] = false;
-	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
-	{
-		if (!pressedPreviousFrame[GLFW_KEY_O])
-			sceneRenderer.togglePerspectiveFix();
-		pressedPreviousFrame[GLFW_KEY_O] = true;
-	}
-	else
-		pressedPreviousFrame[GLFW_KEY_O]= false;
-	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
-	{
-		if (!pressedPreviousFrame[GLFW_KEY_I])
-			fb.toggleDepthBuffering();
-		pressedPreviousFrame[GLFW_KEY_I] = true;
-	}
-	else
-		pressedPreviousFrame[GLFW_KEY_I] = false;
-	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
-	{
-		if (!pressedPreviousFrame[GLFW_KEY_U])
-			sceneRenderer.toggleWireframe();
-		pressedPreviousFrame[GLFW_KEY_U] = true;
-	}
-	else
-		pressedPreviousFrame[GLFW_KEY_U] = false;
+	rotateCamera();
+	if(input.getKeyDown(GLFW_KEY_P))
+		sceneRenderer.toggleBackfaceCulling();
+	if (input.getKeyDown(GLFW_KEY_O))
+		sceneRenderer.togglePerspectiveFix();
+	if (input.getKeyDown(GLFW_KEY_I))
+		fb.toggleDepthBuffering();
+	if (input.getKeyDown(GLFW_KEY_U))
+		sceneRenderer.toggleWireframe();
 }
 void Editor::moveCamera(float deltaTime)
 {
@@ -48,51 +23,38 @@ void Editor::moveCamera(float deltaTime)
 	const glm::vec3& up = camera.GetUp();
 	glm::vec3 pos = camera.GetPosition();
 	glm::vec3 right = glm::cross(forward, up);
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	if (input.getKey(GLFW_KEY_W))
 		pos += forward * deltaTime;
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	if (input.getKey(GLFW_KEY_A))
 		pos -= right * deltaTime;
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	if (input.getKey(GLFW_KEY_S))
 		pos -= forward * deltaTime;
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	if (input.getKey(GLFW_KEY_D))
 		pos += right * deltaTime;
-	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+	if (input.getKey(GLFW_KEY_Q))
 		pos += up * deltaTime;
-	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+	if (input.getKey(GLFW_KEY_E))
 		pos -= up * deltaTime;
 	camera.LookAt(pos, forward, up);
 }
 
-void Editor::processMouse(double xPos, double yPos)
+void Editor::rotateCamera()
 {
-	currentWidth = fb.getWidth();
-	currentHeight = fb.getHeight();
-	xPos = xPos - currentWidth / 2.0;
-	yPos = yPos - currentHeight / 2.0;
-	double xDiff = xPos - oldXPos;
-	double yDiff = yPos - oldYPos;
-	oldXPos = xPos;
-	oldYPos = yPos;
-	rotateCamera(xDiff, yDiff);
-	
-}
-void Editor::rotateCamera(double xDiff, double yDiff)
-{
-	yDiff /= currentHeight / 2.0;
+	glm::vec2 mouseDiff = input.getMouseDiff();
 	Camera& camera = scene->getMainCamera();
 	glm::vec3 forward = camera.GetForward();
 	const glm::vec3& up = camera.GetUp();
-	if (abs(yDiff) > 0.001)
+	mouseDiff /= glm::vec2({fb.getWidth(), fb.getHeight()});
+	if (abs(mouseDiff.y) > 0.001)
 	{
 		glm::vec3 right = glm::cross(forward, up);
-		forward = TransformationMatrices::getRotationMatrix(-(float)yDiff * 0.6f, right)
+		forward = TransformationMatrices::getRotationMatrix(-(float)mouseDiff.y * 0.6f, right)
 			* glm::vec4(forward, 1);
 
 	}
-	xDiff /= currentWidth / 2.0;
-	if (abs(xDiff) > 0.001)
+	if (abs(mouseDiff.x) > 0.001)
 	{
-		forward = TransformationMatrices::getRotationMatrix(-(float)xDiff * 1.6f, up)
+		forward = TransformationMatrices::getRotationMatrix(-(float)mouseDiff.x * 1.6f, up)
 			* glm::vec4(forward, 1);
 	}
 	camera.LookAt(camera.GetPosition(), forward, up);

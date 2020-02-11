@@ -31,7 +31,7 @@ void SceneRenderer::RenderScene()
 	for (auto i = 0; i < sceneObjects.size(); i++)
 	{
 		renderedObject = sceneObjects[i];
-		DrawSceneObject(0xFFFF0000);
+		DrawSceneObject();
 	}
 	DrawLights();
 	renderThreadManagement.endThreads();
@@ -57,11 +57,15 @@ void SceneRenderer::toggleWireframe()
 {
 	wireframe = !wireframe;
 }
-void SceneRenderer::DrawSceneObject(int color)
+void SceneRenderer::selectObject(const SceneObject& objectToSelect)
+{
+	selectedObject = &objectToSelect;
+}
+void SceneRenderer::DrawSceneObject()
 {
 	TransformVertices();
 	TransformNormals();
-	DrawObjectsTriangles(color);
+	DrawObjectsTriangles();
 }
 void SceneRenderer::TransformVertices()
 {
@@ -90,7 +94,7 @@ void SceneRenderer::TransformNormals()
 		transformedTBN[i] = inverseWorldMatrix * tbns[i];
 	}
 }
-void SceneRenderer::DrawObjectsTriangles(int color)
+void SceneRenderer::DrawObjectsTriangles()
 {
 	const std::vector<glm::uvec3> triangles = renderedObject->GetMesh().getTriangles();
 	for (auto i = 0; i < triangles.size(); i++)
@@ -104,16 +108,16 @@ void SceneRenderer::DrawObjectsTriangles(int color)
 		glm::vec3 normal = glm::normalize(glm::cross(v2-v1, v3-v1));
 		if (!backfaceCulling || dot({ 0,0,-1 }, normal) < 0)
 		{
-			DrawTriangle(i, color);
+			DrawTriangle(i);
 		}
 	}
 }
-void SceneRenderer::DrawTriangle(int triangleId, int color)
+void SceneRenderer::DrawTriangle(int triangleId)
 {
 
-	DrawClippedTriangle(triangleId, color);
+	DrawClippedTriangle(triangleId);
 }
-void SceneRenderer::DrawClippedTriangle(int triangleId, int color)
+void SceneRenderer::DrawClippedTriangle(int triangleId)
 {
 	glm::uvec3 mainTriangle = renderedObject->GetMesh().getTriangles()[triangleId];
 	
@@ -137,12 +141,12 @@ void SceneRenderer::DrawClippedTriangle(int triangleId, int color)
 		}
 		for (auto i = 1; i < poly.size()-1; i++)
 		{
-			if(wireframe)
+			if(!wireframe)
+				ScanLine(&poly[0], &poly[i], &poly[i + 1]);
+			if (wireframe && renderedObject != selectedObject)
+				WireFrame(&poly[0], &poly[i], &poly[i + 1], 0xFFFFFFFF);
+			if (renderedObject == selectedObject)
 				WireFrame(&poly[0], &poly[i], &poly[i + 1], 0xFF00FFFF);
-			else
-			{
-				ScanLine(&poly[0], &poly[i], &poly[i + 1], color);
-			}
 		}
 	}
 }
@@ -187,19 +191,19 @@ void SceneRenderer::WireFrame(glm::vec4* v1, glm::vec4* v2, glm::vec4* v3, int c
 		v1->x,
 		v1->y,
 		v2->x,
-		v2->y, 0xFF00FFFF);
+		v2->y, color);
 	frameBuffer.DrawLine(
 		v2->x,
 		v2->y,
 		v3->x,
-		v3->y, 0xFF00FFFF);
+		v3->y, color);
 	frameBuffer.DrawLine(
 		v3->x,
 		v3->y,
 		v1->x,
-		v1->y, 0xFF00FFFF);
+		v1->y, color);
 }
-void SceneRenderer::ScanLine(glm::vec4 * v1, glm::vec4 * v2, glm::vec4 * v3, int color)
+void SceneRenderer::ScanLine(glm::vec4 * v1, glm::vec4 * v2, glm::vec4 * v3)
 {
 	glm::vec4 * buf;
 
@@ -228,19 +232,19 @@ void SceneRenderer::ScanLine(glm::vec4 * v1, glm::vec4 * v2, glm::vec4 * v3, int
 	glm::vec4 v4 = *v1 * (1-v4q) + *v3 * v4q;
 	if (v2->x < v4.x)
 	{
-		ScanLineHorizontalBase(*v2, v4, *v3, color);
-		ScanLineHorizontalBase(*v2, v4, *v1, color);
+		ScanLineHorizontalBase(*v2, v4, *v3);
+		ScanLineHorizontalBase(*v2, v4, *v1);
 	}
 	else
 	{
-		ScanLineHorizontalBase(v4, *v2, *v3, color);
-		ScanLineHorizontalBase(v4, *v2, *v1, color);
+		ScanLineHorizontalBase(v4, *v2, *v3);
+		ScanLineHorizontalBase(v4, *v2, *v1);
 	}
 }
 void SceneRenderer::ScanLineHorizontalBase(
 	const glm::vec3& v1baseLeft,
 	const glm::vec3& v2baseRight,
-	const glm::vec3& v3peak, int color)
+	const glm::vec3& v3peak)
 {
 	int baseY = v1baseLeft.y;
 	int peakY = v3peak.y;

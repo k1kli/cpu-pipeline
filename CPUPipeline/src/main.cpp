@@ -19,6 +19,7 @@
 #include "../GUIController.h"
 #include "../Label.h"
 #include "../Editor.h"
+#include "../Input.h"
 
 #define DEFAULT_WIDTH 1280
 #define DEFAULT_HEIGHT 720
@@ -26,7 +27,7 @@
 float fov = 60.f;
 int current_width = DEFAULT_WIDTH;
 int current_height = DEFAULT_HEIGHT;
-Editor* mainEditor = nullptr;
+Input* input = nullptr;
 
 static void glfw_error_callback(int error, const char* description)
 {
@@ -38,20 +39,29 @@ static void glfw_error_callback(int error, const char* description)
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
-	current_width = width;
-	current_height = height;
+	input->setWindowDim(width, height);
 }
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-	mainEditor->processMouse(xpos, ypos);
-	
-
+	input->setMousePos(xpos, ypos);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	fov += (float)yoffset;
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (action == GLFW_PRESS)
+	{
+		input->setKeyPressed(key);
+	}
+	else if (action == GLFW_RELEASE)
+	{
+		input->setKeyReleased(key);
+	}
 }
 
 void timeMeasurement(GLFWwindow* win, double& deltaTime, double& currentTime)
@@ -117,6 +127,7 @@ int main(int, char**)
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
+	glfwSetKeyCallback(window, key_callback);
 	FrameBuffer fb(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	fb.InitGL();
 
@@ -157,8 +168,10 @@ int main(int, char**)
 	scene.AddSceneObject(cube);
 	scene.AddSceneObject(cube2);
 
-	Editor editor(guiController, sceneRenderer, &scene, window,fb);
-	mainEditor = &editor;
+	sceneRenderer.selectObject(cube);
+	input = new Input();
+
+	Editor editor(guiController, sceneRenderer, &scene, *input,fb, window);
 
 
 	//TODO: initialize camera
@@ -171,9 +184,12 @@ int main(int, char**)
 	// Main loop
 	while (!glfwWindowShouldClose(window))
 	{
+		input->updateKeyboardInput();
 		glfwPollEvents();
 		timeMeasurement(window, deltaTime, currentTime);
-		editor.processInput((float)deltaTime);
+		input->updateMouseInput();
+
+		editor.handleInput((float)deltaTime);
 
 		// Update scene
 
@@ -213,6 +229,7 @@ int main(int, char**)
 
 	// Cleanup
 	delete camera;
+	delete input;
 	glfwDestroyWindow(window);
 	glfwTerminate();
 
