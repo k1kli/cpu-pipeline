@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "CreateObjectScreen.h"
 #include "EditObjectScreen.h"
+#include "HelpScreen.h"
 
 void Editor::handleInput(float deltaTime)
 {
@@ -32,6 +33,8 @@ void Editor::handleInput(float deltaTime)
 		showCreateScreen();
 	if (input.getKeyDown(GLFW_KEY_V))
 		showEditObjectScreen();
+	if (input.getKeyDown(GLFW_KEY_H))
+		showHelpScreen();
 }
 void Editor::moveCamera(float deltaTime)
 {
@@ -109,6 +112,14 @@ void Editor::showEditObjectScreen()
 	guiController.removeDisplayable(&defaultHelpLabel);
 	currentScreen = new EditObjectScreen(
 		[this]()->void {this->defaultScreenCallback(); }, *selectedObject, scene->getImageStorage());
+	guiController.addDisplayable(*currentScreen);
+}
+
+void Editor::showHelpScreen()
+{
+	guiController.removeDisplayable(&defaultHelpLabel);
+	currentScreen = new HelpScreen(
+		[this]()->void {this->defaultScreenCallback(); });
 	guiController.addDisplayable(*currentScreen);
 }
 

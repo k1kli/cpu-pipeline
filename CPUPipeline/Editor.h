@@ -9,11 +9,9 @@ class Editor
 public:
 	Editor(GUIController& guiController, SceneRenderer& sceneRenderer, Scene* scene, const Input & input,
 		FrameBuffer & fb, GLFWwindow * window)
-		:guiController(guiController), sceneRenderer(sceneRenderer), scene(scene),
-		defaultHelpLabel({ 10,10 }, "press H for help", 30), input(input), fb(fb), window(window)
+		:guiController(guiController), sceneRenderer(sceneRenderer), scene(scene)
+		, input(input), fb(fb), window(window)
 	{
-
-		defaultHelpLabel.setColor(RGB(255, 255, 255));
 		guiController.addDisplayable(defaultHelpLabel);
 	}
 	void handleInput(float deltaTime);
@@ -21,7 +19,7 @@ private:
 	GUIController& guiController;
 	SceneRenderer& sceneRenderer;
 	Scene* scene;
-	Label defaultHelpLabel;
+	Label defaultHelpLabel = Label({ 10,10 }, "press H for help", 30,0, RGB(255, 255, 255));
 	GLFWwindow* window;
 	FrameBuffer & fb;
 	const Input& input;
@@ -34,6 +32,7 @@ private:
 	void deleteSelectedObject();
 	void showCreateScreen();
 	void showEditObjectScreen();
+	void showHelpScreen();
 	void createdCallback(SceneObject* createdObject);
 	void defaultScreenCallback();
 };
