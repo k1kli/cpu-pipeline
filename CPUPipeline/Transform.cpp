@@ -48,8 +48,8 @@ void Transform::SetEulerAngles(const glm::vec3& newEulerAngles)
 	{
 		eulerAnglesVector = newEulerAngles;
 		rotationX = TransformationMatrices::getXRotationMatrix(newEulerAngles.x);
-		rotationY = TransformationMatrices::getXRotationMatrix(newEulerAngles.y);
-		rotationZ = TransformationMatrices::getXRotationMatrix(newEulerAngles.z);
+		rotationY = TransformationMatrices::getYRotationMatrix(newEulerAngles.y);
+		rotationZ = TransformationMatrices::getZRotationMatrix(newEulerAngles.z);
 	}
 }
 void Transform::SetPosition(const glm::vec3& newPosition)
