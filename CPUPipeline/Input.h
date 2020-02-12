@@ -3,10 +3,11 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <string>
+#include <FrameBuffer.h>
 class Input
 {
 public:
-	Input(GLFWwindow * window);
+	Input(GLFWwindow * window, FrameBuffer * fb);
 	void setMousePos(double newX, double newY);
 	void setWindowDim(double newWidth, double newHeight);
 	void updateKeyboardInput();
@@ -30,5 +31,6 @@ private:
 	bool pressedPreviousFrame[GLFW_KEY_LAST + 1];
 	std::vector<char> charactersReceivedThisFrame;
 	GLFWwindow* window;
+	FrameBuffer* fb;
 };
 

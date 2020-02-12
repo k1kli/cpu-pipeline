@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <glad/glad.h>
 #include "shader.hpp"
+#include <iostream>
 
 
 FrameBuffer::FrameBuffer(int _w, int _h)
@@ -68,6 +69,8 @@ void FrameBuffer::Resize(int _w, int _h)
 	m_height = _h;
 	m_color_buffer = new uint8_t[m_width * m_height * m_bytesPerPixel];
 	depthBuffer = new float[m_width * m_height];
+	glBindTexture(GL_TEXTURE_2D, tex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_color_buffer);
 }
 
 void FrameBuffer::ClearColor(float red, float green, float blue)

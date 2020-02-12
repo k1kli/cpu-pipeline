@@ -21,6 +21,7 @@
 #include "../Editor.h"
 #include "../Input.h"
 #include "../Raycast.h"
+#include <iostream>
 
 #define DEFAULT_WIDTH 1280
 #define DEFAULT_HEIGHT 720
@@ -28,6 +29,8 @@
 float fov = 60.f;
 int current_width = DEFAULT_WIDTH;
 int current_height = DEFAULT_HEIGHT;
+int old_width = DEFAULT_WIDTH;
+int old_height = DEFAULT_HEIGHT;
 Input* input = nullptr;
 
 static void glfw_error_callback(int error, const char* description)
@@ -41,6 +44,10 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 	input->setWindowDim(width, height);
+	old_width = current_width;
+	old_height = current_height;
+	current_width = width;
+	current_height = height;
 }
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
@@ -180,7 +187,7 @@ int main(int, char**)
 	/*scene.AddSceneObject(cube);
 	scene.AddSceneObject(cube2);*/
 
-	input = new Input(window);
+	input = new Input(window, &fb);
 
 	Editor editor(guiController, sceneRenderer, &scene, *input,fb, window);
 
@@ -199,6 +206,14 @@ int main(int, char**)
 		glfwPollEvents();
 		timeMeasurement(window, deltaTime, currentTime);
 		input->updateMouseInput();
+		if (current_width != old_width || current_height != old_height)
+		{
+			old_width = current_width;
+			old_height = current_height;
+			fb.Resize(current_width, current_height);
+		}
+		camera->SetViewport(0, 0, (float)current_width, (float)current_height);
+		camera->SetPerspective(fov, (float)current_height / current_width, 0.1f, 12);
 
 
 		// Update scene
@@ -210,8 +225,6 @@ int main(int, char**)
 		//cube->GetTransform().SetEulerAngles({ 0,currentTime,0 });
 		//cube2->GetTransform().SetScale({ 0.2,0.2,0.2 });
 		//cube2->GetTransform().SetPosition({ 2.8,-0.2,0 });
-		camera->SetViewport(0, 0, (float)current_width, (float)current_height);
-		camera->SetPerspective(fov, (float)current_height / current_width, 0.1f, 12);
 		float t = (float)(currentTime) * 0.05f;
 		light1.setPosition({ 3.0f * glm::cos(t), 1.1f, -3.0f * glm::sin(t) });
 		//fb.ClearColor(0.5f, 0.5f, 1.0f);
@@ -225,6 +238,8 @@ int main(int, char**)
 		sceneRenderer.RenderScene();
 		//textDrawer.DrawTextAt(std::string("abc def"),0 , currentTime * 200);
 		guiController.Render();
+
+		
 		// Rendering
 		int display_w, display_h;
 		glfwGetFramebufferSize(window, &display_w, &display_h);
@@ -236,6 +251,11 @@ int main(int, char**)
 		fb.RenderGL();
 
 		glfwSwapBuffers(window);
+		
+		while (int err = glGetError())
+		{
+			std::cout <<"end "<< err << std::endl;
+		}
 	}
 
 	// Cleanup

@@ -2,7 +2,7 @@
 #include <string>
 
 
-Input::Input(GLFWwindow* window):window(window)
+Input::Input(GLFWwindow* window, FrameBuffer * fb):window(window), fb(fb)
 {
 	for (int i = 0; i < GLFW_KEY_LAST + 1; i++)
 	{
