@@ -24,16 +24,20 @@ private:
 	FrameBuffer & fb;
 	const Input& input;
 	SceneObject* selectedObject = nullptr;
+	Light* selectedLight = nullptr;
 	Screen* currentScreen = nullptr;
 
 	void moveCamera(float deltaTime);
 	void rotateCamera();
 	void selectObjectInFrontOfCamera();
 	void deleteSelectedObject();
+	void deleteSelectedLight();
 	void showCreateScreen();
 	void showEditObjectScreen();
 	void showHelpScreen();
 	void createdCallback(SceneObject* createdObject);
 	void defaultScreenCallback();
+	void selectNearestLight();
+	void deselect();
 };
 

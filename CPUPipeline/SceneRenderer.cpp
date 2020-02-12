@@ -65,6 +65,10 @@ void SceneRenderer::selectObject(const SceneObject* objectToSelect)
 {
 	selectedObject = objectToSelect;
 }
+void SceneRenderer::selectLight(const Light* lightToSelect)
+{
+	selectedLight = lightToSelect;
+}
 void SceneRenderer::DrawSceneObject()
 {
 	TransformVertices();
@@ -358,6 +362,17 @@ void SceneRenderer::DrawLights()
 				for (int x = xMin; x <= xMax; x++)
 				{
 					frameBuffer.SetPixel(x, y, lightColor, lightViewPos.z);
+				}
+			}
+			if (light == selectedLight)
+			{
+				yMin = yMin + (yMax - yMin) / 2;
+				for (int y = yMin; y <= yMax; y++)
+				{
+					for (int x = xMin; x <= xMax; x++)
+					{
+						frameBuffer.SetPixel(x, y, RGBA(0, 0, 255, 255), lightViewPos.z);
+					}
 				}
 			}
 		}

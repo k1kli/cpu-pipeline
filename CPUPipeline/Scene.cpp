@@ -5,9 +5,9 @@ void Scene::addSceneObject(SceneObject * sceneObject)
 	sceneObjects.push_back(sceneObject);
 }
 
-void Scene::AddLight(Light& light)
+void Scene::AddLight(Light light)
 {
-	lights.push_back(&light);
+	lights.push_back(new Light(light));
 }
 
 
@@ -61,5 +61,9 @@ Scene::~Scene()
 	for (int i = 0; i < sceneObjects.size(); i++)
 	{
 		delete sceneObjects[i];
+	}
+	for (int i = 0; i < lights.size(); i++)
+	{
+		delete lights[i];
 	}
 }

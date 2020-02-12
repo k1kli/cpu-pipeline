@@ -28,13 +28,18 @@ void Editor::handleInput(float deltaTime)
 	if (input.getKeyDown(GLFW_KEY_R))
 		selectObjectInFrontOfCamera();
 	if (input.getKeyDown(GLFW_KEY_X))
+	{
 		deleteSelectedObject();
+		deleteSelectedLight();
+	}
 	if (input.getKeyDown(GLFW_KEY_C))
 		showCreateScreen();
 	if (input.getKeyDown(GLFW_KEY_V))
 		showEditObjectScreen();
 	if (input.getKeyDown(GLFW_KEY_H))
 		showHelpScreen();
+	if (input.getKeyDown(GLFW_KEY_L))
+		selectNearestLight();
 }
 void Editor::moveCamera(float deltaTime)
 {
@@ -82,6 +87,7 @@ void Editor::rotateCamera()
 
 void Editor::selectObjectInFrontOfCamera()
 {
+	deselect();
 	Raycast raycast(*scene);
 	Camera& camera = scene->getMainCamera();
 	selectedObject = raycast.castRay(camera.GetPosition(), camera.GetForward());
@@ -95,7 +101,18 @@ void Editor::deleteSelectedObject()
 		std::vector<SceneObject *>& sceneObjects = scene->GetSceneObjects();
 		sceneObjects.erase(
 			std::remove(sceneObjects.begin(), sceneObjects.end(), selectedObject), sceneObjects.end());
+		delete selectedObject;
 		selectedObject = nullptr;
+	}
+}void Editor::deleteSelectedLight()
+{
+	if (selectedLight != nullptr)
+	{
+		std::vector<Light*>& lights = scene->GetLights();
+		lights.erase(
+			std::remove(lights.begin(), lights.end(), selectedLight), lights.end());
+		delete selectedLight;
+		selectedLight = nullptr;
 	}
 }
 
@@ -138,4 +155,30 @@ void Editor::defaultScreenCallback()
 	delete currentScreen;
 	currentScreen = nullptr;
 	guiController.addDisplayable(defaultHelpLabel);
+}
+
+void Editor::selectNearestLight()
+{
+	deselect();
+	float minDist = INFINITY;
+	Light* closest = nullptr;
+	glm::vec3 cameraPos = scene->getMainCamera().GetPosition();
+	for (Light* light : scene->GetLights())
+	{
+		glm::vec3 lightPos = light->getPosition();
+		float dist = glm::length(lightPos - cameraPos);
+		if (dist < minDist)
+		{
+			minDist = dist;
+			closest = light;
+		}
+	}
+	selectedLight = closest;
+	sceneRenderer.selectLight(closest);
+}
+
+void Editor::deselect()
+{
+	selectedLight = nullptr;
+	selectedObject = nullptr;
 }

@@ -14,7 +14,7 @@ class Scene
 	ImageStorage imageStorage;
 public:
 	void addSceneObject(SceneObject * sceneObject);
-	void AddLight(Light& light);
+	void AddLight(Light light);
 	std::vector<SceneObject *>& GetSceneObjects();
 	const std::vector<SceneObject *>& GetSceneObjects() const;
 	std::vector<Light*>& GetLights();

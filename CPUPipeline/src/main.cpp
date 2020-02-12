@@ -220,23 +220,10 @@ int main(int, char**)
 
 
 
-		//cube->GetTransform().SetScale({ 0.2,0.2,0.2 });
-		//cube->GetTransform().SetPosition({ -0.2,-0.2,0 });
-		//cube->GetTransform().SetEulerAngles({ 0,currentTime,0 });
-		//cube2->GetTransform().SetScale({ 0.2,0.2,0.2 });
-		//cube2->GetTransform().SetPosition({ 2.8,-0.2,0 });
-		float t = (float)(currentTime) * 0.05f;
-		light1.setPosition({ 3.0f * glm::cos(t), 1.1f, -3.0f * glm::sin(t) });
-		//fb.ClearColor(0.5f, 0.5f, 1.0f);
 		fb.ClearColor(0.1f, 0.15f, 0.15f);
 
-		//write your render pipeline here
 		editor.handleInput((float)deltaTime);
-
-
-
 		sceneRenderer.RenderScene();
-		//textDrawer.DrawTextAt(std::string("abc def"),0 , currentTime * 200);
 		guiController.Render();
 
 		

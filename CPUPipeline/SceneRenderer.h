@@ -29,6 +29,7 @@ class SceneRenderer
 	bool wireframe = false;
 	const SceneObject * renderedObject;
 	const SceneObject* selectedObject = nullptr;
+	const Light* selectedLight = nullptr;
 	void DrawSceneObject();
 	void TransformVertices();
 	void TransformNormals();
@@ -56,5 +57,6 @@ public:
 	void togglePerspectiveFix();
 	void toggleWireframe();
 	void selectObject(const SceneObject* objectToSelect);
+	void selectLight(const Light* lightToSelect);
 };
 
