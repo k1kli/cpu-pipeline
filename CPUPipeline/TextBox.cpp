@@ -1,6 +1,6 @@
 #include "TextBox.h"
 
-TextBox::TextBox(glm::uvec2 posInParent, std::string text, int height, int width, int maxChars)
+TextBox::TextBox(glm::vec2 posInParent, std::string text, int height, int width, int maxChars)
 	:Label(posInParent, "", height, width, RGB(0,0,0)), maxChars(maxChars)
 {
 	setText(text.length() >= maxChars ?

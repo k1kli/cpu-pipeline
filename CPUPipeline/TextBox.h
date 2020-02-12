@@ -4,7 +4,7 @@
 class TextBox:public Label
 {
 public:
-	TextBox(glm::uvec2 posInParent, std::string text, int height, int width, int maxChars);
+	TextBox(glm::vec2 posInParent, std::string text, int height, int width, int maxChars);
 	virtual void onPaint(GUIUtils& guiUtils, int startX, int startY, int width, int height) const;
 	void handleInput(const Input& input);
 	void setSelected(bool newSelected);

@@ -1,17 +1,17 @@
 #include "Displayable.h"
 
 
-Displayable::Displayable(glm::uvec2 posInParent)
+Displayable::Displayable(glm::vec2 posInParent)
 {
 	setPosInParent(posInParent);
 }
 
-void Displayable::setPosInParent(glm::uvec2 posInParent)
+void Displayable::setPosInParent(glm::vec2 posInParent)
 {
 	this->posInParent = posInParent;
 }
 
-void Displayable::setPrefferedSize(glm::uvec2 prefferedSize)
+void Displayable::setPrefferedSize(glm::vec2 prefferedSize)
 {
 	this->prefferedSize = prefferedSize;
 }
@@ -20,19 +20,19 @@ void Displayable::Display(GUIUtils& guiUtils, int startX, int startY, int parent
 {
 	int width = prefferedSize.x;
 	int height = prefferedSize.y;
-	if (startX < 0)
+	if (getPosInParent().x < 0)
 		startX += parentWidth;
-	if (startY < 0)
+	if (getPosInParent().y < 0)
 		startY += parentHeight;
-	if (prefferedSize.x == -1)
+	if (prefferedSize.x < 0)
 		width = parentWidth - startX;
-	if (prefferedSize.y == -1)
+	if (prefferedSize.y < 0)
 		height = parentHeight - startY;
 	onPaint(guiUtils, startX, startY, width, height);
 }
 
 
-glm::uvec2 Displayable::getPosInParent() const
+glm::vec2 Displayable::getPosInParent() const
 {
 	return posInParent;
 }

@@ -4,7 +4,7 @@ class Label :
 	public Displayable
 {
 public:
-	Label(glm::uvec2 posInParent, std::string text, int height, int width = 0, int color = 0xFF000000);
+	Label(glm::vec2 posInParent, std::string text, int height, int width = 0, int color = 0xFF000000);
 	virtual void onPaint(GUIUtils& guiUtils, int startX, int startY, int width, int height) const;
 	void setColor(int color);
 	void setText(std::string newText);

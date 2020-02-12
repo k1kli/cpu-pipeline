@@ -4,15 +4,15 @@
 class Displayable
 {
 public:
-	Displayable(glm::uvec2 posInParent);
-	void setPosInParent(glm::uvec2 posInParent);
+	Displayable(glm::vec2 posInParent);
+	void setPosInParent(glm::vec2 posInParent);
 	void Display(GUIUtils& guiUtils, int startX, int startY, int parentWidth, int parentHeight);
 	virtual void onPaint(GUIUtils& guiUtils, int startX, int startY, int width, int height) const = 0;
-	glm::uvec2 getPosInParent() const;
+	glm::vec2 getPosInParent() const;
 protected:
-	void setPrefferedSize(glm::uvec2 prefferedSize);
+	void setPrefferedSize(glm::vec2 prefferedSize);
 private:
-	glm::uvec2 posInParent;
-	glm::uvec2 prefferedSize = { -1,-1 };
+	glm::vec2 posInParent;
+	glm::vec2 prefferedSize = { -1,-1 };
 };
 

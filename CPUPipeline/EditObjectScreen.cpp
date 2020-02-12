@@ -8,7 +8,8 @@ EditObjectScreen::EditObjectScreen(std::function<void()> doneCallback, SceneObje
 	ImageStorage & imageStorage)
 	:doneCallback(doneCallback), sceneObjectToModify(sceneObjectToModify), sceneImageStorage(imageStorage)
 {
-	this->addChild(sidePanel);
+	this->addChild(leftSidePanel);
+	this->addChild(rightSidePanel);
 	
 	
 
@@ -67,20 +68,43 @@ void EditObjectScreen::selectNextParameter()
 
 void EditObjectScreen::tryApply()
 {
+	createTransform();
 	createMesh();
 	createMaterial();
 	loadEditor();
+}
+
+void EditObjectScreen::createTransform()
+{
+	Transform newTransform = Transform();
+	try
+	{
+		newTransform.SetPosition(glm::vec3(
+			stof(parameterValuesTextBoxes[0]->getText()),
+			stof(parameterValuesTextBoxes[1]->getText()),
+			stof(parameterValuesTextBoxes[2]->getText())));
+		newTransform.SetEulerAngles(glm::vec3(
+			stof(parameterValuesTextBoxes[3]->getText()),
+			stof(parameterValuesTextBoxes[4]->getText()),
+			stof(parameterValuesTextBoxes[5]->getText())));
+		newTransform.SetScale(glm::vec3(
+			stof(parameterValuesTextBoxes[6]->getText()),
+			stof(parameterValuesTextBoxes[7]->getText()),
+			stof(parameterValuesTextBoxes[8]->getText())));
+		sceneObjectToModify.GetTransform() = newTransform;
+	}
+	catch (...) {}
 }
 
 void EditObjectScreen::createMesh()
 {
 	std::shared_ptr<VirtualMeshGenerator> generator = sceneObjectToModify.GetMesh().getGenerator().getInstance();
 	std::vector<float> newParameters(meshParametersEnd);
-	for (int i = 0; i < meshParametersEnd; i++)
+	for (int i = transformParametersEnd; i < meshParametersEnd; i++)
 	{
 		try
 		{
-			newParameters[i] = stof(parameterValuesTextBoxes[i]->getText());
+			newParameters[i-transformParametersEnd] = stof(parameterValuesTextBoxes[i]->getText());
 		}
 		catch (...)
 		{
@@ -148,15 +172,16 @@ void EditObjectScreen::createMaterial()
 
 void EditObjectScreen::loadEditor()
 {
-	sidePanel.removeAllChildren();
-	sidePanel.addChild(pressVAgainToLeave);
-	sidePanel.addChild(pressTabToJumpToNextField);
-	sidePanel.addChild(pressEnterToApply);
-	sidePanel.addChild(pressNToLoadNormal);
-	sidePanel.addChild(pressLToLoadTexture);
+	leftSidePanel.removeAllChildren();
+	leftSidePanel.addChild(pressVAgainToLeave);
+	leftSidePanel.addChild(pressTabToJumpToNextField);
+	leftSidePanel.addChild(pressEnterToApply);
+	leftSidePanel.addChild(pressNToLoadNormal);
+	leftSidePanel.addChild(pressLToLoadTexture);
 	int y = -100;
 	parameterNamesLabels.clear();
 	parameterValuesTextBoxes.clear();
+	loadTransformEditor();
 	loadMeshEditor(y);
 	loadMaterialEditor(y);
 	if (selectedParameterId >= parameterNamesLabels.size())
@@ -168,7 +193,7 @@ void EditObjectScreen::loadEditor()
 
 void EditObjectScreen::loadMeshEditor(int& y)
 {
-	sidePanel.addChild(editMeshLabel);
+	leftSidePanel.addChild(editMeshLabel);
 	const VirtualMeshGenerator& generator = sceneObjectToModify.GetMesh().getGenerator();
 
 	const std::vector<std::string>& names = generator.getParameterNames();
@@ -176,15 +201,15 @@ void EditObjectScreen::loadMeshEditor(int& y)
 
 	const std::string& name = generator.getName();
 	meshNameLabel.setText(name);
-	sidePanel.addChild(meshNameLabel);
+	leftSidePanel.addChild(meshNameLabel);
 	for (int i = 0; i < names.size(); i++, y -= 40)
 	{
 		parameterNamesLabels.push_back(new Label({ 30, y }, names[i], 20));
 		std::ostringstream ss;
 		ss << values[i];
 		parameterValuesTextBoxes.push_back(new TextBox({ -100, y }, ss.str(), 20, 80, 8));
-		sidePanel.addChild(*parameterNamesLabels[i]);
-		sidePanel.addChild(*parameterValuesTextBoxes[i]);
+		leftSidePanel.addChild(*parameterNamesLabels[transformParametersEnd+i]);
+		leftSidePanel.addChild(*parameterValuesTextBoxes[transformParametersEnd + i]);
 	}
 	meshParametersEnd = parameterNamesLabels.size();
 }
@@ -192,44 +217,74 @@ void EditObjectScreen::loadMeshEditor(int& y)
 void EditObjectScreen::loadMaterialEditor(int &y)
 {
 	const Material& oldMaterial = sceneObjectToModify.GetMaterial();
-	addEditorField(y, "specular R (0-1)", oldMaterial.specular.r);
-	addEditorField(y, "specular G (0-1)", oldMaterial.specular.g);
-	addEditorField(y, "specular B (0-1)", oldMaterial.specular.b);
+	addEditorField(y, "specular R (0-1)", oldMaterial.specular.r, leftSidePanel);
+	addEditorField(y, "specular G (0-1)", oldMaterial.specular.g, leftSidePanel);
+	addEditorField(y, "specular B (0-1)", oldMaterial.specular.b, leftSidePanel);
 
 	y -= 20;
 
-	addEditorField(y, "ambient R (0-1)", oldMaterial.ambient.r);
-	addEditorField(y, "ambient G (0-1)", oldMaterial.ambient.g);
-	addEditorField(y, "ambient B (0-1)", oldMaterial.ambient.b);
+	addEditorField(y, "ambient R (0-1)", oldMaterial.ambient.r, leftSidePanel);
+	addEditorField(y, "ambient G (0-1)", oldMaterial.ambient.g, leftSidePanel);
+	addEditorField(y, "ambient B (0-1)", oldMaterial.ambient.b, leftSidePanel);
 
-	addEditorField(y, "shininess (1-200)", oldMaterial.shininess);
+	addEditorField(y, "shininess (1-200)", oldMaterial.shininess, leftSidePanel);
 
 	if (ImageSampler* imageSampler = dynamic_cast<ImageSampler*>(oldMaterial.colorSampler.get()))
 	{
 		diffuseFromTexture = true;
-		sidePanel.addChild(pressMToSwitchColorSampler);
+		leftSidePanel.addChild(pressMToSwitchColorSampler);
 		
 	}
 	else if (StaticColorSampler* sts = dynamic_cast<StaticColorSampler*>(oldMaterial.colorSampler.get()))
 	{
 		glm::vec3 diffuse = sts->getColor();
-		addEditorField(y, "diffuse R (0-1)", diffuse.r);
-		addEditorField(y, "diffuse G (0-1)", diffuse.g);
-		addEditorField(y, "diffuse B (0-1)", diffuse.b);
+		addEditorField(y, "diffuse R (0-1)", diffuse.r, leftSidePanel);
+		addEditorField(y, "diffuse G (0-1)", diffuse.g, leftSidePanel);
+		addEditorField(y, "diffuse B (0-1)", diffuse.b, leftSidePanel);
 		diffuseFromTexture = false;
 	}
 
 
 }
 
-void EditObjectScreen::addEditorField(int& y, std::string name, float value)
+void EditObjectScreen::loadTransformEditor()
+{
+	Transform oldTransform = sceneObjectToModify.GetTransform();
+	rightSidePanel.addChild(transformLabel);
+	int y = -80;
+
+	transformPosLabel.setPosInParent({ 30, y });
+	rightSidePanel.addChild(transformPosLabel);
+	y -= 30;
+	addEditorField(y, "X", oldTransform.getPosition().x, rightSidePanel);
+	addEditorField(y, "Y", oldTransform.getPosition().y, rightSidePanel);
+	addEditorField(y, "Z", oldTransform.getPosition().z, rightSidePanel);
+	y -= 30;
+
+	transformRotLabel.setPosInParent({ 30, y });
+	rightSidePanel.addChild(transformRotLabel);
+	y -= 30;
+	addEditorField(y, "X", oldTransform.getEulerAngles().x, rightSidePanel);
+	addEditorField(y, "Y", oldTransform.getEulerAngles().y, rightSidePanel);
+	addEditorField(y, "Z", oldTransform.getEulerAngles().z, rightSidePanel);
+	y -= 30;
+
+	transformScalLabel.setPosInParent({ 30, y });
+	rightSidePanel.addChild(transformScalLabel);
+	y -= 30;
+	addEditorField(y, "X", oldTransform.getScale().x, rightSidePanel);
+	addEditorField(y, "Y", oldTransform.getScale().y, rightSidePanel);
+	addEditorField(y, "Z", oldTransform.getScale().z, rightSidePanel);
+}
+
+void EditObjectScreen::addEditorField(int& y, std::string name, float value, Panel & panel)
 {
 	std::ostringstream ss;
 	parameterNamesLabels.push_back(new Label({ 30, y }, name, 20));
 	ss << value;
-	parameterValuesTextBoxes.push_back(new TextBox({ -100, y }, ss.str(), 20, 80, 8));
-	sidePanel.addChild(*parameterNamesLabels[parameterNamesLabels.size() - 1]);
-	sidePanel.addChild(*parameterValuesTextBoxes[parameterNamesLabels.size() - 1]);
+	parameterValuesTextBoxes.push_back(new TextBox({ -120, y }, ss.str(), 20, 100, 8));
+	panel.addChild(*parameterNamesLabels[parameterNamesLabels.size() - 1]);
+	panel.addChild(*parameterValuesTextBoxes[parameterNamesLabels.size() - 1]);
 	y -= 30;
 }
 
