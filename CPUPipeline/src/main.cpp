@@ -22,6 +22,8 @@
 #include "../Input.h"
 #include "../Raycast.h"
 #include <iostream>
+#include "../SphereMeshGenerator.h"
+#include "../CuboidMeshGenerator.h"
 
 #define DEFAULT_WIDTH 1280
 #define DEFAULT_HEIGHT 720
@@ -153,14 +155,32 @@ int main(int, char**)
 
 	GUIController guiController(fb);
 
-	/*Image image = Image("data/lion.jpg");
-	Image normalImage = Image("data/drop.png");
-	normalImage.transform(normalTransformation);*/
 
 	
 	Scene scene;
 	SceneRenderer sceneRenderer(fb);
 	sceneRenderer.SetScene(scene);
+
+	ImageView texture = scene.getImageStorage().addImage("data/lion.jpg");
+	ImageView normalImage = scene.getImageStorage().addImage("data/marbleNormalMap.png");
+	normalImage.getImage().transform(normalTransformation);
+
+	Mesh sphereMesh = SphereMeshGenerator(1.0f, 10, 15).getMesh();
+	Mesh cubeMesh = CuboidMeshGenerator(1.0f, 0.5f, 0.7f).getMesh();
+	Material sphereMaterial = Material({ 1.0f, 0.0f, 1.0f }, { 0.2f, 0.3f, 0.2f }, 100.0f,
+		std::make_shared<StaticColorSampler>(glm::vec3(0.5f, 0.5f, 0.5f)),
+		std::make_shared<ImageSampler>(normalImage));
+	Material cubeMaterial = Material({ 0.0f, 0.0f, 0.0f }, { 0.2f, 0.3f, 0.2f }, 5.0f,
+		std::make_shared<ImageSampler>(texture),
+		std::make_shared<StaticColorSampler>(glm::vec3(0.0f, 0.0f, 1.0f)));
+	Transform sphereTransform;
+	sphereTransform.SetScale({ 1.0f, 1.0f, 0.5f });
+	scene.addSceneObject(new SceneObject(sphereMesh, sphereMaterial, sphereTransform));
+	Transform cubeTransform;
+	cubeTransform.SetPosition({ 3.0f, 0.0f, 1.0f });
+	cubeTransform.SetEulerAngles({ 1.0f, 1.0f, 1.0f });
+	scene.addSceneObject(new SceneObject(cubeMesh, cubeMaterial, cubeTransform));
+
 	//Mesh cubeMesh = meshGenerator.getCuboidMesh(1.0f, 1.0f, 1.0f);
 	//Material cubeMaterial = Material(
 	//	0.1f, 0.1f, 0.1f, 1.0f,
