@@ -265,7 +265,7 @@ void SceneRenderer::ScanLineHorizontalBase(
 	int yInc = glm::sign(peakY - baseY);
 	float antitangent1 = (v3peak.x - v1baseLeft.x) / (v3peak.y - v1baseLeft.y) * yInc;
 	float antitangent2 = (v3peak.x - v2baseRight.x) / (v3peak.y - v2baseRight.y) * yInc;
-	for (int y = baseY; y != peakY; y += yInc)
+	for (int y = baseY; y != peakY+yInc; y += yInc)
 	{
 		float q = (float)(y - baseY) / yDiff;
 		float lineDepth1 = depth1 * (1 - q) + depth3 * q;
@@ -280,65 +280,6 @@ void SceneRenderer::ScanLineHorizontalBase(
 		maxX += antitangent2;
 	}
 }
-//int floatToIntColor(const glm::vec4& floatColor)
-//{
-//	uint8_t r = (uint8_t)(std::clamp<float>(floatColor.r, 0.f, 1.f) * 255);
-//	uint8_t g = (uint8_t)(std::clamp<float>(floatColor.g, 0.f, 1.f) * 255);
-//	uint8_t b = (uint8_t)(std::clamp<float>(floatColor.b, 0.f, 1.f) * 255);
-//	uint8_t a = (uint8_t)(std::clamp<float>(floatColor.a, 0.f, 1.f) * 255);
-//	return RGBA(r, g, b, a);
-//}
-//int SceneRenderer::GetPixelColor()
-//{
-//	const Material& material = renderedObject->GetMaterial();
-//	glm::vec3 ambientLight = { 1.0f, 1.0f, 1.0f };
-//	glm::vec2 uv = interpolators.uv.getValue();
-//
-//	glm::vec3 baseNormal = glm::normalize(interpolators.normal.getValue());
-//	glm::mat3 tbn = interpolators.tbn.getValue();
-//	tbn[0] = glm::normalize(tbn[0]);
-//	tbn[1] = glm::normalize(tbn[1]);
-//	tbn[2] = baseNormal;
-//	
-//	glm::vec3 normal = glm::normalize(tbn * material.normalSampler->sample(
-//		uv));
-//	glm::vec3 worldPosition = interpolators.worldPos.getValue();
-//
-//	glm::vec3 toObserver = glm::normalize(scene->getMainCamera().GetPosition() - worldPosition);
-//
-//	glm::vec3 color = material.ambient * ambientLight;
-//	glm::vec3 objectColor = material.colorSampler->sample(uv);
-//	for (Light* light : scene->GetLights())
-//	{
-//		glm::vec3 toLightVector = light->getPosition()-worldPosition;
-//		float dist = glm::length(toLightVector);
-//		toLightVector /= dist;
-//		glm::vec3 reflect =
-//			2 * glm::dot(toLightVector, normal) * normal - toLightVector;
-//		color +=
-//			(light->getDiffuseColor() *
-//				objectColor * glm::max(glm::dot(toLightVector, normal), 0.0f) +
-//				light->getSpecularColor() *
-//				material.specular * glm::pow(glm::max(glm::dot(reflect, toObserver),0.0f), material.shininess))
-//			* light->getAttenuation(dist);
-//	}
-//	color = glm::clamp(color, { 0,0,0 }, { 1,1,1 });
-//	return floatToIntColor(glm::vec4(color, 1));
-//}
-
-//void SceneRenderer::drawNormalLine(int x, int y)
-//{
-//	glm::mat3 tbn = interpolators->tbn.getValue(0);
-//	glm::vec2 uv = interpolators->uv.getValue(0);
-//	const Material& material = renderedObject->GetMaterial();
-//	glm::vec3 normal = glm::normalize(tbn * material.normalSampler->sample(uv));
-//	glm::vec4 lineEndWorldPos = glm::vec4(interpolators->worldPos.getValue(0)
-//		+ normal * 0.02f, 1);
-//	glm::vec4 lineEndViewPos = viewportMatrix
-//		* viewProjectionMatrix * lineEndWorldPos;
-//	lineEndViewPos /= lineEndViewPos.w;
-//	frameBuffer.DrawLine(x, y, lineEndViewPos.x, lineEndViewPos.y, 0xFFFF00FF);
-//}
 
 void SceneRenderer::DrawLights()
 {
@@ -357,6 +298,7 @@ void SceneRenderer::DrawLights()
 			int xMin = glm::max((int)(lightViewPos.x - lightSize / 2), 0);
 			int xMax = glm::min((int)(lightViewPos.x + lightSize / 2), frameBuffer.getWidth() - 1);
 			int lightColor = floatToIntColor(glm::vec4(light->getDiffuseColor(), 1));
+
 			for (int y = yMin; y <= yMax; y++)
 			{
 				for (int x = xMin; x <= xMax; x++)
@@ -366,12 +308,30 @@ void SceneRenderer::DrawLights()
 			}
 			if (light == selectedLight)
 			{
-				yMin = yMin + (yMax - yMin) / 2;
+				float h = yMax - yMin;
+				float w = xMax - xMin;
+				yMin += h / 3;
+				yMax -= h / 3;
+				xMin += w / 3;
+				xMax -= w / 3;
 				for (int y = yMin; y <= yMax; y++)
 				{
 					for (int x = xMin; x <= xMax; x++)
 					{
 						frameBuffer.SetPixel(x, y, RGBA(0, 0, 255, 255), lightViewPos.z);
+					}
+				}
+				h = yMax - yMin;
+				w = xMax - xMin;
+				yMin += h / 4;
+				yMax -= h / 4;
+				xMin += w / 4;
+				xMax -= w / 4;
+				for (int y = yMin; y <= yMax; y++)
+				{
+					for (int x = xMin; x <= xMax; x++)
+					{
+						frameBuffer.SetPixel(x, y, RGBA(255, 255, 0, 255), lightViewPos.z);
 					}
 				}
 			}

@@ -216,6 +216,9 @@ void EditObjectScreen::loadMeshEditor(int& y)
 
 void EditObjectScreen::loadMaterialEditor(int &y)
 {
+	editMaterialLabel.setPosInParent({ editMaterialLabel.getPosInParent().x, y });
+	leftSidePanel.addChild(editMaterialLabel);
+	y -= 40;
 	const Material& oldMaterial = sceneObjectToModify.GetMaterial();
 	addEditorField(y, "specular R (0-1)", oldMaterial.specular.r, leftSidePanel);
 	addEditorField(y, "specular G (0-1)", oldMaterial.specular.g, leftSidePanel);

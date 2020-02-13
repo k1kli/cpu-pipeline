@@ -12,7 +12,7 @@ private:
 	Panel helpPanel = Panel(RGBA(255, 255, 255, 100), { 0,0 }, -1, -1);
 	const int renderingStart = -40;
 	const int editingStart = renderingStart - 170;
-	const int cameraStart = editingStart - 200;
+	const int cameraStart = editingStart - 230;
 	std::vector<Label> labels =
 	{
 		Label({ 10,10 }, "press H to hide help", 30),
@@ -27,6 +27,7 @@ private:
 		Label({ 10,editingStart -100 }, "press C to create new object in front of the camera", 20),
 		Label({ 10,editingStart -130 }, "press V to edit selected object", 20),
 		Label({ 10,editingStart - 160 }, "press L to select nearest light", 20),
+		Label({ 10,editingStart - 190 }, "press K to create light in front of the camera", 20),
 		Label({ 10,cameraStart }, "Camera", 30),
 		Label({ 10,cameraStart -40 }, "press WASD to move", 20),
 		Label({ 10,cameraStart -70 }, "press Q/E to go up/down", 20),

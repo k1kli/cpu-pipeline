@@ -19,7 +19,8 @@ private:
 	Panel leftSidePanel = Panel(RGBA(255, 255, 255, 100), { 0,0 }, 500, -1);
 	Panel rightSidePanel = Panel(RGBA(255, 255, 255, 100), { -300, 0 }, 300, -1);
 	Label editMeshLabel = Label({ 30, -40 }, std::string("Edit mesh"), 30);
-	Label meshNameLabel = Label({ 30, -80 }, std::string("--meshname--"), 20);
+	Label meshNameLabel = Label({ 30, -70 }, std::string("--meshname--"), 25);
+	Label editMaterialLabel = Label({ 30, -40 }, std::string("Edit material"), 30);
 
 	Label pressVAgainToLeave = Label({ 30, 20 }, std::string("press V again to leave"), 15);
 	Label pressEnterToApply = Label({ 30, 40 }, std::string("press ENTER to apply"), 15);

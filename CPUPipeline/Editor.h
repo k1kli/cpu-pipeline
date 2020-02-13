@@ -39,5 +39,7 @@ private:
 	void defaultScreenCallback();
 	void selectNearestLight();
 	void deselect();
+	void addLight();
+	void showEditLightScreen();
 };
 

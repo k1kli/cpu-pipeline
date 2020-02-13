@@ -5,6 +5,7 @@
 #include "CreateObjectScreen.h"
 #include "EditObjectScreen.h"
 #include "HelpScreen.h"
+#include "EditLightScreen.h"
 
 void Editor::handleInput(float deltaTime)
 {
@@ -35,11 +36,16 @@ void Editor::handleInput(float deltaTime)
 	if (input.getKeyDown(GLFW_KEY_C))
 		showCreateScreen();
 	if (input.getKeyDown(GLFW_KEY_V))
+	{
 		showEditObjectScreen();
+		showEditLightScreen();
+	}
 	if (input.getKeyDown(GLFW_KEY_H))
 		showHelpScreen();
 	if (input.getKeyDown(GLFW_KEY_L))
 		selectNearestLight();
+	if (input.getKeyDown(GLFW_KEY_K))
+		addLight();
 }
 void Editor::moveCamera(float deltaTime)
 {
@@ -181,4 +187,20 @@ void Editor::deselect()
 {
 	selectedLight = nullptr;
 	selectedObject = nullptr;
+}
+
+void Editor::addLight()
+{
+	glm::vec3 pos = scene->getMainCamera().GetPosition() + scene->getMainCamera().GetForward();
+	scene->AddLight(Light(pos, { 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f },
+		1.0f, 0.09f, 0.032f));
+}
+
+void Editor::showEditLightScreen()
+{
+	if (selectedLight == nullptr) return;
+	guiController.removeDisplayable(&defaultHelpLabel);
+	currentScreen = new EditLightScreen(
+		[this]()->void {this->defaultScreenCallback(); }, *selectedLight);
+	guiController.addDisplayable(*currentScreen);
 }
