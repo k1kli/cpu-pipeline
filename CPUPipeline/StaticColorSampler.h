@@ -6,6 +6,7 @@ class StaticColorSampler : public Sampler
 public:
 	StaticColorSampler(const glm::vec3& color) :color(color) {}
 	virtual glm::vec3 sample(glm::vec2 uv) const;
-	const glm::vec3& getColor();
+	virtual Sampler* getCopy() const;
+	const glm::vec3& getColor() const;
 };
 

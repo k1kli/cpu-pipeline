@@ -46,14 +46,14 @@ int RenderThread::GetPixelColor()
 	tbn[1] = glm::normalize(tbn[1]);
 	tbn[2] = glm::normalize(tbn[2]);
 
-	glm::vec3 normal = glm::normalize(tbn * material.normalSampler->sample(
+	glm::vec3 normal = glm::normalize(tbn * material.getNormalSampler().sample(
 		uv));
 	glm::vec3 worldPosition = interpolators->worldPos.getValue(id);
 
 	glm::vec3 toObserver = glm::normalize(scene.getMainCamera().GetPosition() - worldPosition);
 
 	glm::vec3 color = material.ambient * ambientLight;
-	glm::vec3 objectColor = material.colorSampler->sample(uv);
+	glm::vec3 objectColor = material.getColorSampler().sample(uv);
 	for (Light* light : scene.GetLights())
 	{
 		glm::vec3 toLightVector = light->getPosition() - worldPosition;

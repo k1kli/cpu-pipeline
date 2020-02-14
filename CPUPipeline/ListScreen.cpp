@@ -16,7 +16,9 @@ void ListScreen::handleInput(const Input& input)
 		doneCallback();
 	}
 	float scroll = input.getScroll();
-	listPanel.setPosInParent(listPanel.getPosInParent() + glm::vec2({ 0, scroll*20 }));
+	glm::vec2 posInParent = listPanel.getPosInParent();
+	posInParent.y = glm::min(-1.0f, (posInParent.y + scroll * 20));
+	listPanel.setPosInParent(posInParent);
 }
 
 void ListScreen::onPaint(GUIUtils& guiUtils, int startX, int startY, int width, int height) const

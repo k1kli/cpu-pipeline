@@ -8,17 +8,26 @@ public:
 	glm::vec3 specular;
 	glm::vec3 ambient;
 	float shininess;
-	std::shared_ptr<Sampler> colorSampler;
-	std::shared_ptr<Sampler> normalSampler;
 	Material(
 		glm::vec3 specular,
 		glm::vec3 ambient, float shininess,
-		std::shared_ptr<Sampler> colorSampler,
-		std::shared_ptr<Sampler> normalSampler)
+		const Sampler & colorSampler,
+		const Sampler& normalSampler)
 		:specular(specular),
 		ambient(ambient), shininess(shininess),
-		colorSampler(colorSampler),
-		normalSampler(normalSampler) {}
+		colorSampler(colorSampler.getCopy()),
+		normalSampler(normalSampler.getCopy()) {}
+	~Material();
+	Material(const Material& other);
+	Material& operator=(const Material& other);
+
+	const Sampler& getColorSampler() const;
+	const Sampler& getNormalSampler() const;
+	void setColorSampler(const Sampler& newSampler);
+	void setNormalSampler(const Sampler& newSampler);
+private:
+	Sampler* colorSampler;
+	Sampler* normalSampler;
 
 };
 

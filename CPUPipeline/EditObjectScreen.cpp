@@ -24,7 +24,10 @@ void EditObjectScreen::handleInput(const Input& input)
 	}
 	else if (input.getKeyDown(GLFW_KEY_TAB))
 	{
-		selectNextParameter();
+		if (input.getKey(GLFW_KEY_LEFT_SHIFT))
+			selectPreviousParameter();
+		else
+			selectNextParameter();
 	}
 	else if (input.getKeyDown(GLFW_KEY_ENTER))
 	{
@@ -41,7 +44,7 @@ void EditObjectScreen::handleInput(const Input& input)
 	else if (input.getKeyDown(GLFW_KEY_M))
 	{
 		textureFromClipboard = ImageView();
-		sceneObjectToModify.GetMaterial().colorSampler = std::make_shared<StaticColorSampler>(glm::vec3(1.0f, 1.0f, 1.0f));
+		sceneObjectToModify.GetMaterial().setColorSampler(StaticColorSampler(glm::vec3(1.0f, 1.0f, 1.0f)));
 		loadEditor();
 	}
 	else
@@ -65,7 +68,13 @@ void EditObjectScreen::selectNextParameter()
 	selectedParameterId = (selectedParameterId + 1) % parameterNamesLabels.size();
 	parameterValuesTextBoxes[selectedParameterId]->setSelected(true);
 }
-
+void EditObjectScreen::selectPreviousParameter()
+{
+	parameterValuesTextBoxes[selectedParameterId]->setSelected(false);
+	selectedParameterId = (selectedParameterId - 1);
+	if (selectedParameterId < 0) selectedParameterId += parameterValuesTextBoxes.size();
+	parameterValuesTextBoxes[selectedParameterId]->setSelected(true);
+}
 void EditObjectScreen::tryApply()
 {
 	createTransform();
@@ -139,7 +148,7 @@ void EditObjectScreen::createMaterial()
 
 		if (textureFromClipboard.isValid())
 		{
-			newMaterial.colorSampler = std::make_shared <ImageSampler>(textureFromClipboard);
+			newMaterial.setColorSampler(ImageSampler(textureFromClipboard));
 			textureFromClipboard = ImageView();
 			pressLToLoadTexture.setText("press L to load texture from clipboard filename");
 		}
@@ -150,12 +159,12 @@ void EditObjectScreen::createMaterial()
 			diffuse.r = glm::clamp(stof(parameterValuesTextBoxes[meshParametersEnd + 7]->getText()), 0.0f, 1.0f);
 			diffuse.g = glm::clamp(stof(parameterValuesTextBoxes[meshParametersEnd + 8]->getText()), 0.0f, 1.0f);
 			diffuse.b = glm::clamp(stof(parameterValuesTextBoxes[meshParametersEnd + 9]->getText()), 0.0f, 1.0f);
-			newMaterial.colorSampler = std::make_shared<StaticColorSampler>(diffuse);
+			newMaterial.setColorSampler(StaticColorSampler(diffuse));
 		}
 
 		if (normalMapFromClipboard.isValid())
 		{
-			newMaterial.normalSampler = std::make_shared <ImageSampler>(normalMapFromClipboard);
+			newMaterial.setNormalSampler(ImageSampler(normalMapFromClipboard));
 			normalMapFromClipboard = ImageView();
 			pressNToLoadNormal.setText("press N to load normal map from clipboard filename");
 		}
@@ -232,13 +241,13 @@ void EditObjectScreen::loadMaterialEditor(int &y)
 
 	addEditorField(y, "shininess (1-200)", oldMaterial.shininess, leftSidePanel);
 
-	if (ImageSampler* imageSampler = dynamic_cast<ImageSampler*>(oldMaterial.colorSampler.get()))
+	if (const ImageSampler* imageSampler = dynamic_cast<const ImageSampler*>(&oldMaterial.getColorSampler()))
 	{
 		diffuseFromTexture = true;
 		leftSidePanel.addChild(pressMToSwitchColorSampler);
 		
 	}
-	else if (StaticColorSampler* sts = dynamic_cast<StaticColorSampler*>(oldMaterial.colorSampler.get()))
+	else if (const StaticColorSampler* sts = dynamic_cast<const StaticColorSampler*>(&oldMaterial.getColorSampler()))
 	{
 		glm::vec3 diffuse = sts->getColor();
 		addEditorField(y, "diffuse R (0-1)", diffuse.r, leftSidePanel);

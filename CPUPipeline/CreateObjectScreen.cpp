@@ -46,10 +46,8 @@ void CreateObjectScreen::handleInput(const Input& input)
 
 void CreateObjectScreen::createObject(VirtualMeshGenerator & meshGenerator)
 {
-	std::shared_ptr< Sampler> colorSampler = std::make_shared<StaticColorSampler>(glm::vec3({ 1.0f,1.0f,1.0f }));
-	std::shared_ptr< Sampler> normalSampler = std::make_shared<StaticColorSampler>(glm::vec3({ 0.0f,0.0f,1.0f }));
 	Material defaultMaterial = Material({ 0.0f,0.0f,0.0f }, { 0.1f,0.1f,0.1f }, 1.0f,
-		colorSampler, normalSampler);
+		StaticColorSampler(glm::vec3({ 1.0f,1.0f,1.0f })), StaticColorSampler(glm::vec3({ 0.0f,0.0f,1.0f })));
 	Mesh mesh = meshGenerator.getMesh();
 	Transform transform;
 	transform.SetPosition(currentCamera->GetPosition() + currentCamera->GetForward()*3.0f);

@@ -17,7 +17,10 @@ void EditLightScreen::handleInput(const Input& input)
 	}
 	else if (input.getKeyDown(GLFW_KEY_TAB))
 	{
-		selectNextParameter();
+		if (input.getKey(GLFW_KEY_LEFT_SHIFT))
+			selectPreviousParameter();
+		else
+			selectNextParameter();
 	}
 	else if (input.getKeyDown(GLFW_KEY_ENTER))
 	{
@@ -37,6 +40,14 @@ void EditLightScreen::selectNextParameter()
 {
 	parameterValuesTextBoxes[selectedParameterId]->setSelected(false);
 	selectedParameterId = (selectedParameterId + 1) % parameterNamesLabels.size();
+	parameterValuesTextBoxes[selectedParameterId]->setSelected(true);
+}
+
+void EditLightScreen::selectPreviousParameter()
+{
+	parameterValuesTextBoxes[selectedParameterId]->setSelected(false);
+	selectedParameterId = (selectedParameterId - 1);
+	if (selectedParameterId < 0) selectedParameterId += parameterValuesTextBoxes.size();
 	parameterValuesTextBoxes[selectedParameterId]->setSelected(true);
 }
 

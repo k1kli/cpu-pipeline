@@ -10,6 +10,7 @@ class ImageSampler : public Sampler
 public:
 	ImageSampler(ImageView image);
 	virtual glm::vec3 sample(glm::vec2 uv) const;
+	virtual Sampler* getCopy() const;
 
 };
 

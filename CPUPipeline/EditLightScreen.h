@@ -18,7 +18,7 @@ private:
 	Panel leftSidePanel = Panel(RGBA(255, 255, 255, 100), { 0,0 }, 500, -1);
 	Label pressVAgainToLeave = Label({ 30, 20 }, std::string("press V again to leave"), 15);
 	Label pressEnterToApply = Label({ 30, 40 }, std::string("press ENTER to apply"), 15);
-	Label pressTabToJumpToNextField = Label({ 30, 60 }, std::string("press tab to jump to next field"), 15);
+	Label pressTabToJumpToNextField = Label({ 30, 60 }, std::string("press tab to jump to next field (+shift to previous)"), 15);
 	Label editLightLabel = Label({ 30, 60 }, std::string("Edit light"), 40);
 	Label diffuseLabel = Label({ 30, 60 }, std::string("Diffuse color"), 30);
 	Label specularLabel = Label({ 30, 60 }, std::string("Specular color"), 30);
@@ -28,6 +28,7 @@ private:
 	std::vector<TextBox*> parameterValuesTextBoxes;
 	int selectedParameterId = 0;
 	void selectNextParameter();
+	void selectPreviousParameter();
 	void tryApply();
 
 	void addEditorField(int& y, std::string name, float value, Panel& panel);

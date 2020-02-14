@@ -166,11 +166,11 @@ int main(int, char**)
 		Mesh sphereMesh = SphereMeshGenerator(1.0f, 10, 15).getMesh();
 		Mesh cubeMesh = CuboidMeshGenerator(1.0f, 0.5f, 0.7f).getMesh();
 		Material sphereMaterial = Material({ 1.0f, 0.0f, 1.0f }, { 0.2f, 0.3f, 0.2f }, 100.0f,
-			std::make_shared<StaticColorSampler>(glm::vec3(0.5f, 0.5f, 0.5f)),
-			std::make_shared<ImageSampler>(normalImage));
+			StaticColorSampler(glm::vec3(0.5f, 0.5f, 0.5f)),
+			ImageSampler(normalImage));
 		Material cubeMaterial = Material({ 0.0f, 0.0f, 0.0f }, { 0.2f, 0.3f, 0.2f }, 5.0f,
-			std::make_shared<ImageSampler>(texture),
-			std::make_shared<StaticColorSampler>(glm::vec3(0.0f, 0.0f, 1.0f)));
+			ImageSampler(texture),
+			StaticColorSampler(glm::vec3(0.0f, 0.0f, 1.0f)));
 		Transform sphereTransform;
 		sphereTransform.SetScale({ 1.0f, 1.0f, 0.5f });
 		scene.addSceneObject(new SceneObject(sphereMesh, sphereMaterial, sphereTransform));

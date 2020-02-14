@@ -271,6 +271,8 @@ void Editor::deselect()
 {
 	selectedLight = nullptr;
 	selectedObject = nullptr;
+	sceneRenderer.selectObject(nullptr);
+	sceneRenderer.selectLight(nullptr);
 }
 
 void Editor::addLight()

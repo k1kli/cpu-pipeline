@@ -14,3 +14,8 @@ glm::vec3 ImageSampler::sample(glm::vec2 uv) const
 		 (int)(glm::clamp(uv.y, 0.0f, 1.0f) * yMul) * image.getImage().getImageWidth();
 	return image.getImage().getData()[index];
 }
+
+Sampler* ImageSampler::getCopy() const
+{
+	return new ImageSampler(*this);
+}
