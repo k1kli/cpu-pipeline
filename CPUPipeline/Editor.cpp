@@ -6,6 +6,7 @@
 #include "EditObjectScreen.h"
 #include "HelpScreen.h"
 #include "EditLightScreen.h"
+#include "ListScreen.h"
 #include <sstream>
 #include <iomanip>
 
@@ -60,6 +61,10 @@ void Editor::handleInput(float deltaTime)
 	if (input.getKeyDown(GLFW_KEY_J))
 	{
 		deleteCurrentCamera();
+	}
+	if (input.getKeyDown(GLFW_KEY_TAB))
+	{
+		showListScreen();
 	}
 }
 void Editor::moveCamera(float deltaTime)
@@ -271,7 +276,7 @@ void Editor::deselect()
 void Editor::addLight()
 {
 	glm::vec3 pos = scene->getMainCamera().GetPosition() + scene->getMainCamera().GetForward();
-	scene->AddLight(Light(pos, { 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f },
+	scene->AddLight(Light(pos, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
 		1.0f, 0.09f, 0.032f));
 }
 
@@ -281,5 +286,14 @@ void Editor::showEditLightScreen()
 	guiController.removeDisplayable(&defaultPanel);
 	currentScreen = new EditLightScreen(
 		[this]()->void {this->defaultScreenCallback(); }, *selectedLight);
+	guiController.addDisplayable(*currentScreen);
+}
+
+void Editor::showListScreen()
+{
+	guiController.removeDisplayable(&defaultPanel);
+	currentScreen = new ListScreen(
+		[this]()->void {this->defaultScreenCallback(); },
+		*scene, selectedObject ==nullptr ? (const void *)selectedLight : (const void*)selectedObject);
 	guiController.addDisplayable(*currentScreen);
 }

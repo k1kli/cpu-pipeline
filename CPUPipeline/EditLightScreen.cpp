@@ -6,6 +6,7 @@ EditLightScreen::EditLightScreen(std::function<void()> doneCallback, Light& ligh
 {
 	this->addChild(leftSidePanel);
 	loadEditor();
+	parameterValuesTextBoxes[selectedParameterId]->setSelected(true);
 }
 
 void EditLightScreen::handleInput(const Input& input)

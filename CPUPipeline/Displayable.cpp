@@ -28,6 +28,8 @@ void Displayable::Display(GUIUtils& guiUtils, int startX, int startY, int parent
 		width = parentWidth - startX;
 	if (prefferedSize.y < 0)
 		height = parentHeight - startY;
+	if (startX + width < 0 || startY + height < 0 || startX > guiUtils.fb.getWidth() || startY > guiUtils.fb.getHeight())
+		return;
 	onPaint(guiUtils, startX, startY, width, height);
 }
 

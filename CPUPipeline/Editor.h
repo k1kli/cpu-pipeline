@@ -49,5 +49,6 @@ private:
 	void deselect();
 	void addLight();
 	void showEditLightScreen();
+	void showListScreen();
 };
 
