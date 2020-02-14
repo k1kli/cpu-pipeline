@@ -116,7 +116,6 @@ int main(int, char**)
 {
 
 
-	{
 		// Setup window
 		glfwSetErrorCallback(glfw_error_callback);
 		if (!glfwInit())
@@ -207,7 +206,6 @@ int main(int, char**)
 
 		double deltaTime = 0.0;
 		double currentTime = 0.0;
-
 		// Main loop
 		while (!glfwWindowShouldClose(window))
 		{
@@ -256,6 +254,5 @@ int main(int, char**)
 		delete input;
 		glfwDestroyWindow(window);
 		glfwTerminate();
-	}
 	return 0;
 }

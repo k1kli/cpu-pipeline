@@ -10,7 +10,7 @@ class Scene
 {
 	std::vector<SceneObject *> sceneObjects;
 	std::vector<Light*> lights;
-	Camera * mainCamera;
+	Camera * mainCamera = nullptr;
 	ImageStorage imageStorage;
 	std::vector<Camera*> cameras;
 public:
