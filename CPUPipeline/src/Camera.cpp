@@ -9,18 +9,13 @@ Camera::Camera(glm::vec3 pos, glm::vec3 forward, glm::vec3 up)
 	LookAt(pos, forward, up);
 }
 
-void Camera::SetOrthographic(float left, float right, float top, float bottom, float near, float far)
-{
 
-}
-
-void Camera::SetFrustum(float left, float right, float top, float bottom, float near, float far)
-{
-	
-}
 
 void Camera::SetPerspective(float fov_y, float aspect, float near, float far)
 {
+	m_nearPlane = near;
+	m_farPlane = far;
+	m_fov = fov_y;
 	float e = 1 / tan(glm::radians(fov_y)/2);
 	/*float aaa[16] = {
 	   e, 0, 0, 0,

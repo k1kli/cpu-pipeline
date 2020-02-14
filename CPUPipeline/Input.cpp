@@ -4,6 +4,7 @@
 
 Input::Input(GLFWwindow* window, FrameBuffer * fb):window(window), fb(fb)
 {
+	scroll = 0.0f;
 	for (int i = 0; i < GLFW_KEY_LAST + 1; i++)
 	{
 		pressedPreviousFrame[i] = false;
@@ -24,6 +25,7 @@ void Input::setWindowDim(double newWidth, double newHeight)
 
 void Input::updateKeyboardInput()
 {
+	scroll = 0.0f;
 	for (int i = 0; i < GLFW_KEY_LAST + 1; i++)
 	{
 		pressedPreviousFrame[i] = pressedThisFrame[i];
@@ -43,6 +45,11 @@ void Input::setKeyPressed(int key)
 void Input::setKeyReleased(int key)
 {
 	pressedThisFrame[key] = false;
+}
+
+void Input::setScroll(float scroll)
+{
+	this->scroll = scroll;
 }
 
 void Input::characterTyped(char c)
@@ -68,6 +75,11 @@ const bool Input::getKeyDown(int keyCode) const
 const bool Input::getKey(int keyCode) const
 {
 	return keyCode < GLFW_KEY_LAST + 1 && pressedThisFrame[keyCode];
+}
+
+const float Input::getScroll() const
+{
+	return scroll;
 }
 
 const std::vector<char>& Input::getCharactersTyped() const

@@ -33,6 +33,7 @@ void TextDrawer::DrawTextAt(std::string text, int x, int y, int color, unsigned 
 			y+face->glyph->bitmap_top, face->glyph->bitmap.width,
 			face->glyph->bitmap.rows, face->glyph->bitmap.buffer, color);
 		x += face->glyph->bitmap.width + charHeight/10;
+		
 	}
 }
 int TextDrawer::GetTextWidth(std::string text, unsigned int charHeight)

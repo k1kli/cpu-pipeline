@@ -34,6 +34,7 @@ void SceneRenderer::RenderScene()
 		DrawSceneObject();
 	}
 	DrawLights();
+	DrawCameras();
 	glm::vec4 p = viewportMatrix * viewProjectionMatrix 
 		* glm::vec4(camera.GetPosition() + camera.GetForward(),1);
 	p /= p.w;
@@ -333,6 +334,46 @@ void SceneRenderer::DrawLights()
 					{
 						frameBuffer.SetPixel(x, y, RGBA(255, 255, 0, 255), lightViewPos.z);
 					}
+				}
+			}
+		}
+	}
+}
+
+void SceneRenderer::DrawCameras()
+{
+	for (Camera* camera : scene->getCameras())
+	{
+		if (camera == &scene->getMainCamera())
+			continue;
+		glm::vec4 cameraViewPos = viewProjectionMatrix
+			* glm::vec4(camera->GetPosition(), 1);
+		if (triangleClipper.isPointVisible(cameraViewPos))
+		{
+			cameraViewPos = viewportMatrix * cameraViewPos;
+			cameraViewPos /= cameraViewPos.w;
+			float lightSize = 80.0f /
+				glm::length(scene->getMainCamera().GetPosition() - camera->GetPosition());
+			float yMin = glm::max((int)(cameraViewPos.y - lightSize * 0.4f), 0);
+			float yMax = glm::min((int)(cameraViewPos.y + lightSize * 0.4f), frameBuffer.getHeight() - 1);
+			int xMin = glm::max((int)(cameraViewPos.x - lightSize * 0.33f), 0);
+			int xMax = glm::min((int)(cameraViewPos.x + lightSize * 0.66f), frameBuffer.getWidth() - 1);
+
+			for (int y = yMin; y <= yMax; y++)
+			{
+				for (int x = xMin; x <= xMax; x++)
+				{
+					frameBuffer.SetPixel(x, y, RGB(255,255,255), cameraViewPos.z);
+				}
+			}
+			xMin = glm::max((int)(cameraViewPos.x - lightSize * 0.66f), 0);
+			xMax = glm::min((int)(cameraViewPos.x - lightSize * 0.33f), frameBuffer.getWidth() - 1);
+			float yDec = (yMax - yMin) / (2.0f * (xMax - xMin));
+			for (int x = xMin; x <= xMax; x++, yMin +=yDec, yMax -= yDec)
+			{
+				for (int y = yMin; y <= yMax; y++)
+				{
+					frameBuffer.SetPixel(x, y, RGB(255, 255, 255), cameraViewPos.z);
 				}
 			}
 		}

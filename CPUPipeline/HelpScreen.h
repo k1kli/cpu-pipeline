@@ -15,7 +15,7 @@ private:
 	const int cameraStart = editingStart - 230;
 	std::vector<Label> labels =
 	{
-		Label({ 10,10 }, "press H to hide help", 30),
+		Label({ -350,10 }, "press H to hide help", 30),
 		Label({ 10,renderingStart }, "Rendering", 30),
 		Label({ 10,renderingStart -40 }, "press U to toggle wireframe", 20),
 		Label({ 10,renderingStart -70 }, "press I to toggle depth buffering", 20),
@@ -32,6 +32,11 @@ private:
 		Label({ 10,cameraStart -40 }, "press WASD to move", 20),
 		Label({ 10,cameraStart -70 }, "press Q/E to go up/down", 20),
 		Label({ 10,cameraStart -100 }, "use scroll wheel to adjust fov", 20),
+		Label({ 10,cameraStart - 130 }, "press G to create new camera", 20),
+		Label({ 10,cameraStart - 160 }, "press F to switch to next camera", 20),
+		Label({ 10,cameraStart - 190 }, "press J to delete current camera and switch to next one", 20),
+		Label({ 10,cameraStart - 220 }, "press ,/. to decrease/increase far clipping plane", 20),
+		Label({ 10,cameraStart - 250 }, "press shift and ,/. to decrease/increase near clipping plane", 20),
 		Label({ -650,-40 }, "controls for free view, other screens explain their controls", 20),
 	};
 	std::function<void()> doneCallback;

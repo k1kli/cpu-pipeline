@@ -41,9 +41,8 @@ class SceneRenderer
 		glm::vec4 v2InViewport,
 		glm::vec4 v3InViewport);
 	void WireFrame(glm::vec4* v1, glm::vec4* v2, glm::vec4* v3, int color);
-	//int GetPixelColor();
-	//void drawNormalLine(int x, int y);
 	void DrawLights();
+	void DrawCameras();
 	void ScanLine(glm::vec4* v1, glm::vec4* v2, glm::vec4* v3);
 	void ScanLineHorizontalBase(
 		const glm::vec3& v1baseLeft,

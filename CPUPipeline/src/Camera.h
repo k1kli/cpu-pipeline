@@ -10,9 +10,10 @@ public:
 	glm::mat4 GetViewMatrix() const { return m_world_matrix; }
 	glm::mat4 GetProjectionMatrix() const { return m_projection_matrix; };
 	glm::mat4 GetViewportMatrix() const { return m_viewport_matrix; };
+	float GetNearPlane() const { return m_nearPlane; }
+	float GetFarPlane() const { return m_farPlane; }
+	float GetFov() const { return m_fov; }
 
-	void SetOrthographic(float left, float right, float top, float bottom, float near, float far);
-	void SetFrustum(float left, float right, float top, float bottom, float near, float far);
 	void SetPerspective(float fov, float aspect, float near, float far);
 	void SetViewport(float offset_x, float offset_y, float screen_width, float screen_height);
 
@@ -28,6 +29,10 @@ private:
 	glm::vec3 m_position;
 	glm::vec3 m_up_vector;
 	glm::vec3 m_forward_vector;
+
+	float m_nearPlane;
+	float m_farPlane;
+	float m_fov;
 
 	glm::mat4 m_world_matrix;
 	glm::mat4 m_projection_matrix;

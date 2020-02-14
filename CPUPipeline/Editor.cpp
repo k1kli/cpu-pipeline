@@ -6,6 +6,8 @@
 #include "EditObjectScreen.h"
 #include "HelpScreen.h"
 #include "EditLightScreen.h"
+#include <sstream>
+#include <iomanip>
 
 void Editor::handleInput(float deltaTime)
 {
@@ -16,8 +18,13 @@ void Editor::handleInput(float deltaTime)
 		currentScreen->handleInput(input);
 		return;
 	}
+	std::ostringstream ss;
+	glm::vec3 pos = scene->getMainCamera().GetPosition();
+	ss << std::setprecision(3) << "You are currently at (" << pos.x << ", " << pos.y << ", " << pos.z << ")";
+	positionLabel.setText(ss.str());
 	moveCamera(deltaTime);
 	rotateCamera();
+	updateCameraClippingPlanesAndFov();
 	if(input.getKeyDown(GLFW_KEY_P))
 		sceneRenderer.toggleBackfaceCulling();
 	if (input.getKeyDown(GLFW_KEY_O))
@@ -46,6 +53,14 @@ void Editor::handleInput(float deltaTime)
 		selectNearestLight();
 	if (input.getKeyDown(GLFW_KEY_K))
 		addLight();
+	if (input.getKeyDown(GLFW_KEY_G))
+		createNewCamera();
+	if (input.getKeyDown(GLFW_KEY_F))
+		swapToNextCamera();
+	if (input.getKeyDown(GLFW_KEY_J))
+	{
+		deleteCurrentCamera();
+	}
 }
 void Editor::moveCamera(float deltaTime)
 {
@@ -91,6 +106,70 @@ void Editor::rotateCamera()
 	camera.LookAt(camera.GetPosition(), forward, up);
 }
 
+void Editor::updateCameraClippingPlanesAndFov()
+{
+	float nearP = scene->getMainCamera().GetNearPlane();
+	float farP = scene->getMainCamera().GetFarPlane();
+	float fov = scene->getMainCamera().GetFov();
+	if (input.getKey(GLFW_KEY_LEFT_SHIFT))
+	{
+		if (input.getKey(GLFW_KEY_COMMA))
+		{
+			nearP = nearP * 0.9f;
+		}
+		else if (input.getKey(GLFW_KEY_PERIOD))
+		{
+			nearP = nearP * 1.1f;
+		}
+	}
+	else
+	{
+		if (input.getKey(GLFW_KEY_COMMA))
+		{
+			farP = farP * 0.9f;
+		}
+		else if (input.getKey(GLFW_KEY_PERIOD))
+		{
+			farP = farP * 1.1f;
+		}
+	}
+	fov = fov + input.getScroll();
+	scene->getMainCamera().SetViewport(0, 0, (float)fb.getWidth(), (float)fb.getHeight());
+	scene->getMainCamera().SetPerspective(fov, (float)fb.getHeight() / (float)fb.getWidth(), nearP, farP);
+}
+
+void Editor::createNewCamera()
+{
+	Camera camera = scene->getMainCamera();
+	camera.LookAt(camera.GetPosition() + camera.GetForward(), camera.GetForward(), camera.GetUp());
+	scene->AddCamera(camera);
+}
+
+void Editor::swapToNextCamera()
+{
+	for (int i = 0; i < scene->getCameras().size(); i++)
+	{
+		if (scene->getCameras()[i] == &scene->getMainCamera())
+		{
+			i = (i + 1) % scene->getCameras().size();
+			scene->SetMainCamera(i);
+		}
+	}
+}
+
+void Editor::deleteCurrentCamera()
+{
+	std::vector<Camera*>& cameras = scene->getCameras();
+	Camera * oldCamera = &scene->getMainCamera();
+	swapToNextCamera();
+	if (cameras.size() > 1)
+	{
+		cameras.erase(std::remove(cameras.begin(), cameras.end(), oldCamera), cameras.end());
+		delete oldCamera;
+	}
+}
+
+
 void Editor::selectObjectInFrontOfCamera()
 {
 	deselect();
@@ -124,7 +203,7 @@ void Editor::deleteSelectedObject()
 
 void Editor::showCreateScreen()
 {
-	guiController.removeDisplayable(&defaultHelpLabel);
+	guiController.removeDisplayable(&defaultPanel);
 	currentScreen = new CreateObjectScreen(
 		[this](SceneObject* res)->void {this->createdCallback(res); }, &scene->getMainCamera());
 	guiController.addDisplayable(*currentScreen);
@@ -132,7 +211,7 @@ void Editor::showCreateScreen()
 void Editor::showEditObjectScreen()
 {
 	if (selectedObject == nullptr) return;
-	guiController.removeDisplayable(&defaultHelpLabel);
+	guiController.removeDisplayable(&defaultPanel);
 	currentScreen = new EditObjectScreen(
 		[this]()->void {this->defaultScreenCallback(); }, *selectedObject, scene->getImageStorage());
 	guiController.addDisplayable(*currentScreen);
@@ -140,7 +219,7 @@ void Editor::showEditObjectScreen()
 
 void Editor::showHelpScreen()
 {
-	guiController.removeDisplayable(&defaultHelpLabel);
+	guiController.removeDisplayable(&defaultPanel);
 	currentScreen = new HelpScreen(
 		[this]()->void {this->defaultScreenCallback(); });
 	guiController.addDisplayable(*currentScreen);
@@ -160,7 +239,7 @@ void Editor::defaultScreenCallback()
 	guiController.removeDisplayable(currentScreen);
 	delete currentScreen;
 	currentScreen = nullptr;
-	guiController.addDisplayable(defaultHelpLabel);
+	guiController.addDisplayable(defaultPanel);
 }
 
 void Editor::selectNearestLight()
@@ -199,7 +278,7 @@ void Editor::addLight()
 void Editor::showEditLightScreen()
 {
 	if (selectedLight == nullptr) return;
-	guiController.removeDisplayable(&defaultHelpLabel);
+	guiController.removeDisplayable(&defaultPanel);
 	currentScreen = new EditLightScreen(
 		[this]()->void {this->defaultScreenCallback(); }, *selectedLight);
 	guiController.addDisplayable(*currentScreen);
