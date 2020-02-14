@@ -1,23 +1,24 @@
 #pragma once
 #include <glm\glm.hpp>
 #include "Sampler.h"
+#include <memory>
 class Material
 {
 public:
-	float specular;
-	float diffuse;
-	float ambient;
+	glm::vec3 specular;
+	glm::vec3 ambient;
 	float shininess;
-	const Sampler * colorSampler;
-	const Sampler * normalSampler;
+	std::shared_ptr<Sampler> colorSampler;
+	std::shared_ptr<Sampler> normalSampler;
 	Material(
-		float specular, float diffuse,
-		float ambient, float shininess,
-		const Sampler& colorSampler,
-		const Sampler & normalSampler)
-		:specular(specular), diffuse(diffuse),
+		glm::vec3 specular,
+		glm::vec3 ambient, float shininess,
+		std::shared_ptr<Sampler> colorSampler,
+		std::shared_ptr<Sampler> normalSampler)
+		:specular(specular),
 		ambient(ambient), shininess(shininess),
-		colorSampler(&colorSampler),
-		normalSampler(&normalSampler) {}
+		colorSampler(colorSampler),
+		normalSampler(normalSampler) {}
+
 };
 

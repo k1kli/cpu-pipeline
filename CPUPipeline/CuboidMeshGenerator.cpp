@@ -1,7 +1,20 @@
 #include "CuboidMeshGenerator.h"
 
+CuboidMeshGenerator::CuboidMeshGenerator(float width, float height, float depth)
+	:VirtualMeshGenerator({ "width", "height", "depth" }, "cuboid")
+{
+	parameters = { width, height, depth };
+}
+std::shared_ptr<VirtualMeshGenerator> CuboidMeshGenerator::getInstance() const
+{
+	return std::shared_ptr<VirtualMeshGenerator>(new CuboidMeshGenerator(*this));
+}
+
 void CuboidMeshGenerator::validateParameters()
 {
+	width = parameters[0];
+	height = parameters[1];
+	depth = parameters[2];
 	if (width <= 0.0f || height <= 0.0f || depth <= 0.0f)
 		throw "dimensions should be positive";
 }
@@ -15,7 +28,7 @@ void CuboidMeshGenerator::setValues()
 {
 	vertices = {
 		   {0.0f,0.0f,0.0f}, {0.0f,height,0.0f}, {width,height,0.0f}, {width,0.0f,0.0f},
-		   {0.0f,0.0f,1.0f}, {0.0f,height,depth}, {width,height,depth}, {width,0.0f,depth}
+		   {0.0f,0.0f,depth}, {0.0f,height,depth}, {width,height,depth}, {width,0.0f,depth}
 		};
 	//front, back, right, left, up, down
 	normals = {

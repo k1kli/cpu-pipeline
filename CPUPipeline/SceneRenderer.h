@@ -24,26 +24,38 @@ class SceneRenderer
 	std::vector<glm::vec4> worldPosVertices;
 	TriangleClipper triangleClipper;
 	RenderThreadManagement renderThreadManagement;
+	bool backfaceCulling = true;
+	bool perspectiveFix = true;
+	bool wireframe = false;
 	const SceneObject * renderedObject;
-	void DrawSceneObject(int color);
+	const SceneObject* selectedObject = nullptr;
+	const Light* selectedLight = nullptr;
+	void DrawSceneObject();
 	void TransformVertices();
 	void TransformNormals();
-	void DrawObjectsTriangles(int color);
-	void DrawTriangle(int triangleId, int color);
-	void DrawClippedTriangle(int triangleId, int color);
+	void DrawObjectsTriangles();
+	void DrawTriangle(int triangleId);
+	void DrawClippedTriangle(int triangleId);
 	void InitInterpolators(int triangleId,
 		glm::vec4 v1InViewport,
 		glm::vec4 v2InViewport,
 		glm::vec4 v3InViewport);
 	void WireFrame(glm::vec4* v1, glm::vec4* v2, glm::vec4* v3, int color);
-	//int GetPixelColor();
-	//void drawNormalLine(int x, int y);
 	void DrawLights();
-	void ScanLine(glm::vec4* v1, glm::vec4* v2, glm::vec4* v3, int color);
-	void ScanLineHorizontalBase(const glm::vec3& v1baseLeft, const glm::vec3& v2baseRight, const glm::vec3& v3peak, int color);
+	void DrawCameras();
+	void ScanLine(glm::vec4* v1, glm::vec4* v2, glm::vec4* v3);
+	void ScanLineHorizontalBase(
+		const glm::vec3& v1baseLeft,
+		const glm::vec3& v2baseRight,
+		const glm::vec3& v3peak);
 public:
 	SceneRenderer(FrameBuffer& frameBuffer);
 	void SetScene(const Scene & scene);
 	void RenderScene();
+	void toggleBackfaceCulling();
+	void togglePerspectiveFix();
+	void toggleWireframe();
+	void selectObject(const SceneObject* objectToSelect);
+	void selectLight(const Light* lightToSelect);
 };
 

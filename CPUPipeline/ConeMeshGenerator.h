@@ -3,10 +3,7 @@
 class ConeMeshGenerator : public VirtualMeshGenerator
 {
 public:
-	ConeMeshGenerator(float height, float radius, int netDivisions)
-		:height(height),
-		radius(radius),
-		netDivisions(netDivisions) {}
+	ConeMeshGenerator(float height, float radius, int netDivisions);
 private:
 	const int BOTTOM = 0;
 	const int MIDDLE = 1;
@@ -15,6 +12,8 @@ private:
 	float radius;
 	int netDivisions;
 
+
+	std::shared_ptr<VirtualMeshGenerator> getInstance() const;
 	void validateParameters();
 	void resizeVectors();
 	void setValues();

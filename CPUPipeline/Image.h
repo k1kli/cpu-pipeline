@@ -2,13 +2,15 @@
 #include <string>
 #include <glm/glm.hpp>
 #include <functional>
+#include "ImageStorage.h"
 class Image
 {
+	friend class ImageStorage;
 	glm::vec3 * data;
 	int x;
 	int y;
-public:
 	Image(const char* filename);
+public:
 	~Image();
 	const glm::vec3* getData() const;
 	int getImageWidth() const;

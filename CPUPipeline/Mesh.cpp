@@ -1,7 +1,9 @@
 #include "Mesh.h"
 
 
-Mesh::~Mesh()
+
+Mesh::Mesh(std::shared_ptr<VirtualMeshGenerator> generator)
+	:generator(generator)
 {
 }
 
@@ -117,4 +119,9 @@ const std::vector<glm::uvec3>& Mesh::getTrianglesUV() const
 const std::vector<glm::vec2>& Mesh::getUV() const
 {
 	return uv;
+}
+
+const VirtualMeshGenerator& Mesh::getGenerator() const
+{
+	return *generator;
 }

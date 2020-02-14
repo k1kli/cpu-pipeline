@@ -1,8 +1,21 @@
 #include "CyllinderMeshGenerator.h"
 #include <TransformationMatrices.h>
 
+CyllinderMeshGenerator::CyllinderMeshGenerator(float height, float radius, int netDivisions)
+	:VirtualMeshGenerator({ "height", "radius", "net divisions" }, "cyllinder")
+{
+	parameters = { height, radius, (float)netDivisions };
+}
+std::shared_ptr<VirtualMeshGenerator> CyllinderMeshGenerator::getInstance() const
+{
+	return std::shared_ptr<VirtualMeshGenerator>(new CyllinderMeshGenerator(*this));
+}
+
 void CyllinderMeshGenerator::validateParameters()
 {
+	height = parameters[0];
+	radius = parameters[1];
+	netDivisions = parameters[2];
 	if (netDivisions < 3) throw "net divisions should be 3 or higher";
 	if (height <= 0) throw "height should be positive";
 	if (radius <= 0) throw "radius should be positive";

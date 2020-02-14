@@ -1,13 +1,14 @@
 #pragma once
 #include "Image.h"
 #include "Sampler.h"
+#include "ImageView.h"
 class ImageSampler : public Sampler
 {
-	const Image & image;
+	ImageView image;
 	int xMul;
 	int yMul;
 public:
-	ImageSampler(const Image & image);
+	ImageSampler(ImageView image);
 	virtual glm::vec3 sample(glm::vec2 uv) const;
 
 };

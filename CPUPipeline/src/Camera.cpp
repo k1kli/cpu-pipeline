@@ -6,21 +6,16 @@
 
 Camera::Camera(glm::vec3 pos, glm::vec3 forward, glm::vec3 up)
 {
-	m_world_matrix = glm::lookAt(pos, forward+pos, up);
+	LookAt(pos, forward, up);
 }
 
-void Camera::SetOrthographic(float left, float right, float top, float bottom, float near, float far)
-{
 
-}
-
-void Camera::SetFrustum(float left, float right, float top, float bottom, float near, float far)
-{
-	
-}
 
 void Camera::SetPerspective(float fov_y, float aspect, float near, float far)
 {
+	m_nearPlane = near;
+	m_farPlane = far;
+	m_fov = fov_y;
 	float e = 1 / tan(glm::radians(fov_y)/2);
 	/*float aaa[16] = {
 	   e, 0, 0, 0,
@@ -83,10 +78,31 @@ void Camera::LookAt(glm::vec3 pos, glm::vec3 front, glm::vec3 up)
 	m_position = pos;
 	m_up_vector = up;
 	m_forward_vector = front;
-	m_world_matrix = glm::lookAt(pos, pos+front, up);
+	glm::vec3 F = glm::normalize(-front);
+	glm::vec3 R = glm::normalize(glm::cross(up, F));
+	glm::vec3 U = glm::normalize(glm::cross(F, R));
+	m_world_matrix = glm::transpose(glm::mat4(
+		R.x, R.y, R.z, 0,
+		U.x, U.y, U.z, 0,
+		F.x, F.y, F.z, 0,
+		0, 0, 0, 1
+	)) * glm::transpose(glm::mat4(
+		1, 0, 0, -m_position.x,
+		0, 1, 0, -m_position.y,
+		0, 0, 1, -m_position.z,
+		0, 0, 0, 1
+	));
 }
 
 const glm::vec3& Camera::GetPosition() const
 {
 	return m_position;
+}
+const glm::vec3& Camera::GetUp() const
+{
+	return m_up_vector;
+}
+const glm::vec3& Camera::GetForward() const
+{
+	return m_forward_vector;
 }

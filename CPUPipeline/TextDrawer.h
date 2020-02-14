@@ -7,6 +7,7 @@ class TextDrawer
 public:
 	TextDrawer(FrameBuffer& fb);
 	void DrawTextAt(std::string text, int x, int y, int color, unsigned int charHeight);
+	int GetTextWidth(std::string text, unsigned int charHeight);
 private:
 	FrameBuffer& fb;
 	FT_Library library;

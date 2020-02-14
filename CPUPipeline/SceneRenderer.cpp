@@ -31,9 +31,14 @@ void SceneRenderer::RenderScene()
 	for (auto i = 0; i < sceneObjects.size(); i++)
 	{
 		renderedObject = sceneObjects[i];
-		DrawSceneObject(0xFFFF0000);
+		DrawSceneObject();
 	}
 	DrawLights();
+	DrawCameras();
+	glm::vec4 p = viewportMatrix * viewProjectionMatrix 
+		* glm::vec4(camera.GetPosition() + camera.GetForward(),1);
+	p /= p.w;
+	frameBuffer.DrawRect(p.x - 10, p.y - 10, p.x + 10, p.y + 10, RGBA(255, 255, 255, 50));
 	renderThreadManagement.endThreads();
 	for (int i = 0; i < previousInterpolators.size(); i++)
 	{
@@ -45,16 +50,36 @@ void SceneRenderer::RenderScene()
 	previousInterpolators.clear();
 	previousInterpolatorsManagers.clear();
 }
-void SceneRenderer::DrawSceneObject(int color)
+void SceneRenderer::toggleBackfaceCulling()
+{
+	backfaceCulling = !backfaceCulling;
+}
+void SceneRenderer::togglePerspectiveFix()
+{
+	perspectiveFix = !perspectiveFix;
+}
+void SceneRenderer::toggleWireframe()
+{
+	wireframe = !wireframe;
+}
+void SceneRenderer::selectObject(const SceneObject* objectToSelect)
+{
+	selectedObject = objectToSelect;
+}
+void SceneRenderer::selectLight(const Light* lightToSelect)
+{
+	selectedLight = lightToSelect;
+}
+void SceneRenderer::DrawSceneObject()
 {
 	TransformVertices();
 	TransformNormals();
-	DrawObjectsTriangles(color);
+	DrawObjectsTriangles();
 }
 void SceneRenderer::TransformVertices()
 {
-	const glm::mat4 & worldMatrix = renderedObject->GetWorldMatrix();
-	modelViewProjectionMatrix = viewProjectionMatrix*renderedObject->GetWorldMatrix();
+	const glm::mat4 & worldMatrix = renderedObject->GetTransform().GetWorldMatrix();
+	modelViewProjectionMatrix = viewProjectionMatrix* worldMatrix;
 	auto vertices = renderedObject->GetMesh().getVertices();
 	transformedVertices.resize(vertices.size());
 	worldPosVertices.resize(vertices.size());
@@ -67,7 +92,7 @@ void SceneRenderer::TransformVertices()
 }
 void SceneRenderer::TransformNormals()
 {
-	glm::mat3 inverseWorldMatrix = glm::inverse(glm::transpose(renderedObject->GetWorldMatrix()));
+	glm::mat3 inverseWorldMatrix = glm::inverse(glm::transpose(renderedObject->GetTransform().GetWorldMatrix()));
 	auto normals = renderedObject->GetMesh().getNormals();
 	auto tbns = renderedObject->GetMesh().getTBN();
 	transformedNormals.resize(normals.size());
@@ -78,7 +103,7 @@ void SceneRenderer::TransformNormals()
 		transformedTBN[i] = inverseWorldMatrix * tbns[i];
 	}
 }
-void SceneRenderer::DrawObjectsTriangles(int color)
+void SceneRenderer::DrawObjectsTriangles()
 {
 	const std::vector<glm::uvec3> triangles = renderedObject->GetMesh().getTriangles();
 	for (auto i = 0; i < triangles.size(); i++)
@@ -90,18 +115,18 @@ void SceneRenderer::DrawObjectsTriangles(int color)
 		glm::vec3 v3 = glm::vec3(transformedVertices[triangles[i].z]
 			/ transformedVertices[triangles[i].z].w);
 		glm::vec3 normal = glm::normalize(glm::cross(v2-v1, v3-v1));
-		if (dot({ 0,0,-1 }, normal) < 0)
+		if (!backfaceCulling || dot({ 0,0,-1 }, normal) < 0)
 		{
-			DrawTriangle(i, color);
+			DrawTriangle(i);
 		}
 	}
 }
-void SceneRenderer::DrawTriangle(int triangleId, int color)
+void SceneRenderer::DrawTriangle(int triangleId)
 {
 
-	DrawClippedTriangle(triangleId, color);
+	DrawClippedTriangle(triangleId);
 }
-void SceneRenderer::DrawClippedTriangle(int triangleId, int color)
+void SceneRenderer::DrawClippedTriangle(int triangleId)
 {
 	glm::uvec3 mainTriangle = renderedObject->GetMesh().getTriangles()[triangleId];
 	
@@ -125,8 +150,12 @@ void SceneRenderer::DrawClippedTriangle(int triangleId, int color)
 		}
 		for (auto i = 1; i < poly.size()-1; i++)
 		{
-			//WireFrame(&poly[0], &poly[i], &poly[i + 1], 0xFF00FFFF);
-			ScanLine(&poly[0], &poly[i], &poly[i + 1], color);
+			if(!wireframe)
+				ScanLine(&poly[0], &poly[i], &poly[i + 1]);
+			if (wireframe && renderedObject != selectedObject)
+				WireFrame(&poly[0], &poly[i], &poly[i + 1], 0xFFFFFFFF);
+			if (renderedObject == selectedObject)
+				WireFrame(&poly[0], &poly[i], &poly[i + 1], 0xFF00FFFF);
 		}
 	}
 }
@@ -136,7 +165,7 @@ void SceneRenderer::InitInterpolators(int triangleId,
 	glm::vec4 v3InViewport)
 {
 	glm::uvec3 triangle = renderedObject->GetMesh().getTriangles()[triangleId];
-	interpolatorsManager = new InterpolatorsManager();
+	interpolatorsManager = new InterpolatorsManager(perspectiveFix);
 	interpolators = new Interpolators(renderThreadCount);
 	interpolatorsManager->addInterpolator(interpolators->worldPos);
 	interpolatorsManager->addInterpolator(interpolators->uv);
@@ -171,19 +200,19 @@ void SceneRenderer::WireFrame(glm::vec4* v1, glm::vec4* v2, glm::vec4* v3, int c
 		v1->x,
 		v1->y,
 		v2->x,
-		v2->y, 0xFF00FFFF);
+		v2->y, color);
 	frameBuffer.DrawLine(
 		v2->x,
 		v2->y,
 		v3->x,
-		v3->y, 0xFF00FFFF);
+		v3->y, color);
 	frameBuffer.DrawLine(
 		v3->x,
 		v3->y,
 		v1->x,
-		v1->y, 0xFF00FFFF);
+		v1->y, color);
 }
-void SceneRenderer::ScanLine(glm::vec4 * v1, glm::vec4 * v2, glm::vec4 * v3, int color)
+void SceneRenderer::ScanLine(glm::vec4 * v1, glm::vec4 * v2, glm::vec4 * v3)
 {
 	glm::vec4 * buf;
 
@@ -212,19 +241,19 @@ void SceneRenderer::ScanLine(glm::vec4 * v1, glm::vec4 * v2, glm::vec4 * v3, int
 	glm::vec4 v4 = *v1 * (1-v4q) + *v3 * v4q;
 	if (v2->x < v4.x)
 	{
-		ScanLineHorizontalBase(*v2, v4, *v3, color);
-		ScanLineHorizontalBase(*v2, v4, *v1, color);
+		ScanLineHorizontalBase(*v2, v4, *v3);
+		ScanLineHorizontalBase(*v2, v4, *v1);
 	}
 	else
 	{
-		ScanLineHorizontalBase(v4, *v2, *v3, color);
-		ScanLineHorizontalBase(v4, *v2, *v1, color);
+		ScanLineHorizontalBase(v4, *v2, *v3);
+		ScanLineHorizontalBase(v4, *v2, *v1);
 	}
 }
 void SceneRenderer::ScanLineHorizontalBase(
 	const glm::vec3& v1baseLeft,
 	const glm::vec3& v2baseRight,
-	const glm::vec3& v3peak, int color)
+	const glm::vec3& v3peak)
 {
 	int baseY = v1baseLeft.y;
 	int peakY = v3peak.y;
@@ -237,7 +266,7 @@ void SceneRenderer::ScanLineHorizontalBase(
 	int yInc = glm::sign(peakY - baseY);
 	float antitangent1 = (v3peak.x - v1baseLeft.x) / (v3peak.y - v1baseLeft.y) * yInc;
 	float antitangent2 = (v3peak.x - v2baseRight.x) / (v3peak.y - v2baseRight.y) * yInc;
-	for (int y = baseY; y != peakY; y += yInc)
+	for (int y = baseY; y != peakY+yInc; y += yInc)
 	{
 		float q = (float)(y - baseY) / yDiff;
 		float lineDepth1 = depth1 * (1 - q) + depth3 * q;
@@ -252,65 +281,6 @@ void SceneRenderer::ScanLineHorizontalBase(
 		maxX += antitangent2;
 	}
 }
-//int floatToIntColor(const glm::vec4& floatColor)
-//{
-//	uint8_t r = (uint8_t)(std::clamp<float>(floatColor.r, 0.f, 1.f) * 255);
-//	uint8_t g = (uint8_t)(std::clamp<float>(floatColor.g, 0.f, 1.f) * 255);
-//	uint8_t b = (uint8_t)(std::clamp<float>(floatColor.b, 0.f, 1.f) * 255);
-//	uint8_t a = (uint8_t)(std::clamp<float>(floatColor.a, 0.f, 1.f) * 255);
-//	return RGBA(r, g, b, a);
-//}
-//int SceneRenderer::GetPixelColor()
-//{
-//	const Material& material = renderedObject->GetMaterial();
-//	glm::vec3 ambientLight = { 1.0f, 1.0f, 1.0f };
-//	glm::vec2 uv = interpolators.uv.getValue();
-//
-//	glm::vec3 baseNormal = glm::normalize(interpolators.normal.getValue());
-//	glm::mat3 tbn = interpolators.tbn.getValue();
-//	tbn[0] = glm::normalize(tbn[0]);
-//	tbn[1] = glm::normalize(tbn[1]);
-//	tbn[2] = baseNormal;
-//	
-//	glm::vec3 normal = glm::normalize(tbn * material.normalSampler->sample(
-//		uv));
-//	glm::vec3 worldPosition = interpolators.worldPos.getValue();
-//
-//	glm::vec3 toObserver = glm::normalize(scene->getMainCamera().GetPosition() - worldPosition);
-//
-//	glm::vec3 color = material.ambient * ambientLight;
-//	glm::vec3 objectColor = material.colorSampler->sample(uv);
-//	for (Light* light : scene->GetLights())
-//	{
-//		glm::vec3 toLightVector = light->getPosition()-worldPosition;
-//		float dist = glm::length(toLightVector);
-//		toLightVector /= dist;
-//		glm::vec3 reflect =
-//			2 * glm::dot(toLightVector, normal) * normal - toLightVector;
-//		color +=
-//			(light->getDiffuseColor() *
-//				objectColor * glm::max(glm::dot(toLightVector, normal), 0.0f) +
-//				light->getSpecularColor() *
-//				material.specular * glm::pow(glm::max(glm::dot(reflect, toObserver),0.0f), material.shininess))
-//			* light->getAttenuation(dist);
-//	}
-//	color = glm::clamp(color, { 0,0,0 }, { 1,1,1 });
-//	return floatToIntColor(glm::vec4(color, 1));
-//}
-
-//void SceneRenderer::drawNormalLine(int x, int y)
-//{
-//	glm::mat3 tbn = interpolators->tbn.getValue(0);
-//	glm::vec2 uv = interpolators->uv.getValue(0);
-//	const Material& material = renderedObject->GetMaterial();
-//	glm::vec3 normal = glm::normalize(tbn * material.normalSampler->sample(uv));
-//	glm::vec4 lineEndWorldPos = glm::vec4(interpolators->worldPos.getValue(0)
-//		+ normal * 0.02f, 1);
-//	glm::vec4 lineEndViewPos = viewportMatrix
-//		* viewProjectionMatrix * lineEndWorldPos;
-//	lineEndViewPos /= lineEndViewPos.w;
-//	frameBuffer.DrawLine(x, y, lineEndViewPos.x, lineEndViewPos.y, 0xFFFF00FF);
-//}
 
 void SceneRenderer::DrawLights()
 {
@@ -329,11 +299,81 @@ void SceneRenderer::DrawLights()
 			int xMin = glm::max((int)(lightViewPos.x - lightSize / 2), 0);
 			int xMax = glm::min((int)(lightViewPos.x + lightSize / 2), frameBuffer.getWidth() - 1);
 			int lightColor = floatToIntColor(glm::vec4(light->getDiffuseColor(), 1));
+
 			for (int y = yMin; y <= yMax; y++)
 			{
 				for (int x = xMin; x <= xMax; x++)
 				{
 					frameBuffer.SetPixel(x, y, lightColor, lightViewPos.z);
+				}
+			}
+			if (light == selectedLight)
+			{
+				float h = yMax - yMin;
+				float w = xMax - xMin;
+				yMin += h / 3;
+				yMax -= h / 3;
+				xMin += w / 3;
+				xMax -= w / 3;
+				for (int y = yMin; y <= yMax; y++)
+				{
+					for (int x = xMin; x <= xMax; x++)
+					{
+						frameBuffer.SetPixel(x, y, RGBA(0, 0, 255, 255), lightViewPos.z);
+					}
+				}
+				h = yMax - yMin;
+				w = xMax - xMin;
+				yMin += h / 4;
+				yMax -= h / 4;
+				xMin += w / 4;
+				xMax -= w / 4;
+				for (int y = yMin; y <= yMax; y++)
+				{
+					for (int x = xMin; x <= xMax; x++)
+					{
+						frameBuffer.SetPixel(x, y, RGBA(255, 255, 0, 255), lightViewPos.z);
+					}
+				}
+			}
+		}
+	}
+}
+
+void SceneRenderer::DrawCameras()
+{
+	for (Camera* camera : scene->getCameras())
+	{
+		if (camera == &scene->getMainCamera())
+			continue;
+		glm::vec4 cameraViewPos = viewProjectionMatrix
+			* glm::vec4(camera->GetPosition(), 1);
+		if (triangleClipper.isPointVisible(cameraViewPos))
+		{
+			cameraViewPos = viewportMatrix * cameraViewPos;
+			cameraViewPos /= cameraViewPos.w;
+			float lightSize = 80.0f /
+				glm::length(scene->getMainCamera().GetPosition() - camera->GetPosition());
+			float yMin = glm::max((int)(cameraViewPos.y - lightSize * 0.4f), 0);
+			float yMax = glm::min((int)(cameraViewPos.y + lightSize * 0.4f), frameBuffer.getHeight() - 1);
+			int xMin = glm::max((int)(cameraViewPos.x - lightSize * 0.33f), 0);
+			int xMax = glm::min((int)(cameraViewPos.x + lightSize * 0.66f), frameBuffer.getWidth() - 1);
+
+			for (int y = yMin; y <= yMax; y++)
+			{
+				for (int x = xMin; x <= xMax; x++)
+				{
+					frameBuffer.SetPixel(x, y, RGB(255,255,255), cameraViewPos.z);
+				}
+			}
+			xMin = glm::max((int)(cameraViewPos.x - lightSize * 0.66f), 0);
+			xMax = glm::min((int)(cameraViewPos.x - lightSize * 0.33f), frameBuffer.getWidth() - 1);
+			float yDec = (yMax - yMin) / (2.0f * (xMax - xMin));
+			for (int x = xMin; x <= xMax; x++, yMin +=yDec, yMax -= yDec)
+			{
+				for (int y = yMin; y <= yMax; y++)
+				{
+					frameBuffer.SetPixel(x, y, RGB(255, 255, 255), cameraViewPos.z);
 				}
 			}
 		}

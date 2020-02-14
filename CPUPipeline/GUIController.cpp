@@ -15,3 +15,7 @@ void GUIController::addDisplayable(Displayable& displayable)
 {
 	masterPanel.addChild(displayable);
 }
+void GUIController::removeDisplayable(const Displayable * displayable)
+{
+	masterPanel.removeChild(displayable);
+}

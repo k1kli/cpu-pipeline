@@ -18,80 +18,67 @@
 #include "../Panel.h"
 #include "../GUIController.h"
 #include "../Label.h"
+#include "../Editor.h"
+#include "../Input.h"
+#include "../Raycast.h"
+#include <iostream>
+#include "../SphereMeshGenerator.h"
+#include "../CuboidMeshGenerator.h"
 
 #define DEFAULT_WIDTH 1280
 #define DEFAULT_HEIGHT 720
 
-glm::vec3 cameraPos, cameraFront, cameraUp;
-float fov = 60.f;
 int current_width = DEFAULT_WIDTH;
 int current_height = DEFAULT_HEIGHT;
-double oldXpos = 0;
-double oldYpos = 0;
-Camera* camera = nullptr;
+int old_width = DEFAULT_WIDTH;
+int old_height = DEFAULT_HEIGHT;
+Input* input = nullptr;
 
 static void glfw_error_callback(int error, const char* description)
 {
 	fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-void processInput(GLFWwindow* window, float deltaTime)
-{
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, true);
 
-	//TODO: Write camera input control here
-	glm::vec3 right = cross(cameraFront, cameraUp);
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		cameraPos += cameraFront * deltaTime;
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		cameraPos += -right * deltaTime;
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		cameraPos += -cameraFront * deltaTime;
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		cameraPos += right * deltaTime;
-	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-		cameraPos += cameraUp * deltaTime;
-	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-		cameraPos += -cameraUp * deltaTime;
-}
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+	input->setWindowDim(width, height);
+	old_width = current_width;
+	old_height = current_height;
 	current_width = width;
 	current_height = height;
 }
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-	xpos = xpos-current_width/2.0;
-	ypos = ypos-current_height/2.0;
-	double xDiff = xpos - oldXpos;
-	double yDiff = ypos - oldYpos;
-	oldXpos = xpos;
-	oldYpos = ypos;
-	yDiff /= current_height / 2.0;
-	if (abs(yDiff) > 0.001)
-	{
-		glm::vec3 right = glm::cross(cameraFront, cameraUp);
-		cameraFront = TransformationMatrices::getRotationMatrix(-(float)yDiff * 0.6f, right)
-			* glm::vec4(cameraFront, 1);
-
-	}
-	xDiff /= current_width / 2.0;
-	if (abs(xDiff) > 0.001)
-	{
-		cameraFront = TransformationMatrices::getRotationMatrix(-(float)xDiff * 1.6f, cameraUp)
-			* glm::vec4(cameraFront, 1);
-	}
-
+	input->setMousePos(xpos, ypos);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	//TODO: mouse scroll
-	fov += (float)yoffset;
+	input->setScroll((float)yoffset);
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (action == GLFW_PRESS)
+	{
+		input->setKeyPressed(key);
+	}
+	else if (action == GLFW_RELEASE)
+	{
+		input->setKeyReleased(key);
+	}
+}
+
+void character_callback(GLFWwindow* window, unsigned int codepoint)
+{
+	if (codepoint < 256)
+	{
+		input->characterTyped(codepoint);
+	}
 }
 
 void timeMeasurement(GLFWwindow* win, double& deltaTime, double& currentTime)
@@ -127,142 +114,145 @@ int floatToIntColor(const glm::vec3& floatColor)
 
 int main(int, char**)
 {
-	// Setup window
-	glfwSetErrorCallback(glfw_error_callback);
-	if (!glfwInit())
-		return 1;
-
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-
-	// Create window with graphics context
-	GLFWwindow* window = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, "CPU Render Pipeline", NULL, NULL);
-	if (window == NULL)
-	{
-		fprintf(stderr, "Failed to create window!\n");
-		return 1;
-	}
-	glfwMakeContextCurrent(window);
-	glfwSwapInterval(0); // 0 - Disable vsync
-
-	// Initialize OpenGL loader
-	if (gladLoadGL() == 0)
-	{
-		fprintf(stderr, "Failed to initialize OpenGL loader!\n");
-		return 1;
-	}
-
-	// Set callback for resizing window
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	glfwSetCursorPosCallback(window, mouse_callback);
-	glfwSetScrollCallback(window, scroll_callback);
-	FrameBuffer fb(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-	fb.InitGL();
-
-	GUIController guiController(fb);
-	Panel panel(RGBA(255, 255, 255, 200), { 0,0 }, 300, -1);
-	Label label({ 50, 50 }, std::string("abc"), 30);
-	panel.addChild(label);
-	guiController.addDisplayable(panel);
-
-	Image image = Image("data/lion.jpg");
-	Image normalImage = Image("data/drop.png");
-	normalImage.transform(normalTransformation);
-
-	
-	MeshGenerator meshGenerator;
-	Scene scene;
-	SceneRenderer sceneRenderer(fb);
-	sceneRenderer.SetScene(scene);
-	Mesh cubeMesh = meshGenerator.getCylinderMesh(2.0f, 0.5f, 10);
-	Material cubeMaterial = Material(
-		0.1f, 0.1f, 0.1f, 1.0f,
-		ImageSampler(image),
-		//StaticColorSampler({ 0.5f,0.2f,0.2f }),
-		StaticColorSampler({ 0.0f,0.0f,1.0f }));
-		//ImageSampler(normalImage));
-	SceneObject cube = SceneObject(cubeMesh, glm::identity<glm::mat4>(), cubeMaterial);
-	SceneObject cube2 = SceneObject(
-		cubeMesh, glm::identity<glm::mat4>(), cubeMaterial);
-	Light light1 = Light({ 2.0f,0.0f,0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
-		1.0f, 0.09f, 0.032f);
-	Light light2 = Light({ -2.0f,0.0f,0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
-		1.0f, 0.09f, 0.032f);
-	Light light3 = Light({ 0.0f,0.0f,2.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
-		1.0f, 0.09f, 0.032f);
-	Light light4 = Light({ 0.0f,-2.0f,0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
-		1.0f, 0.09f, 0.032f);
-	scene.AddLight(light1);
-	scene.AddLight(light2);
-	scene.AddLight(light3);
-	scene.AddLight(light4);
-	
-	scene.AddSceneObject(cube);
-	scene.AddSceneObject(cube2);
-
-	cameraPos = { 0,0,1 };
-	cameraFront = { 0,0,-1 };
-	cameraUp = { 0,1,0 };
-
-	//TODO: initialize camera
-	camera = new Camera(cameraPos, cameraFront, cameraUp);
-	scene.SetMainCamera(*camera);
-
-	double deltaTime = 0.0;
-	double currentTime = 0.0;
-
-	// Main loop
-	while (!glfwWindowShouldClose(window))
-	{
-		glfwPollEvents();
-		timeMeasurement(window, deltaTime, currentTime);
-		processInput(window, (float)deltaTime);
-
-		// Update scene
-
-		glm::mat4 modelBase = TransformationMatrices::getScalingMatrix({ 0.2,0.2,0.2 });
 
 
-		glm::mat4 rotation = TransformationMatrices::getRotationMatrix(
-			(float)currentTime, glm::vec3(0.0f, 1.0f, 0.0f));
-		glm::mat4 translation = TransformationMatrices::getTranslationMatrix({ -0.2,-0.2,0 });
-		cube.SetWorldMatrix(translation * rotation * modelBase);
-		modelBase = TransformationMatrices::getTranslationMatrix({ 3.0f, 0.0f, 0.0f }) * modelBase;
-		cube2.SetWorldMatrix(modelBase);
-		camera->SetViewport(0, 0, (float)current_width, (float)current_height);
-		camera->SetPerspective(fov, (float)current_height / current_width, 0.1f, 12);
-		camera->LookAt(cameraPos, cameraFront, cameraUp);
-		float t = (float)(currentTime) * 0.05f;
-		light1.setPosition({ 3.0f * glm::cos(t), 1.1f, -3.0f * glm::sin(t) });
-		//fb.ClearColor(0.5f, 0.5f, 1.0f);
-		fb.ClearColor(0.1f, 0.15f, 0.15f);
+		// Setup window
+		glfwSetErrorCallback(glfw_error_callback);
+		if (!glfwInit())
+			return 1;
 
-		//write your render pipeline here
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+
+		// Create window with graphics context
+		GLFWwindow* window = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, "CPU Render Pipeline", NULL, NULL);
+		if (window == NULL)
+		{
+			fprintf(stderr, "Failed to create window!\n");
+			return 1;
+		}
+		glfwMakeContextCurrent(window);
+		glfwSwapInterval(0); // 0 - Disable vsync
+
+		// Initialize OpenGL loader
+		if (gladLoadGL() == 0)
+		{
+			fprintf(stderr, "Failed to initialize OpenGL loader!\n");
+			return 1;
+		}
+
+		// Set callback for resizing window
+		glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetCursorPosCallback(window, mouse_callback);
+		glfwSetScrollCallback(window, scroll_callback);
+		glfwSetKeyCallback(window, key_callback);
+		glfwSetCharCallback(window, character_callback);
+		FrameBuffer fb(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+		fb.InitGL();
+
+		GUIController guiController(fb);
 
 
 
-		sceneRenderer.RenderScene();
-		//textDrawer.DrawTextAt(std::string("abc def"),0 , currentTime * 200);
-		guiController.Render();
-		// Rendering
-		int display_w, display_h;
-		glfwGetFramebufferSize(window, &display_w, &display_h);
-		glViewport(0, 0, display_w, display_h);
-		//glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-		//glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-		fb.RenderGL();
+		Scene scene;
+		SceneRenderer sceneRenderer(fb);
+		sceneRenderer.SetScene(scene);
 
-		glfwSwapBuffers(window);
-	}
+		ImageView texture = scene.getImageStorage().addImage("data/lion.jpg");
+		ImageView normalImage = scene.getImageStorage().addImage("data/marbleNormalMap.png");
+		normalImage.getImage().transform(normalTransformation);
 
-	// Cleanup
-	delete camera;
-	glfwDestroyWindow(window);
-	glfwTerminate();
+		Mesh sphereMesh = SphereMeshGenerator(1.0f, 10, 15).getMesh();
+		Mesh cubeMesh = CuboidMeshGenerator(1.0f, 0.5f, 0.7f).getMesh();
+		Material sphereMaterial = Material({ 1.0f, 0.0f, 1.0f }, { 0.2f, 0.3f, 0.2f }, 100.0f,
+			std::make_shared<StaticColorSampler>(glm::vec3(0.5f, 0.5f, 0.5f)),
+			std::make_shared<ImageSampler>(normalImage));
+		Material cubeMaterial = Material({ 0.0f, 0.0f, 0.0f }, { 0.2f, 0.3f, 0.2f }, 5.0f,
+			std::make_shared<ImageSampler>(texture),
+			std::make_shared<StaticColorSampler>(glm::vec3(0.0f, 0.0f, 1.0f)));
+		Transform sphereTransform;
+		sphereTransform.SetScale({ 1.0f, 1.0f, 0.5f });
+		scene.addSceneObject(new SceneObject(sphereMesh, sphereMaterial, sphereTransform));
+		Transform cubeTransform;
+		cubeTransform.SetPosition({ 3.0f, 0.0f, 1.0f });
+		cubeTransform.SetEulerAngles({ 1.0f, 1.0f, 1.0f });
+		scene.addSceneObject(new SceneObject(cubeMesh, cubeMaterial, cubeTransform));
 
+		Light light1 = Light({ 2.0f,0.0f,0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
+			1.0f, 0.09f, 0.032f);
+		Light light2 = Light({ -2.0f,0.0f,0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
+			1.0f, 0.09f, 0.032f);
+		Light light3 = Light({ 0.0f,0.0f,2.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
+			1.0f, 0.09f, 0.032f);
+		Light light4 = Light({ 0.0f,-2.0f,0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
+			1.0f, 0.09f, 0.032f);
+		scene.AddLight(light1);
+		scene.AddLight(light2);
+		scene.AddLight(light3);
+		scene.AddLight(light4);
+
+
+		input = new Input(window, &fb);
+
+		Editor editor(guiController, sceneRenderer, &scene, *input, fb, window);
+
+
+		//TODO: initialize camera
+		Camera startCamera = Camera({ -0.5f,0.5f,0.5f }, { 1,0,0 }, { 0,1,0 });
+		startCamera.SetViewport(0, 0, (float)current_width, (float)current_height);
+		startCamera.SetPerspective(60.0f, (float)current_height / current_width, 0.1f, 12);
+		scene.AddCamera(startCamera);
+
+		double deltaTime = 0.0;
+		double currentTime = 0.0;
+		// Main loop
+		while (!glfwWindowShouldClose(window))
+		{
+			input->updateKeyboardInput();
+			glfwPollEvents();
+			timeMeasurement(window, deltaTime, currentTime);
+			input->updateMouseInput();
+			if (current_width != old_width || current_height != old_height)
+			{
+				old_width = current_width;
+				old_height = current_height;
+				fb.Resize(current_width, current_height);
+			}
+
+
+			// Update scene
+
+
+
+			fb.ClearColor(0.1f, 0.15f, 0.15f);
+
+			editor.handleInput((float)deltaTime);
+			sceneRenderer.RenderScene();
+			guiController.Render();
+
+
+			// Rendering
+			int display_w, display_h;
+			glfwGetFramebufferSize(window, &display_w, &display_h);
+			glViewport(0, 0, display_w, display_h);
+			//glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+			//glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+			glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
+			fb.RenderGL();
+
+			glfwSwapBuffers(window);
+
+			while (int err = glGetError())
+			{
+				std::cout << "end " << err << std::endl;
+			}
+		}
+
+		// Cleanup
+		delete input;
+		glfwDestroyWindow(window);
+		glfwTerminate();
 	return 0;
 }

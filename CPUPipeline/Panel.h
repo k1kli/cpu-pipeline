@@ -4,9 +4,12 @@ class Panel :
 	public Displayable
 {
 public:
-	Panel(int color, glm::uvec2 posInParent, int width, int height);
-	virtual void onPaint(GUIUtils& guiUtils, int x, int y, int width, int height) const;
+	Panel(int color, glm::vec2 posInParent, int width, int height);
 	void addChild(Displayable& child);
+	void removeChild(const Displayable* child);
+	void removeAllChildren();
+protected:
+	virtual void onPaint(GUIUtils& guiUtils, int x, int y, int width, int height) const;
 private:
 	int color;
 	std::vector<Displayable *> children;

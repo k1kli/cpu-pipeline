@@ -1,21 +1,21 @@
 #pragma once
 #include "Mesh.h"
 #include "Material.h"
+#include "Transform.h"
 class SceneObject
 {
 	Mesh mesh;
-	glm::mat4 worldMatrix;
 	Material material;
+	Transform transform;
 public:
-	SceneObject(const Mesh& mesh, const glm::mat4& worldMatrix, const Material& material)
-		:mesh(mesh), worldMatrix(worldMatrix), material(material) {}
+	SceneObject(const Mesh& mesh, const Material& material, Transform transform = Transform());
 	Mesh& GetMesh();
 	const Mesh& GetMesh() const;
-	const glm::mat4& GetWorldMatrix() const;
-	void SetWorldMatrix(const glm::mat4& worldMatrix);
 	void SetMaterial(const Material & material);
 	Material& GetMaterial();
 	const Material& GetMaterial() const;
+	Transform& GetTransform();
+	const Transform& GetTransform() const;
 
 };
 
