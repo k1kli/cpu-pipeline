@@ -50,5 +50,10 @@ private:
 	void addLight();
 	void showEditLightScreen();
 	void showListScreen();
+	void checkSaving();
+	int getSavingInput();
+	int getLoadingInput();
+	void saveScene(int saveSlot);
+	void loadScene(int saveSlot);
 };
 

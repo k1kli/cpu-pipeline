@@ -16,6 +16,7 @@ void Camera::SetPerspective(float fov_y, float aspect, float near, float far)
 	m_nearPlane = near;
 	m_farPlane = far;
 	m_fov = fov_y;
+	m_aspect = aspect;
 	float e = 1 / tan(glm::radians(fov_y)/2);
 	/*float aaa[16] = {
 	   e, 0, 0, 0,
@@ -105,4 +106,28 @@ const glm::vec3& Camera::GetUp() const
 const glm::vec3& Camera::GetForward() const
 {
 	return m_forward_vector;
+}
+
+void Camera::save(SceneDataWriter& writer) const
+{
+	writer.write(m_position);
+	writer.write(m_up_vector);
+	writer.write(m_forward_vector);
+	writer.write(m_nearPlane);
+	writer.write(m_farPlane);
+	writer.write(m_fov);
+	writer.write(m_aspect);
+}
+
+void Camera::load(SceneDataReader& reader)
+{
+	m_position = reader.readVec3();
+	m_up_vector = reader.readVec3();
+	m_forward_vector = reader.readVec3();
+	LookAt(m_position, m_forward_vector, m_up_vector);
+	m_nearPlane = reader.readFloat();
+	m_farPlane = reader.readFloat();
+	m_fov = reader.readFloat();
+	m_aspect = reader.readFloat();
+	SetPerspective(m_fov, m_aspect, m_nearPlane, m_farPlane);
 }

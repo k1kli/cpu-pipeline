@@ -9,6 +9,8 @@
 #include "ListScreen.h"
 #include <sstream>
 #include <iomanip>
+#include "PersistentStorage.h"
+#include <iostream>
 
 void Editor::handleInput(float deltaTime)
 {
@@ -66,6 +68,7 @@ void Editor::handleInput(float deltaTime)
 	{
 		showListScreen();
 	}
+	checkSaving();
 }
 void Editor::moveCamera(float deltaTime)
 {
@@ -298,4 +301,91 @@ void Editor::showListScreen()
 		[this]()->void {this->defaultScreenCallback(); },
 		*scene, selectedObject ==nullptr ? (const void *)selectedLight : (const void*)selectedObject);
 	guiController.addDisplayable(*currentScreen);
+}
+
+void Editor::checkSaving()
+{
+	int saveSlot;
+	if ((saveSlot = getSavingInput()) != -1)
+	{
+		saveScene(saveSlot);
+	}
+	else if ((saveSlot = getLoadingInput()) != -1)
+	{
+		loadScene(saveSlot);
+	}
+}
+
+int Editor::getSavingInput()
+{
+	if (input.getKey(GLFW_KEY_LEFT_SHIFT))
+	{
+		if (input.getKeyDown(GLFW_KEY_1))
+		{
+			return 1;
+		}
+		else if (input.getKeyDown(GLFW_KEY_2))
+		{
+			return 2;
+		}
+		else if (input.getKeyDown(GLFW_KEY_3))
+		{
+			return 3;
+		}
+		else if (input.getKeyDown(GLFW_KEY_4))
+		{
+			return 4;
+		}
+		else if (input.getKeyDown(GLFW_KEY_5))
+		{
+			return 5;
+		}
+	}
+	return -1;
+}
+
+int Editor::getLoadingInput()
+{
+	if (!input.getKey(GLFW_KEY_LEFT_SHIFT))
+	{
+		if (input.getKeyDown(GLFW_KEY_1))
+		{
+			return 1;
+		}
+		else if (input.getKeyDown(GLFW_KEY_2))
+		{
+			return 2;
+		}
+		else if (input.getKeyDown(GLFW_KEY_3))
+		{
+			return 3;
+		}
+		else if (input.getKeyDown(GLFW_KEY_4))
+		{
+			return 4;
+		}
+		else if (input.getKeyDown(GLFW_KEY_5))
+		{
+			return 5;
+		}
+	}
+	return -1;
+}
+
+void Editor::saveScene(int saveSlot)
+{
+	PersistentStorage storage(saveSlot);
+	storage.save(*scene);
+}
+
+void Editor::loadScene(int saveSlot)
+{
+	PersistentStorage storage(saveSlot);
+	try {
+		storage.load(*scene);
+	}
+	catch (const char* s)
+	{
+		std::cout << "file doesn't exist\n";
+	}
 }
