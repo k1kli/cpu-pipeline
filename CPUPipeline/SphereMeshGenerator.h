@@ -6,6 +6,7 @@ class SphereMeshGenerator : public VirtualMeshGenerator
 public:
 
 	SphereMeshGenerator(float R, int netVerticalLinesCount, int netHorizontalLinesCount);
+	SphereMeshGenerator();
 	std::shared_ptr<VirtualMeshGenerator> getInstance() const;
 private:
 	const int SOUTH_POLE = 0;
@@ -20,6 +21,7 @@ private:
 	void resizeVectors();
 	void setValues();
 	void setTriangles();
+	MeshType getType() const { return MeshType::SPHERE; }
 
 	int getNonPoleVertNormTangIndex(int horizontalLine, int verticalLine);
 	int getPoleVertexIndex(int pole);

@@ -77,7 +77,19 @@ const ImageStorage& Scene::getImageStorage() const
 void Scene::load(SceneDataReader& reader)
 {
 	cleanup();
-	//imageStorage.load(reader);
+	imageStorage.load(reader);
+	int sceneObjectsCount = reader.readInt();
+	sceneObjects.resize(sceneObjectsCount);
+	for (int i = 0; i < sceneObjectsCount; i++)
+	{
+		sceneObjects[i] = new SceneObject(reader);
+	}
+	int lightsCount = reader.readInt();
+	lights.resize(lightsCount);
+	for (int i = 0; i < lightsCount; i++)
+	{
+		lights[i] = new Light(reader);
+	}
 	int cameraCount = reader.readInt();
 	cameras.resize(cameraCount);
 	for (int i = 0; i < cameraCount; i++)
@@ -90,7 +102,7 @@ void Scene::load(SceneDataReader& reader)
 
 void Scene::save(SceneDataWriter& writer) const
 {
-	/*imageStorage.save(writer);
+	imageStorage.save(writer);
 	writer.write((int)sceneObjects.size());
 	for (SceneObject* so : sceneObjects)
 	{
@@ -100,7 +112,7 @@ void Scene::save(SceneDataWriter& writer) const
 	for (Light* light : lights)
 	{
 		light->save(writer);
-	}*/
+	}
 	writer.write((int)cameras.size());
 	int mainCameraId = 0;
 	for (int i = 0; i < cameras.size(); i++)

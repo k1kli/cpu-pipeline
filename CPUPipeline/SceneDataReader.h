@@ -1,7 +1,7 @@
 #pragma once
 #include <fstream>
 #include <glm/glm.hpp>
-#include "ImageStorage.h"
+class ImageStorage;
 class SceneDataReader
 {
 public:
@@ -10,6 +10,7 @@ public:
 	float readFloat();
 	glm::vec3 readVec3();
 	glm::mat4 readMat4();
+	char* readBytesArray(int * sizeRes);
 	ImageStorage& getImageStorage();
 	void setImageStorage(ImageStorage & imageStorage);
 private:

@@ -1,6 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
-class Light
+#include "SaveableObject.h"
+class Light : public SaveableObject
 {
 	glm::vec3 position;
 	glm::vec3 diffuseColor;
@@ -9,6 +10,7 @@ class Light
 	float attenuationLinear;
 	float attenuationQuadratic;
 public:
+	Light(SceneDataReader& reader) { load(reader); }
 	Light(const glm::vec3& position,
 		const glm::vec3& diffuseColor,
 		const glm::vec3& specularColor,
@@ -29,6 +31,8 @@ public:
 	void setDiffuseColor(const glm::vec3& newDiffuse);
 	void setSpecularColor(const glm::vec3& newSpecular);
 	void setAttenuation(float constant, float linear, float quadratic);
+	void load(SceneDataReader& reader);
+	void save(SceneDataWriter& writer) const;
 
 };
 

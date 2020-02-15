@@ -3,7 +3,7 @@
 #include "ImageStorage.h"
 class ImageStorage;
 class Image;
-class ImageView
+class ImageView : public SaveableObject
 {
 public:
 	ImageView(Image * image, ImageStorage * storage, int imageId, bool valid);
@@ -14,6 +14,8 @@ public:
 	const Image& getImage() const;
 	Image& getImage();
 	const bool isValid() const;
+	void load(SceneDataReader& reader);
+	void save(SceneDataWriter& writer) const;
 private:
 	int imageId;
 	Image * image;

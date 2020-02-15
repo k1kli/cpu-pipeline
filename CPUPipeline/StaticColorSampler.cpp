@@ -14,3 +14,14 @@ const glm::vec3& StaticColorSampler::getColor() const
 {
 	return color;
 }
+
+void StaticColorSampler::load(SceneDataReader& reader)
+{
+	color = reader.readVec3();
+}
+
+void StaticColorSampler::save(SceneDataWriter& writer) const
+{
+	Sampler::save(writer);
+	writer.write(color);
+}

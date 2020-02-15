@@ -27,3 +27,10 @@ void SceneDataWriter::write(glm::mat4 value)
 		}
 	}
 }
+
+void SceneDataWriter::write(const char* bytes, int bytesSize)
+{
+	write(bytesSize);
+	outputStream.write(bytes, bytesSize);
+
+}

@@ -55,3 +55,24 @@ const bool ImageView::isValid() const
 	return valid;
 }
 
+void ImageView::load(SceneDataReader& reader)
+{
+	if (valid)
+	{
+		storage->releaseImage(imageId);
+	}
+	int tempImageId = reader.readInt();
+	bool tempValid = (bool)reader.readInt();
+	if (tempValid)
+	{
+		storage = &reader.getImageStorage();
+		*this = storage->acquireImage(tempImageId);
+	}
+}
+
+void ImageView::save(SceneDataWriter& writer) const
+{
+	writer.write(imageId);
+	writer.write((int)valid);
+}
+

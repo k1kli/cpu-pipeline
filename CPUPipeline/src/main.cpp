@@ -116,50 +116,50 @@ int main(int, char**)
 {
 
 
-		// Setup window
-		glfwSetErrorCallback(glfw_error_callback);
-		if (!glfwInit())
-			return 1;
+	// Setup window
+	glfwSetErrorCallback(glfw_error_callback);
+	if (!glfwInit())
+		return 1;
 
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-		// Create window with graphics context
-		GLFWwindow* window = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, "CPU Render Pipeline", NULL, NULL);
-		if (window == NULL)
-		{
-			fprintf(stderr, "Failed to create window!\n");
-			return 1;
-		}
-		glfwMakeContextCurrent(window);
-		glfwSwapInterval(0); // 0 - Disable vsync
+	// Create window with graphics context
+	GLFWwindow* window = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, "CPU Render Pipeline", NULL, NULL);
+	if (window == NULL)
+	{
+		fprintf(stderr, "Failed to create window!\n");
+		return 1;
+	}
+	glfwMakeContextCurrent(window);
+	glfwSwapInterval(0); // 0 - Disable vsync
 
-		// Initialize OpenGL loader
-		if (gladLoadGL() == 0)
-		{
-			fprintf(stderr, "Failed to initialize OpenGL loader!\n");
-			return 1;
-		}
+	// Initialize OpenGL loader
+	if (gladLoadGL() == 0)
+	{
+		fprintf(stderr, "Failed to initialize OpenGL loader!\n");
+		return 1;
+	}
 
-		// Set callback for resizing window
-		glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		glfwSetCursorPosCallback(window, mouse_callback);
-		glfwSetScrollCallback(window, scroll_callback);
-		glfwSetKeyCallback(window, key_callback);
-		glfwSetCharCallback(window, character_callback);
-		FrameBuffer fb(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-		fb.InitGL();
+	// Set callback for resizing window
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback);
+	glfwSetKeyCallback(window, key_callback);
+	glfwSetCharCallback(window, character_callback);
+	FrameBuffer fb(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+	fb.InitGL();
 
-		GUIController guiController(fb);
+	GUIController guiController(fb);
 
 
 
-		Scene scene;
-		SceneRenderer sceneRenderer(fb);
-		sceneRenderer.SetScene(scene);
-
-		ImageView texture = scene.getImageStorage().addImage("data/lion.jpg");
+	Scene scene;
+	SceneRenderer sceneRenderer(fb);
+	sceneRenderer.SetScene(scene);
+	{
+		/*ImageView texture = scene.getImageStorage().addImage("data/lion.jpg");
 		ImageView normalImage = scene.getImageStorage().addImage("data/marbleNormalMap.png");
 		normalImage.getImage().transform(normalTransformation);
 
@@ -177,7 +177,7 @@ int main(int, char**)
 		Transform cubeTransform;
 		cubeTransform.SetPosition({ 3.0f, 0.0f, 1.0f });
 		cubeTransform.SetEulerAngles({ 1.0f, 1.0f, 1.0f });
-		scene.addSceneObject(new SceneObject(cubeMesh, cubeMaterial, cubeTransform));
+		scene.addSceneObject(new SceneObject(cubeMesh, cubeMaterial, cubeTransform));*/
 
 		Light light1 = Light({ 2.0f,0.0f,0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
 			1.0f, 0.09f, 0.032f);
@@ -191,68 +191,70 @@ int main(int, char**)
 		scene.AddLight(light2);
 		scene.AddLight(light3);
 		scene.AddLight(light4);
+	}
+
+	input = new Input(window, &fb);
+
+	Editor editor(guiController, sceneRenderer, &scene, *input, fb, window);
 
 
-		input = new Input(window, &fb);
-
-		Editor editor(guiController, sceneRenderer, &scene, *input, fb, window);
-
-
-		//TODO: initialize camera
+	//TODO: initialize camera
+	{
 		Camera startCamera = Camera({ -0.5f,0.5f,0.5f }, { 1,0,0 }, { 0,1,0 });
 		startCamera.SetViewport(0, 0, (float)current_width, (float)current_height);
 		startCamera.SetPerspective(60.0f, (float)current_height / current_width, 0.1f, 12);
 		scene.AddCamera(startCamera);
+	}
 
-		double deltaTime = 0.0;
-		double currentTime = 0.0;
-		// Main loop
-		while (!glfwWindowShouldClose(window))
+	double deltaTime = 0.0;
+	double currentTime = 0.0;
+	// Main loop
+	while (!glfwWindowShouldClose(window))
+	{
+		input->updateKeyboardInput();
+		glfwPollEvents();
+		timeMeasurement(window, deltaTime, currentTime);
+		input->updateMouseInput();
+		if (current_width != old_width || current_height != old_height)
 		{
-			input->updateKeyboardInput();
-			glfwPollEvents();
-			timeMeasurement(window, deltaTime, currentTime);
-			input->updateMouseInput();
-			if (current_width != old_width || current_height != old_height)
-			{
-				old_width = current_width;
-				old_height = current_height;
-				fb.Resize(current_width, current_height);
-			}
-
-
-			// Update scene
-
-
-
-			fb.ClearColor(0.1f, 0.15f, 0.15f);
-
-			editor.handleInput((float)deltaTime);
-			sceneRenderer.RenderScene();
-			guiController.Render();
-
-
-			// Rendering
-			int display_w, display_h;
-			glfwGetFramebufferSize(window, &display_w, &display_h);
-			glViewport(0, 0, display_w, display_h);
-			//glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-			//glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-			glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
-			fb.RenderGL();
-
-			glfwSwapBuffers(window);
-
-			while (int err = glGetError())
-			{
-				std::cout << "end " << err << std::endl;
-			}
+			old_width = current_width;
+			old_height = current_height;
+			fb.Resize(current_width, current_height);
 		}
 
-		// Cleanup
-		delete input;
-		glfwDestroyWindow(window);
-		glfwTerminate();
+
+		// Update scene
+
+
+
+		fb.ClearColor(0.1f, 0.15f, 0.15f);
+
+		editor.handleInput((float)deltaTime);
+		sceneRenderer.RenderScene();
+		guiController.Render();
+
+
+		// Rendering
+		int display_w, display_h;
+		glfwGetFramebufferSize(window, &display_w, &display_h);
+		glViewport(0, 0, display_w, display_h);
+		//glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+		//glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+		fb.RenderGL();
+
+		glfwSwapBuffers(window);
+
+		while (int err = glGetError())
+		{
+			std::cout << "end " << err << std::endl;
+		}
+	}
+
+	// Cleanup
+	delete input;
+	glfwDestroyWindow(window);
+	glfwTerminate();
 	return 0;
 }

@@ -8,6 +8,7 @@ public:
 	void setColor(int color);
 	void setText(std::string newText);
 	std::string getText();
+	virtual ~Label() {}
 protected:
 	virtual void onPaint(GUIUtils& guiUtils, int startX, int startY, int width, int height) const;
 	std::string text;

@@ -380,6 +380,7 @@ void Editor::saveScene(int saveSlot)
 
 void Editor::loadScene(int saveSlot)
 {
+	deselect();
 	PersistentStorage storage(saveSlot);
 	try {
 		storage.load(*scene);

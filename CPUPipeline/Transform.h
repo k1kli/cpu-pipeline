@@ -1,6 +1,7 @@
 #pragma once
 #include <TransformationMatrices.h>
-class Transform
+#include "SaveableObject.h"
+class Transform : public SaveableObject
 {
 public:
 	Transform();
@@ -12,6 +13,8 @@ public:
 	void SetScale(const glm::vec3& newScale);
 	void SetEulerAngles(const glm::vec3& newEulerAngles);
 	void SetPosition(const glm::vec3& newPosition);
+	void load(SceneDataReader& reader);
+	void save(SceneDataWriter& writer) const;
 private:
 	glm::mat4 translation;
 	glm::mat4 rotationX;

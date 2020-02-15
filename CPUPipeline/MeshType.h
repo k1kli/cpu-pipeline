@@ -1,5 +1,5 @@
 #pragma once
-enum MeshType
+enum class MeshType
 {
 	CUBE, SPHERE, CYLLINDER, CONE
 };

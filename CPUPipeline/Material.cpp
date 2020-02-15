@@ -70,3 +70,21 @@ void Material::setNormalSampler(const Sampler& newSampler)
 		delete normalSampler;
 	normalSampler = newSampler.getCopy();
 }
+
+void Material::load(SceneDataReader& reader)
+{
+	specular = reader.readVec3();
+	ambient = reader.readVec3();
+	shininess = reader.readFloat();
+	colorSampler = Sampler::loadStatic(reader);
+	normalSampler = Sampler::loadStatic(reader);
+}
+
+void Material::save(SceneDataWriter& writer) const
+{
+	writer.write(specular);
+	writer.write(ambient);
+	writer.write(shininess);
+	colorSampler->save(writer);
+	normalSampler->save(writer);
+}

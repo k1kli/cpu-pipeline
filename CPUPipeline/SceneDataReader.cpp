@@ -36,6 +36,14 @@ glm::mat4 SceneDataReader::readMat4()
 	return res;
 }
 
+char* SceneDataReader::readBytesArray(int * sizeRes)
+{
+	*sizeRes = readInt();
+	char* res = new char[*sizeRes];
+	inputStream.read(res, *sizeRes);
+	return res;
+}
+
 ImageStorage& SceneDataReader::getImageStorage()
 {
 	return *imageStorage;

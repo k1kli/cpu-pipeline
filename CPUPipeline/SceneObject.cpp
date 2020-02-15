@@ -42,3 +42,17 @@ const Transform& SceneObject::GetTransform() const
 {
 	return transform;
 }
+
+void SceneObject::load(SceneDataReader& reader)
+{
+	mesh.load(reader);
+	material.load(reader);
+	transform.load(reader);
+}
+
+void SceneObject::save(SceneDataWriter& writer) const
+{
+	mesh.save(writer);
+	material.save(writer);
+	transform.save(writer);
+}

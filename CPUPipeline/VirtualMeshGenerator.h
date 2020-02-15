@@ -2,8 +2,10 @@
 #include "Mesh.h"
 #include <string>
 #include <memory>
+#include "SaveableObject.h"
+#include "MeshType.h"
 class Mesh;
-class VirtualMeshGenerator
+class VirtualMeshGenerator : public SaveableObject
 {
 public:
 	VirtualMeshGenerator(std::vector<std::string> parameterNames, std::string meshName)
@@ -12,8 +14,13 @@ public:
 	const std::vector<std::string>& getParameterNames() const;
 	const std::vector<float>& getParameterValues() const;
 	virtual std::shared_ptr<VirtualMeshGenerator> getInstance() const = 0;
+	virtual MeshType getType() const = 0;
 	const std::string& getName() const;
 	void setParameters(std::vector<float> parameters);
+	static VirtualMeshGenerator* loadStatic(SceneDataReader& reader);
+	void load(SceneDataReader& reader);
+	void save(SceneDataWriter& writer) const;
+	virtual ~VirtualMeshGenerator() {}
 private:
 
 	Mesh * resMesh = nullptr;

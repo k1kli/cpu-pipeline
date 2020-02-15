@@ -4,7 +4,9 @@ class CyllinderMeshGenerator : public VirtualMeshGenerator
 {
 public:
 	CyllinderMeshGenerator(float height, float radius, int netDivisions);
+	CyllinderMeshGenerator();
 	std::shared_ptr<VirtualMeshGenerator> getInstance() const;
+	MeshType getType() const { return MeshType::CYLLINDER; }
 private:
 	const int BOTTOM = 0;
 	const int TOP = 1;

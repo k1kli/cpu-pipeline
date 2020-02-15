@@ -8,6 +8,7 @@ public:
 	void setPosInParent(glm::vec2 posInParent);
 	void Display(GUIUtils& guiUtils, int startX, int startY, int parentWidth, int parentHeight);
 	glm::vec2 getPosInParent() const;
+	virtual ~Displayable() {}
 protected:
 	void setPrefferedSize(glm::vec2 prefferedSize);
 	virtual void onPaint(GUIUtils& guiUtils, int startX, int startY, int width, int height) const = 0;
