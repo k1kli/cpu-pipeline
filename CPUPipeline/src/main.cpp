@@ -158,53 +158,12 @@ int main(int, char**)
 	Scene scene;
 	SceneRenderer sceneRenderer(fb);
 	sceneRenderer.SetScene(scene);
-	{
-		/*ImageView texture = scene.getImageStorage().addImage("data/lion.jpg");
-		ImageView normalImage = scene.getImageStorage().addImage("data/marbleNormalMap.png");
-		normalImage.getImage().transform(normalTransformation);
-
-		Mesh sphereMesh = SphereMeshGenerator(1.0f, 10, 15).getMesh();
-		Mesh cubeMesh = CuboidMeshGenerator(1.0f, 0.5f, 0.7f).getMesh();
-		Material sphereMaterial = Material({ 1.0f, 0.0f, 1.0f }, { 0.2f, 0.3f, 0.2f }, 100.0f,
-			StaticColorSampler(glm::vec3(0.5f, 0.5f, 0.5f)),
-			ImageSampler(normalImage));
-		Material cubeMaterial = Material({ 0.0f, 0.0f, 0.0f }, { 0.2f, 0.3f, 0.2f }, 5.0f,
-			ImageSampler(texture),
-			StaticColorSampler(glm::vec3(0.0f, 0.0f, 1.0f)));
-		Transform sphereTransform;
-		sphereTransform.SetScale({ 1.0f, 1.0f, 0.5f });
-		scene.addSceneObject(new SceneObject(sphereMesh, sphereMaterial, sphereTransform));
-		Transform cubeTransform;
-		cubeTransform.SetPosition({ 3.0f, 0.0f, 1.0f });
-		cubeTransform.SetEulerAngles({ 1.0f, 1.0f, 1.0f });
-		scene.addSceneObject(new SceneObject(cubeMesh, cubeMaterial, cubeTransform));*/
-
-		Light light1 = Light({ 2.0f,0.0f,0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
-			1.0f, 0.09f, 0.032f);
-		Light light2 = Light({ -2.0f,0.0f,0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
-			1.0f, 0.09f, 0.032f);
-		Light light3 = Light({ 0.0f,0.0f,2.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
-			1.0f, 0.09f, 0.032f);
-		Light light4 = Light({ 0.0f,-2.0f,0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
-			1.0f, 0.09f, 0.032f);
-		scene.AddLight(light1);
-		scene.AddLight(light2);
-		scene.AddLight(light3);
-		scene.AddLight(light4);
-	}
+	
 
 	input = new Input(window, &fb);
 
 	Editor editor(guiController, sceneRenderer, &scene, *input, fb, window);
-
-
-	//TODO: initialize camera
-	{
-		Camera startCamera = Camera({ -0.5f,0.5f,0.5f }, { 1,0,0 }, { 0,1,0 });
-		startCamera.SetViewport(0, 0, (float)current_width, (float)current_height);
-		startCamera.SetPerspective(60.0f, (float)current_height / current_width, 0.1f, 12);
-		scene.AddCamera(startCamera);
-	}
+	editor.loadSampleScene();
 
 	double deltaTime = 0.0;
 	double currentTime = 0.0;

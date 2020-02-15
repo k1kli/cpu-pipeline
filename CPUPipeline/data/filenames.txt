@@ -1,0 +1,2 @@
+data/lion.jpg
+normalmap.jpg

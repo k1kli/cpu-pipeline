@@ -248,6 +248,7 @@ void Editor::defaultScreenCallback()
 	delete currentScreen;
 	currentScreen = nullptr;
 	guiController.addDisplayable(defaultPanel);
+	resultLabel.setText("");
 }
 
 void Editor::selectNearestLight()
@@ -376,6 +377,8 @@ void Editor::saveScene(int saveSlot)
 {
 	PersistentStorage storage(saveSlot);
 	storage.save(*scene);
+	resultLabel.setText("saved");
+	resultLabel.setColor(RGB(0, 255, 0));
 }
 
 void Editor::loadScene(int saveSlot)
@@ -384,9 +387,17 @@ void Editor::loadScene(int saveSlot)
 	PersistentStorage storage(saveSlot);
 	try {
 		storage.load(*scene);
+		resultLabel.setText("loaded");
+		resultLabel.setColor(RGB(0, 255, 0));
 	}
 	catch (const char* s)
 	{
-		std::cout << "file doesn't exist\n";
+		resultLabel.setText("file doesn't exist");
+		resultLabel.setColor(RGB(255, 0, 0));
 	}
+}
+
+void Editor::loadSampleScene()
+{
+	loadScene(1);
 }

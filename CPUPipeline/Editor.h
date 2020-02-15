@@ -14,9 +14,11 @@ public:
 	{
 		defaultPanel.addChild(helpLabel);
 		defaultPanel.addChild(positionLabel);
+		defaultPanel.addChild(resultLabel);
 		guiController.addDisplayable(defaultPanel);
 	}
 	void handleInput(float deltaTime);
+	void loadSampleScene();
 private:
 	GUIController& guiController;
 	SceneRenderer& sceneRenderer;
@@ -24,6 +26,7 @@ private:
 	Panel defaultPanel = Panel(RGBA(0, 0, 0, 0), { 0,0 }, -1, -1);
 	Label helpLabel = Label({ 10,10 }, "press H for help", 30,0, RGB(255, 255, 255));
 	Label positionLabel = Label({ 10,-30 }, "You are currently at (XXXX, XXXX, XXXX)", 20, 0, RGB(255, 255, 255));
+	Label resultLabel = Label({ 10, -60 }, "", 20, 0, RGB(0, 0, 0));
 	GLFWwindow* window;
 	FrameBuffer & fb;
 	const Input& input;
