@@ -25,7 +25,9 @@ private:
 	Scene* scene;
 	Panel defaultPanel = Panel(RGBA(0, 0, 0, 0), { 0,0 }, -1, -1);
 	Label helpLabel = Label({ 10,10 }, "press H for help", 30,0, RGB(255, 255, 255));
-	Label positionLabel = Label({ 10,-30 }, "You are currently at (XXXX, XXXX, XXXX)", 20, 0, RGB(255, 255, 255));
+	Label positionLabel = Label({ 10,-30 }, 
+		"You are currently at (XXXX, XXXX, XXXX), fov=XXXX, near=XXXX, far=XXXX"
+		, 20, 0, RGB(255, 255, 255));
 	Label resultLabel = Label({ 10, -60 }, "", 20, 0, RGB(0, 0, 0));
 	GLFWwindow* window;
 	FrameBuffer & fb;
@@ -58,5 +60,6 @@ private:
 	int getLoadingInput();
 	void saveScene(int saveSlot);
 	void loadScene(int saveSlot);
+	void updatePositionLabel();
 };
 

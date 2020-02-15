@@ -21,10 +21,7 @@ void Editor::handleInput(float deltaTime)
 		currentScreen->handleInput(input);
 		return;
 	}
-	std::ostringstream ss;
-	glm::vec3 pos = scene->getMainCamera().GetPosition();
-	ss << std::setprecision(3) << "You are currently at (" << pos.x << ", " << pos.y << ", " << pos.z << ")";
-	positionLabel.setText(ss.str());
+	updatePositionLabel();
 	moveCamera(deltaTime);
 	rotateCamera();
 	updateCameraClippingPlanesAndFov();
@@ -395,6 +392,19 @@ void Editor::loadScene(int saveSlot)
 		resultLabel.setText("file doesn't exist");
 		resultLabel.setColor(RGB(255, 0, 0));
 	}
+}
+
+void Editor::updatePositionLabel()
+{
+	std::ostringstream ss;
+	glm::vec3 pos = scene->getMainCamera().GetPosition();
+	float fov = scene->getMainCamera().GetFov();
+	float nearP = scene->getMainCamera().GetNearPlane();
+	float farP = scene->getMainCamera().GetFarPlane();
+	//"You are currently at (XXXX, XXXX, XXXX), fov=XXXX, near=XXXX, far=XXXX"
+	ss << std::setprecision(3) << "You are currently at (" << pos.x << ", " << pos.y << ", " << pos.z << "), fov="
+		<< fov << ", near=" << nearP << ", far=" << farP;
+	positionLabel.setText(ss.str());
 }
 
 void Editor::loadSampleScene()
