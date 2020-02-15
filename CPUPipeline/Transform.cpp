@@ -60,3 +60,17 @@ void Transform::SetPosition(const glm::vec3& newPosition)
 		translation = TransformationMatrices::getTranslationMatrix(translationVector);
 	}
 }
+
+void Transform::load(SceneDataReader& reader)
+{
+	SetPosition(reader.readVec3());
+	SetEulerAngles(reader.readVec3());
+	SetScale(reader.readVec3());
+}
+
+void Transform::save(SceneDataWriter& writer) const
+{
+	writer.write(translationVector);
+	writer.write(eulerAnglesVector);
+	writer.write(scalingVector);
+}

@@ -9,6 +9,8 @@
 #include "ListScreen.h"
 #include <sstream>
 #include <iomanip>
+#include "PersistentStorage.h"
+#include <iostream>
 
 void Editor::handleInput(float deltaTime)
 {
@@ -19,10 +21,7 @@ void Editor::handleInput(float deltaTime)
 		currentScreen->handleInput(input);
 		return;
 	}
-	std::ostringstream ss;
-	glm::vec3 pos = scene->getMainCamera().GetPosition();
-	ss << std::setprecision(3) << "You are currently at (" << pos.x << ", " << pos.y << ", " << pos.z << ")";
-	positionLabel.setText(ss.str());
+	updatePositionLabel();
 	moveCamera(deltaTime);
 	rotateCamera();
 	updateCameraClippingPlanesAndFov();
@@ -66,6 +65,7 @@ void Editor::handleInput(float deltaTime)
 	{
 		showListScreen();
 	}
+	checkSaving();
 }
 void Editor::moveCamera(float deltaTime)
 {
@@ -245,6 +245,7 @@ void Editor::defaultScreenCallback()
 	delete currentScreen;
 	currentScreen = nullptr;
 	guiController.addDisplayable(defaultPanel);
+	resultLabel.setText("");
 }
 
 void Editor::selectNearestLight()
@@ -298,4 +299,115 @@ void Editor::showListScreen()
 		[this]()->void {this->defaultScreenCallback(); },
 		*scene, selectedObject ==nullptr ? (const void *)selectedLight : (const void*)selectedObject);
 	guiController.addDisplayable(*currentScreen);
+}
+
+void Editor::checkSaving()
+{
+	int saveSlot;
+	if ((saveSlot = getSavingInput()) != -1)
+	{
+		saveScene(saveSlot);
+	}
+	else if ((saveSlot = getLoadingInput()) != -1)
+	{
+		loadScene(saveSlot);
+	}
+}
+
+int Editor::getSavingInput()
+{
+	if (input.getKey(GLFW_KEY_LEFT_SHIFT))
+	{
+		if (input.getKeyDown(GLFW_KEY_1))
+		{
+			return 1;
+		}
+		else if (input.getKeyDown(GLFW_KEY_2))
+		{
+			return 2;
+		}
+		else if (input.getKeyDown(GLFW_KEY_3))
+		{
+			return 3;
+		}
+		else if (input.getKeyDown(GLFW_KEY_4))
+		{
+			return 4;
+		}
+		else if (input.getKeyDown(GLFW_KEY_5))
+		{
+			return 5;
+		}
+	}
+	return -1;
+}
+
+int Editor::getLoadingInput()
+{
+	if (!input.getKey(GLFW_KEY_LEFT_SHIFT))
+	{
+		if (input.getKeyDown(GLFW_KEY_1))
+		{
+			return 1;
+		}
+		else if (input.getKeyDown(GLFW_KEY_2))
+		{
+			return 2;
+		}
+		else if (input.getKeyDown(GLFW_KEY_3))
+		{
+			return 3;
+		}
+		else if (input.getKeyDown(GLFW_KEY_4))
+		{
+			return 4;
+		}
+		else if (input.getKeyDown(GLFW_KEY_5))
+		{
+			return 5;
+		}
+	}
+	return -1;
+}
+
+void Editor::saveScene(int saveSlot)
+{
+	PersistentStorage storage(saveSlot);
+	storage.save(*scene);
+	resultLabel.setText("saved");
+	resultLabel.setColor(RGB(0, 255, 0));
+}
+
+void Editor::loadScene(int saveSlot)
+{
+	deselect();
+	PersistentStorage storage(saveSlot);
+	try {
+		storage.load(*scene);
+		resultLabel.setText("loaded");
+		resultLabel.setColor(RGB(0, 255, 0));
+	}
+	catch (const char* s)
+	{
+		resultLabel.setText("file doesn't exist");
+		resultLabel.setColor(RGB(255, 0, 0));
+	}
+}
+
+void Editor::updatePositionLabel()
+{
+	std::ostringstream ss;
+	glm::vec3 pos = scene->getMainCamera().GetPosition();
+	float fov = scene->getMainCamera().GetFov();
+	float nearP = scene->getMainCamera().GetNearPlane();
+	float farP = scene->getMainCamera().GetFarPlane();
+	//"You are currently at (XXXX, XXXX, XXXX), fov=XXXX, near=XXXX, far=XXXX"
+	ss << std::setprecision(3) << "You are currently at (" << pos.x << ", " << pos.y << ", " << pos.z << "), fov="
+		<< fov << ", near=" << nearP << ", far=" << farP;
+	positionLabel.setText(ss.str());
+}
+
+void Editor::loadSampleScene()
+{
+	loadScene(1);
 }

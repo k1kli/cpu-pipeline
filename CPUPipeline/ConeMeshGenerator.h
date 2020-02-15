@@ -1,9 +1,11 @@
 #pragma once
 #include "VirtualMeshGenerator.h"
+#include "MeshType.h"
 class ConeMeshGenerator : public VirtualMeshGenerator
 {
 public:
 	ConeMeshGenerator(float height, float radius, int netDivisions);
+	ConeMeshGenerator();
 private:
 	const int BOTTOM = 0;
 	const int MIDDLE = 1;
@@ -14,6 +16,7 @@ private:
 
 
 	std::shared_ptr<VirtualMeshGenerator> getInstance() const;
+	MeshType getType() const { return MeshType::CONE; }
 	void validateParameters();
 	void resizeVectors();
 	void setValues();

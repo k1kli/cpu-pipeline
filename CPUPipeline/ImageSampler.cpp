@@ -7,6 +7,8 @@ ImageSampler::ImageSampler(ImageView image) :image(image)
 }
 
 
+
+
 glm::vec3 ImageSampler::sample(glm::vec2 uv) const
 {
 	uv = glm::fract(uv);
@@ -18,4 +20,17 @@ glm::vec3 ImageSampler::sample(glm::vec2 uv) const
 Sampler* ImageSampler::getCopy() const
 {
 	return new ImageSampler(*this);
+}
+
+void ImageSampler::load(SceneDataReader& reader)
+{
+	image.load(reader);
+	yMul = image.getImage().getImageHeight() - 1;
+	xMul = image.getImage().getImageWidth() - 1;
+}
+
+void ImageSampler::save(SceneDataWriter& writer) const
+{
+	Sampler::save(writer);
+	image.save(writer);
 }

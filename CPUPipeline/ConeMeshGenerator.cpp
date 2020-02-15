@@ -1,9 +1,14 @@
 #include "ConeMeshGenerator.h"
 
 ConeMeshGenerator::ConeMeshGenerator(float height, float radius, int netDivisions)
-	:VirtualMeshGenerator({ "height", "radius", "netDivisions" }, "cone")
+	:ConeMeshGenerator()
 {
 	parameters = { height, radius, (float)netDivisions };
+}
+
+ConeMeshGenerator::ConeMeshGenerator()
+	:VirtualMeshGenerator({ "height", "radius", "netDivisions" }, "cone")
+{
 }
 
 std::shared_ptr<VirtualMeshGenerator> ConeMeshGenerator::getInstance() const

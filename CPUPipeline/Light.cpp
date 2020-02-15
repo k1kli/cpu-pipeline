@@ -1,5 +1,7 @@
 #include "Light.h"
 
+
+
 const glm::vec3& Light::getPosition() const
 {
 	return position;
@@ -57,4 +59,24 @@ void Light::setAttenuation(float constant, float linear, float quadratic)
 	attenuationConstant = constant;
 	attenuationLinear = linear;
 	attenuationQuadratic = quadratic;
+}
+
+void Light::load(SceneDataReader& reader)
+{
+	position = reader.readVec3();
+	diffuseColor = reader.readVec3();
+	specularColor = reader.readVec3();
+	attenuationConstant = reader.readFloat();
+	attenuationLinear = reader.readFloat();
+	attenuationQuadratic = reader.readFloat();
+}
+
+void Light::save(SceneDataWriter& writer) const
+{
+	writer.write(position);
+	writer.write(diffuseColor);
+	writer.write(specularColor);
+	writer.write(attenuationConstant);
+	writer.write(attenuationLinear);
+	writer.write(attenuationQuadratic);
 }

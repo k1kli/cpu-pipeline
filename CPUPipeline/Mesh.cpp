@@ -125,3 +125,15 @@ const VirtualMeshGenerator& Mesh::getGenerator() const
 {
 	return *generator;
 }
+
+void Mesh::load(SceneDataReader& reader)
+{
+	VirtualMeshGenerator * tempGen = VirtualMeshGenerator::loadStatic(reader);
+	*this = tempGen->getMesh();
+	delete tempGen;
+}
+
+void Mesh::save(SceneDataWriter& writer) const
+{
+	generator->save(writer);
+}

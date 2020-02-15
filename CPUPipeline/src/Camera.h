@@ -1,10 +1,14 @@
 #pragma once
 #include <glm/glm.hpp>
+#include "../SaveableObject.h"
+#include "../SceneDataReader.h"
+#include "../SceneDataWriter.h"
 
-class Camera
+class Camera : public SaveableObject
 {
 public:
 	Camera(glm::vec3 pos, glm::vec3 forward, glm::vec3 up);
+	Camera(SceneDataReader& reader) { load(reader); };
 	~Camera() = default;
 
 	glm::mat4 GetViewMatrix() const { return m_world_matrix; }
@@ -24,6 +28,8 @@ public:
 	const glm::vec3& GetUp() const;
 
 	const glm::vec3& GetForward() const;
+	void save(SceneDataWriter& writer) const;
+	void load(SceneDataReader& reader);
 
 private:
 	glm::vec3 m_position;
@@ -33,6 +39,7 @@ private:
 	float m_nearPlane;
 	float m_farPlane;
 	float m_fov;
+	float m_aspect;
 
 	glm::mat4 m_world_matrix;
 	glm::mat4 m_projection_matrix;

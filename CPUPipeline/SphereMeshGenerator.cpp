@@ -2,9 +2,13 @@
 
 
 SphereMeshGenerator::SphereMeshGenerator(float R, int netVerticalLinesCount, int netHorizontalLinesCount)
-	:VirtualMeshGenerator({ "radius", "vertical lines in net", "horizontal lines in net" }, "sphere")
+	:SphereMeshGenerator()
 {
 	parameters = { R, (float)netVerticalLinesCount, (float)netHorizontalLinesCount };
+}
+SphereMeshGenerator::SphereMeshGenerator()
+	:VirtualMeshGenerator({ "radius", "vertical lines in net", "horizontal lines in net" }, "sphere")
+{
 }
 std::shared_ptr<VirtualMeshGenerator> SphereMeshGenerator::getInstance() const
 {

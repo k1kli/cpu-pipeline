@@ -1,9 +1,13 @@
 #include "CuboidMeshGenerator.h"
 
 CuboidMeshGenerator::CuboidMeshGenerator(float width, float height, float depth)
-	:VirtualMeshGenerator({ "width", "height", "depth" }, "cuboid")
+	:CuboidMeshGenerator()
 {
 	parameters = { width, height, depth };
+}
+CuboidMeshGenerator::CuboidMeshGenerator()
+	:VirtualMeshGenerator({ "width", "height", "depth" }, "cuboid")
+{
 }
 std::shared_ptr<VirtualMeshGenerator> CuboidMeshGenerator::getInstance() const
 {

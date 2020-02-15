@@ -108,7 +108,7 @@ void EditObjectScreen::createTransform()
 void EditObjectScreen::createMesh()
 {
 	std::shared_ptr<VirtualMeshGenerator> generator = sceneObjectToModify.GetMesh().getGenerator().getInstance();
-	std::vector<float> newParameters(meshParametersEnd);
+	std::vector<float> newParameters(meshParametersEnd-transformParametersEnd);
 	for (int i = transformParametersEnd; i < meshParametersEnd; i++)
 	{
 		try

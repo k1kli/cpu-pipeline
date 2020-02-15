@@ -6,7 +6,8 @@
 #include <iterator>
 #include "Light.h"
 #include "ImageStorage.h"
-class Scene
+#include "SaveableObject.h"
+class Scene : public SaveableObject
 {
 	std::vector<SceneObject *> sceneObjects;
 	std::vector<Light*> lights;
@@ -28,6 +29,9 @@ public:
 	const std::vector<Camera*>& getCameras() const;
 	ImageStorage& getImageStorage();
 	const ImageStorage& getImageStorage() const;
+	void load(SceneDataReader& reader);
+	void save(SceneDataWriter& writer) const;
+	void cleanup();
 	~Scene();
 };
 
