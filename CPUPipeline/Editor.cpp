@@ -21,6 +21,7 @@ void Editor::handleInput(float deltaTime)
 		currentScreen->handleInput(input);
 		return;
 	}
+	checkSaving();
 	updatePositionLabel();
 	moveCamera(deltaTime);
 	rotateCamera();
@@ -65,7 +66,6 @@ void Editor::handleInput(float deltaTime)
 	{
 		showListScreen();
 	}
-	checkSaving();
 }
 void Editor::moveCamera(float deltaTime)
 {
