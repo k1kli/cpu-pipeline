@@ -19,7 +19,7 @@ void CyllinderMeshGenerator::validateParameters()
 {
 	height = parameters[0];
 	radius = parameters[1];
-	netDivisions = parameters[2];
+	netDivisions = (int)parameters[2];
 	if (netDivisions < 3) throw "net divisions should be 3 or higher";
 	if (height <= 0) throw "height should be positive";
 	if (radius <= 0) throw "radius should be positive";

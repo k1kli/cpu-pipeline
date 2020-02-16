@@ -82,7 +82,7 @@ void VirtualMeshGenerator::load(SceneDataReader& reader)
 void VirtualMeshGenerator::save(SceneDataWriter& writer) const
 {
 	writer.write((int)getType());
-	for (int i = 0; i < parameters.size(); i++)
+	for (int i = 0; i < (int)parameters.size(); i++)
 	{
 		writer.write(parameters[i]);
 	}

@@ -19,7 +19,7 @@ TextDrawer::TextDrawer(FrameBuffer & fb):fb(fb)
 void TextDrawer::DrawTextAt(std::string text, int x, int y, int color, unsigned int charHeight)
 {
 	int error = FT_Set_Pixel_Sizes(face, charHeight, charHeight);
-	for (int i = 0; i < text.size(); i++)
+	for (int i = 0; i < (int)text.size(); i++)
 	{
 		if (text.at(i) == ' ')
 		{
@@ -40,7 +40,7 @@ int TextDrawer::GetTextWidth(std::string text, unsigned int charHeight)
 {
 	int error = FT_Set_Pixel_Sizes(face, charHeight, charHeight);
 	int x = 0;
-	for (int i = 0; i < text.size(); i++)
+	for (int i = 0; i < (int)text.size(); i++)
 	{
 		if (text.at(i) == ' ')
 		{

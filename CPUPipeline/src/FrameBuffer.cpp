@@ -134,9 +134,9 @@ void FrameBuffer::SetPixelWithAlpha(int x, int y, int color)
 	color = RGB((int)(RED(color) * q), (int)(GREEN(color) * q), (int)(BLUE(color) * q));
 	int id = y * m_width + x;
 	int idx = m_bytesPerPixel * id;
-	m_color_buffer[idx] = m_color_buffer[idx] * (1 - q) + RED(color);
-	m_color_buffer[idx + 1] = m_color_buffer[idx + 1] * (1 - q) + GREEN(color);
-	m_color_buffer[idx + 2] = m_color_buffer[idx + 2] * (1 - q) + BLUE(color);
+	m_color_buffer[idx] = (uint8_t)(m_color_buffer[idx] * (1 - q) + RED(color));
+	m_color_buffer[idx + 1] = (uint8_t)(m_color_buffer[idx + 1] * (1 - q) + GREEN(color));
+	m_color_buffer[idx + 2] = (uint8_t)(m_color_buffer[idx + 2] * (1 - q) + BLUE(color));
 }
 
 void FrameBuffer::DrawPixmap(int startX, int startY, int width, int height, unsigned char* buffer, int color)

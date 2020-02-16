@@ -5,7 +5,6 @@
 Sampler* Sampler::loadStatic(SceneDataReader& reader)
 {
 	SamplerType type = (SamplerType)reader.readInt();
-	Sampler* res;
 	switch (type)
 	{
 	case SamplerType::IMAGE:
@@ -13,6 +12,7 @@ Sampler* Sampler::loadStatic(SceneDataReader& reader)
 	case SamplerType::STATIC_COLOR:
 		return new StaticColorSampler(reader);
 	}
+	return nullptr;
 }
 
 

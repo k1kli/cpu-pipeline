@@ -9,9 +9,9 @@ private:
 	Scene& scene;
 	glm::vec3 from = { 0,0,0 };
 	glm::vec3 direction = { 0,0,0 };
-	const std::vector<glm::uvec3>* triangles;
+	const std::vector<glm::uvec3>* triangles = nullptr;
 	std::vector<glm::vec3> vertices;
-	SceneObject* sceneObject;
+	SceneObject* sceneObject = nullptr;
 
 	void prepareTriangles();
 	bool checkTriangles(float * distRes);

@@ -5,7 +5,7 @@ void TriangleClipper::ClipTriangle(std::vector<glm::vec4>& vertices)
 {
 	ClipPolygon poly1;
 	ClipPolygon poly2;
-	for (int i = 0; i < vertices.size(); i++)
+	for (int i = 0; i < (int)vertices.size(); i++)
 	{
 		poly1.vertices[poly1.verticesCount++] = vertices[i];
 	}

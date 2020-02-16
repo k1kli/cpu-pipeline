@@ -28,7 +28,7 @@ void SceneRenderer::RenderScene()
 	viewProjectionMatrix = camera.GetProjectionMatrix() * camera.GetViewMatrix();
 	viewportMatrix = camera.GetViewportMatrix();
 	auto sceneObjects = scene->GetSceneObjects();
-	for (auto i = 0; i < sceneObjects.size(); i++)
+	for (auto i = 0; i < (int)sceneObjects.size(); i++)
 	{
 		renderedObject = sceneObjects[i];
 		DrawSceneObject();
@@ -38,9 +38,9 @@ void SceneRenderer::RenderScene()
 	glm::vec4 p = viewportMatrix * viewProjectionMatrix 
 		* glm::vec4(camera.GetPosition() + camera.GetForward(),1);
 	p /= p.w;
-	frameBuffer.DrawRect(p.x - 10, p.y - 10, p.x + 10, p.y + 10, RGBA(255, 255, 255, 50));
+	frameBuffer.DrawRect((int)p.x - 10, (int)p.y - 10, (int)p.x + 10, (int)p.y + 10, RGBA(255, 255, 255, 50));
 	renderThreadManagement.endThreads();
-	for (int i = 0; i < previousInterpolators.size(); i++)
+	for (int i = 0; i < (int)previousInterpolators.size(); i++)
 	{
 		delete previousInterpolators[i];
 		delete previousInterpolatorsManagers[i];
@@ -83,7 +83,7 @@ void SceneRenderer::TransformVertices()
 	auto vertices = renderedObject->GetMesh().getVertices();
 	transformedVertices.resize(vertices.size());
 	worldPosVertices.resize(vertices.size());
-	for (auto i = 0; i < vertices.size(); i++)
+	for (auto i = 0; i < (int)vertices.size(); i++)
 	{
 		transformedVertices[i] = modelViewProjectionMatrix * glm::vec4(vertices[i], 1);
 		worldPosVertices[i] = worldMatrix * glm::vec4(vertices[i], 1);
@@ -97,7 +97,7 @@ void SceneRenderer::TransformNormals()
 	auto tbns = renderedObject->GetMesh().getTBN();
 	transformedNormals.resize(normals.size());
 	transformedTBN.resize(normals.size());
-	for (auto i = 0; i < normals.size(); i++)
+	for (auto i = 0; i < (int)normals.size(); i++)
 	{
 		transformedNormals[i] = inverseWorldMatrix * glm::vec4(normals[i], 0);
 		transformedTBN[i] = inverseWorldMatrix * tbns[i];
@@ -106,7 +106,7 @@ void SceneRenderer::TransformNormals()
 void SceneRenderer::DrawObjectsTriangles()
 {
 	const std::vector<glm::uvec3> triangles = renderedObject->GetMesh().getTriangles();
-	for (auto i = 0; i < triangles.size(); i++)
+	for (auto i = 0; i < (int)triangles.size(); i++)
 	{	
 		glm::vec3 v1 = glm::vec3(transformedVertices[triangles[i].x]
 			/ transformedVertices[triangles[i].x].w);
@@ -143,12 +143,12 @@ void SceneRenderer::DrawClippedTriangle(int triangleId)
 		v3 = viewportMatrix * v3;
 		
 		InitInterpolators(triangleId, v1, v2, v3);
-		for (auto i = 0; i < poly.size(); i++)
+		for (auto i = 0; i < (int)poly.size(); i++)
 		{
 			poly[i] = viewportMatrix * poly[i];
 			poly[i] /= poly[i].w;
 		}
-		for (auto i = 1; i < poly.size()-1; i++)
+		for (auto i = 1; i < (int)poly.size()-1; i++)
 		{
 			if(!wireframe)
 				ScanLine(&poly[0], &poly[i], &poly[i + 1]);
@@ -197,20 +197,20 @@ void SceneRenderer::InitInterpolators(int triangleId,
 void SceneRenderer::WireFrame(glm::vec4* v1, glm::vec4* v2, glm::vec4* v3, int color)
 {
 	frameBuffer.DrawLine(
-		v1->x,
-		v1->y,
-		v2->x,
-		v2->y, color);
+		(int)v1->x,
+		(int)v1->y,
+		(int)v2->x,
+		(int)v2->y, color);
 	frameBuffer.DrawLine(
-		v2->x,
-		v2->y,
-		v3->x,
-		v3->y, color);
+		(int)v2->x,
+		(int)v2->y,
+		(int)v3->x,
+		(int)v3->y, color);
 	frameBuffer.DrawLine(
-		v3->x,
-		v3->y,
-		v1->x,
-		v1->y, color);
+		(int)v3->x,
+		(int)v3->y,
+		(int)v1->x,
+		(int)v1->y, color);
 }
 void SceneRenderer::ScanLine(glm::vec4 * v1, glm::vec4 * v2, glm::vec4 * v3)
 {
@@ -255,8 +255,8 @@ void SceneRenderer::ScanLineHorizontalBase(
 	const glm::vec3& v2baseRight,
 	const glm::vec3& v3peak)
 {
-	int baseY = v1baseLeft.y;
-	int peakY = v3peak.y;
+	int baseY = (int)v1baseLeft.y;
+	int peakY = (int)v3peak.y;
 	int yDiff = peakY - baseY;
 	float depth1 = v1baseLeft.z;
 	float depth2 = v2baseRight.z;
@@ -271,11 +271,11 @@ void SceneRenderer::ScanLineHorizontalBase(
 		float q = (float)(y - baseY) / yDiff;
 		float lineDepth1 = depth1 * (1 - q) + depth3 * q;
 		float lineDepth2 = depth2 * (1 - q) + depth3 * q;
-		int xDiff = maxX - minX;
+		int xDiff = (int)(maxX - minX);
 		if (xDiff == 0) return;
 		renderThreadManagement.addToQueue(
 			new ScanLineProduct(
-				y, minX, maxX, lineDepth1, lineDepth2,
+				y, (int)minX, (int)maxX, lineDepth1, lineDepth2,
 				interpolators, interpolatorsManager, renderedObject));
 		minX += antitangent1;
 		maxX += antitangent2;
@@ -309,8 +309,8 @@ void SceneRenderer::DrawLights()
 			}
 			if (light == selectedLight)
 			{
-				float h = yMax - yMin;
-				float w = xMax - xMin;
+				int h = yMax - yMin;
+				int w = xMax - xMin;
 				yMin += h / 3;
 				yMax -= h / 3;
 				xMin += w / 3;
@@ -354,8 +354,8 @@ void SceneRenderer::DrawCameras()
 			cameraViewPos /= cameraViewPos.w;
 			float lightSize = 80.0f /
 				glm::length(scene->getMainCamera().GetPosition() - camera->GetPosition());
-			float yMin = glm::max((int)(cameraViewPos.y - lightSize * 0.4f), 0);
-			float yMax = glm::min((int)(cameraViewPos.y + lightSize * 0.4f), frameBuffer.getHeight() - 1);
+			int yMin = glm::max((int)(cameraViewPos.y - lightSize * 0.4f), 0);
+			int yMax = glm::min((int)(cameraViewPos.y + lightSize * 0.4f), frameBuffer.getHeight() - 1);
 			int xMin = glm::max((int)(cameraViewPos.x - lightSize * 0.33f), 0);
 			int xMax = glm::min((int)(cameraViewPos.x + lightSize * 0.66f), frameBuffer.getWidth() - 1);
 
@@ -368,7 +368,7 @@ void SceneRenderer::DrawCameras()
 			}
 			xMin = glm::max((int)(cameraViewPos.x - lightSize * 0.66f), 0);
 			xMax = glm::min((int)(cameraViewPos.x - lightSize * 0.33f), frameBuffer.getWidth() - 1);
-			float yDec = (yMax - yMin) / (2.0f * (xMax - xMin));
+			int yDec = (int)((yMax - yMin) / (2.0f * (xMax - xMin)));
 			for (int x = xMin; x <= xMax; x++, yMin +=yDec, yMax -= yDec)
 			{
 				for (int y = yMin; y <= yMax; y++)

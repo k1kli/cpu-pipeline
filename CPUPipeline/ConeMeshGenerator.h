@@ -10,9 +10,9 @@ private:
 	const int BOTTOM = 0;
 	const int MIDDLE = 1;
 	const int TOP = 2;
-	float height;
-	float radius;
-	int netDivisions;
+	float height = -1.0f;
+	float radius = -1.0f;
+	int netDivisions = -1;
 
 
 	std::shared_ptr<VirtualMeshGenerator> getInstance() const;

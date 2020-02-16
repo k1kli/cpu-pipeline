@@ -10,7 +10,7 @@ Mesh::Mesh(std::shared_ptr<VirtualMeshGenerator> generator)
 void Mesh::setVertices(const std::vector<glm::vec3>& vertices)
 {
 	this->vertices.resize(vertices.size());
-	for (int i = 0; i < vertices.size(); i++)
+	for (int i = 0; i < (int)vertices.size(); i++)
 	{
 		this->vertices[i] = vertices[i];
 	}
@@ -24,7 +24,7 @@ void Mesh::setNormals(const std::vector<glm::vec3>& normals)
 void Mesh::setTangents(const std::vector<glm::vec3>& tangents)
 {
 	this->tbn.resize(tangents.size());
-	for (int i = 0; i < tbn.size(); i++)
+	for (int i = 0; i < (int)tbn.size(); i++)
 	{
 		glm::vec3 normal = this->normals[i];
 		glm::vec3 tangent = tangents[i];
@@ -40,7 +40,7 @@ void Mesh::setTriangles(const std::vector<glm::uvec3>& triangles)
 	{
 		throw "set vertices first";
 	}
-	for (int i = 0; i < triangles.size(); i++)
+	for (int i = 0; i < (int)triangles.size(); i++)
 	{
 		if (triangles[i].x >= vertices.size() ||
 			triangles[i].y >= vertices.size() ||
@@ -48,7 +48,7 @@ void Mesh::setTriangles(const std::vector<glm::uvec3>& triangles)
 			throw "triangle num higher than vertices size";
 	}
 	this->triangles.resize(triangles.size());
-	for (int i = 0; i < triangles.size(); i++)
+	for (int i = 0; i < (int)triangles.size(); i++)
 	{
 		this->triangles[i] = triangles[i];
 	}
@@ -60,7 +60,7 @@ void Mesh::setTrianglesNormals(const std::vector<glm::uvec3>& trianglesNormals)
 	{
 		throw "set normals first";
 	}
-	for (int i = 0; i < trianglesNormals.size(); i++)
+	for (int i = 0; i < (int)trianglesNormals.size(); i++)
 	{
 		if (trianglesNormals[i].x >= normals.size() ||
 			trianglesNormals[i].y >= normals.size() ||
@@ -68,7 +68,7 @@ void Mesh::setTrianglesNormals(const std::vector<glm::uvec3>& trianglesNormals)
 			throw "triangle num higher than vertices size";
 	}
 	this->trianglesNormals.resize(trianglesNormals.size());
-	for (int i = 0; i < trianglesNormals.size(); i++)
+	for (int i = 0; i < (int)trianglesNormals.size(); i++)
 	{
 			this->trianglesNormals[i] = trianglesNormals[i];
 	}

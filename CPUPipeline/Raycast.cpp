@@ -7,7 +7,7 @@ SceneObject* Raycast::castRay(glm::vec3 from, glm::vec3 direction)
 	std::vector<SceneObject*>& sceneObjects = scene.GetSceneObjects();
 	SceneObject* closest = nullptr;
 	float closestDist = INFINITY;
-	for (int i = 0; i < sceneObjects.size(); i++)
+	for (int i = 0; i < (int)sceneObjects.size(); i++)
 	{
 		sceneObject = sceneObjects[i];
 		prepareTriangles();
@@ -26,7 +26,7 @@ void Raycast::prepareTriangles()
 	triangles = &(sceneObject->GetMesh().getTriangles());
 	vertices = sceneObject->GetMesh().getVertices();
 	glm::mat4 worldMatrix = sceneObject->GetTransform().GetWorldMatrix();
-	for (int i = 0; i < vertices.size(); i++)
+	for (int i = 0; i < (int)vertices.size(); i++)
 	{
 		glm::vec4 v = worldMatrix * glm::vec4(vertices[i], 1);
 		vertices[i] = v/v.w;

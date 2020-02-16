@@ -14,8 +14,8 @@ class SceneRenderer
 	glm::mat4 viewProjectionMatrix;
 	glm::mat4 modelViewProjectionMatrix;
 	glm::mat4 viewportMatrix;
-	Interpolators * interpolators;
-	InterpolatorsManager* interpolatorsManager;
+	Interpolators * interpolators = nullptr;
+	InterpolatorsManager* interpolatorsManager = nullptr;
 	std::vector<Interpolators*> previousInterpolators;
 	std::vector<InterpolatorsManager*> previousInterpolatorsManagers;
 	std::vector<glm::vec4> transformedVertices;

@@ -12,7 +12,7 @@ void Panel::onPaint(GUIUtils& guiUtils, int x, int y, int width, int height) con
 	for (Displayable* child : children)
 	{
 		glm::vec2 childPosInParent = child->getPosInParent();
-		child->Display(guiUtils, x + childPosInParent.x, y + childPosInParent.y, width, height);
+		child->Display(guiUtils, x + (int)childPosInParent.x, y + (int)childPosInParent.y, width, height);
 	}
 }
 

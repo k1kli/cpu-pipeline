@@ -3,7 +3,7 @@
 TextBox::TextBox(glm::vec2 posInParent, std::string text, int height, int width, int maxChars)
 	:Label(posInParent, "", height, width, RGB(0,0,0)), maxChars(maxChars)
 {
-	setText(text.length() >= maxChars ?
+	setText((int)text.length() >= maxChars ?
 		text.substr(0, maxChars) : text);
 	setSelected(false);
 }
@@ -18,7 +18,7 @@ void TextBox::handleInput(const Input& input)
 {
 	for (char c : input.getCharactersTyped())
 	{
-		if (text.length() + 1 < maxChars)
+		if ((int)text.length() + 1 < maxChars)
 		{
 			text = text + c;
 		}

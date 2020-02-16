@@ -152,7 +152,7 @@ void Editor::createNewCamera()
 
 void Editor::swapToNextCamera()
 {
-	for (int i = 0; i < scene->getCameras().size(); i++)
+	for (int i = 0; i < (int)scene->getCameras().size(); i++)
 	{
 		if (scene->getCameras()[i] == &scene->getMainCamera())
 		{
@@ -387,7 +387,7 @@ void Editor::loadScene(int saveSlot)
 		resultLabel.setText("loaded");
 		resultLabel.setColor(RGB(0, 255, 0));
 	}
-	catch (const char* s)
+	catch (const char*)
 	{
 		resultLabel.setText("file doesn't exist");
 		resultLabel.setColor(RGB(255, 0, 0));

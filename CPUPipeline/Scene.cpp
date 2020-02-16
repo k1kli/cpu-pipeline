@@ -40,7 +40,7 @@ const std::vector<Light*>& Scene::GetLights() const
 
 void Scene::SetMainCamera(int cameraIndex)
 {
-	if (cameras.size() <= cameraIndex || cameraIndex < 0) return;
+	if ((int)cameras.size() <= cameraIndex || cameraIndex < 0) return;
 	mainCamera = cameras[cameraIndex];
 }
 
@@ -115,7 +115,7 @@ void Scene::save(SceneDataWriter& writer) const
 	}
 	writer.write((int)cameras.size());
 	int mainCameraId = 0;
-	for (int i = 0; i < cameras.size(); i++)
+	for (int i = 0; i < (int)cameras.size(); i++)
 	{
 		if (mainCamera == cameras[i]) mainCameraId = i;
 		cameras[i]->save(writer);
@@ -125,15 +125,15 @@ void Scene::save(SceneDataWriter& writer) const
 
 void Scene::cleanup()
 {
-	for (int i = 0; i < sceneObjects.size(); i++)
+	for (int i = 0; i < (int)sceneObjects.size(); i++)
 	{
 		delete sceneObjects[i];
 	}
-	for (int i = 0; i < lights.size(); i++)
+	for (int i = 0; i < (int)lights.size(); i++)
 	{
 		delete lights[i];
 	}
-	for (int i = 0; i < cameras.size(); i++)
+	for (int i = 0; i < (int)cameras.size(); i++)
 	{
 		delete cameras[i];
 	}

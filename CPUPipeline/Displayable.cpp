@@ -18,8 +18,8 @@ void Displayable::setPrefferedSize(glm::vec2 prefferedSize)
 
 void Displayable::Display(GUIUtils& guiUtils, int startX, int startY, int parentWidth, int parentHeight)
 {
-	int width = prefferedSize.x;
-	int height = prefferedSize.y;
+	int width = (int)prefferedSize.x;
+	int height = (int)prefferedSize.y;
 	if (getPosInParent().x < 0)
 		startX += parentWidth;
 	if (getPosInParent().y < 0)

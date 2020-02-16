@@ -55,7 +55,7 @@ void EditObjectScreen::handleInput(const Input& input)
 
 EditObjectScreen::~EditObjectScreen()
 {
-	for (int i = 0; i < parameterNamesLabels.size(); i++)
+	for (int i = 0; i < (int)parameterNamesLabels.size(); i++)
 	{
 		delete parameterNamesLabels[i];
 		delete parameterValuesTextBoxes[i];
@@ -125,7 +125,7 @@ void EditObjectScreen::createMesh()
 	{
 		sceneObjectToModify.GetMesh() = generator->getMesh();
 	}
-	catch (const char* error)
+	catch (const char*)
 	{
 		return;
 	}
@@ -193,7 +193,7 @@ void EditObjectScreen::loadEditor()
 	loadTransformEditor();
 	loadMeshEditor(y);
 	loadMaterialEditor(y);
-	if (selectedParameterId >= parameterNamesLabels.size())
+	if (selectedParameterId >= (int)parameterNamesLabels.size())
 	{
 		selectedParameterId = parameterNamesLabels.size() - 1;
 	}
@@ -211,7 +211,7 @@ void EditObjectScreen::loadMeshEditor(int& y)
 	const std::string& name = generator.getName();
 	meshNameLabel.setText(name);
 	leftSidePanel.addChild(meshNameLabel);
-	for (int i = 0; i < names.size(); i++, y -= 40)
+	for (int i = 0; i < (int)names.size(); i++, y -= 40)
 	{
 		parameterNamesLabels.push_back(new Label({ 30, y }, names[i], 20));
 		std::ostringstream ss;

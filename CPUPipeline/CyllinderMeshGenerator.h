@@ -10,9 +10,9 @@ public:
 private:
 	const int BOTTOM = 0;
 	const int TOP = 1;
-	float height;
-	float radius;
-	int netDivisions;
+	float height = -1.0f;
+	float radius = -1.0f;
+	int netDivisions = -1;
 
 	void validateParameters();
 	void resizeVectors();

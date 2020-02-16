@@ -18,8 +18,8 @@ std::shared_ptr<VirtualMeshGenerator> SphereMeshGenerator::getInstance() const
 void SphereMeshGenerator::validateParameters()
 {
 	R = parameters[0];
-	netHorizontalLinesCount = parameters[1];
-	netVerticalLinesCount = parameters[2];
+	netHorizontalLinesCount = (int)parameters[1];
+	netVerticalLinesCount = (int)parameters[2];
 	if (R <= 0.0f) throw "sphere radius should be positive";
 	if (netHorizontalLinesCount <= 0) throw "number of horizontal lines should be positive";
 	if (netVerticalLinesCount <= 2) throw "number of vertical lines should be higher than 2";

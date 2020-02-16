@@ -11,9 +11,9 @@ public:
 private:
 	const int SOUTH_POLE = 0;
 	const int NORTH_POLE = 1;
-	float R;
-	int netVerticalLinesCount;
-	int netHorizontalLinesCount;
+	float R = -1.0f;
+	int netVerticalLinesCount = -1;
+	int netHorizontalLinesCount = -1;
 
 
 

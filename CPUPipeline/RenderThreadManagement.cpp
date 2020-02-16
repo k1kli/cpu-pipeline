@@ -18,11 +18,11 @@ void RenderThreadManagement::startThreads(const Scene& scene, FrameBuffer& fb, i
 
 void RenderThreadManagement::endThreads()
 {
-	for (int i = 0; i < threads.size(); i++)
+	for (int i = 0; i < (int)threads.size(); i++)
 	{
 		scanLineQueue.add(new ScanLineProduct(0, 0, 0, 0, 0, nullptr, nullptr, nullptr));
 	}
-	for (int i = 0; i < threads.size(); i++)
+	for (int i = 0; i < (int)threads.size(); i++)
 	{
 		threads[i]->join();
 		delete threads[i];
