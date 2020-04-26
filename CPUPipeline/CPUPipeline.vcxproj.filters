@@ -124,177 +124,191 @@
     <ClCompile Include="SaveableObject.cpp">
       <Filter>src\saving</Filter>
     </ClCompile>
-    <ClCompile Include="Sampler.cpp" />
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="FrameBuffer.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="TransformationMatrices.cpp" />
+    <ClCompile Include="Camera.cpp">
+      <Filter>src\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Sampler.cpp">
+      <Filter>src\dataAccess</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameBuffer.cpp">
+      <Filter>src\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>src\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="TransformationMatrices.cpp">
+      <Filter>src\dataAccess</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\TransformationMatrices.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneRenderer.h">
-      <Filter>headers\rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="TriangleClipper.h">
-      <Filter>headers\rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Camera.h">
+    <ClInclude Include="include\Image.h">
       <Filter>headers\data</Filter>
     </ClInclude>
-    <ClInclude Include="src\FrameBuffer.h">
-      <Filter>headers\rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Shader.hpp">
-      <Filter>headers\rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Light.h">
+    <ClInclude Include="include\Light.h">
       <Filter>headers\data</Filter>
     </ClInclude>
-    <ClInclude Include="Material.h">
+    <ClInclude Include="include\Material.h">
       <Filter>headers\data</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
+    <ClInclude Include="include\Mesh.h">
       <Filter>headers\data</Filter>
     </ClInclude>
-    <ClInclude Include="Scene.h">
+    <ClInclude Include="include\SceneObject.h">
       <Filter>headers\data</Filter>
     </ClInclude>
-    <ClInclude Include="SceneObject.h">
+    <ClInclude Include="include\Scene.h">
       <Filter>headers\data</Filter>
     </ClInclude>
-    <ClInclude Include="InterpolatorsManager.h">
+    <ClInclude Include="include\ImageSampler.h">
       <Filter>headers\dataAccess</Filter>
     </ClInclude>
-    <ClInclude Include="TriangleInterpolatorManagementInterface.h">
+    <ClInclude Include="include\ImageStorage.h">
       <Filter>headers\dataAccess</Filter>
     </ClInclude>
-    <ClInclude Include="TriangleInterpolator.h">
+    <ClInclude Include="include\ImageView.h">
       <Filter>headers\dataAccess</Filter>
     </ClInclude>
-    <ClInclude Include="Sampler.h">
+    <ClInclude Include="include\Raycast.h">
       <Filter>headers\dataAccess</Filter>
     </ClInclude>
-    <ClInclude Include="StaticColorSampler.h">
+    <ClInclude Include="include\InterpolatorsManager.h">
       <Filter>headers\dataAccess</Filter>
     </ClInclude>
-    <ClInclude Include="stb_image.h">
+    <ClInclude Include="include\Sampler.h">
       <Filter>headers\dataAccess</Filter>
     </ClInclude>
-    <ClInclude Include="Image.h">
+    <ClInclude Include="include\StaticColorSampler.h">
+      <Filter>headers\dataAccess</Filter>
+    </ClInclude>
+    <ClInclude Include="include\TransformationMatrices.h">
+      <Filter>headers\dataAccess</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Transform.h">
       <Filter>headers\data</Filter>
     </ClInclude>
-    <ClInclude Include="ImageSampler.h">
-      <Filter>headers\dataAccess</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshGenerator.h">
+    <ClInclude Include="include\ConeMeshGenerator.h">
       <Filter>headers\dataAccess\meshGenerators</Filter>
     </ClInclude>
-    <ClInclude Include="SphereMeshGenerator.h">
+    <ClInclude Include="include\CuboidMeshGenerator.h">
       <Filter>headers\dataAccess\meshGenerators</Filter>
     </ClInclude>
-    <ClInclude Include="VirtualMeshGenerator.h">
+    <ClInclude Include="include\CyllinderMeshGenerator.h">
       <Filter>headers\dataAccess\meshGenerators</Filter>
     </ClInclude>
-    <ClInclude Include="CuboidMeshGenerator.h">
+    <ClInclude Include="include\SphereMeshGenerator.h">
       <Filter>headers\dataAccess\meshGenerators</Filter>
     </ClInclude>
-    <ClInclude Include="CyllinderMeshGenerator.h">
+    <ClInclude Include="include\VirtualMeshGenerator.h">
       <Filter>headers\dataAccess\meshGenerators</Filter>
     </ClInclude>
-    <ClInclude Include="ConeMeshGenerator.h">
+    <ClInclude Include="include\MeshGenerator.h">
       <Filter>headers\dataAccess\meshGenerators</Filter>
     </ClInclude>
-    <ClInclude Include="Buffer.h">
-      <Filter>headers\dataAccess</Filter>
+    <ClInclude Include="include\CreateObjectScreen.h">
+      <Filter>headers\editor</Filter>
     </ClInclude>
-    <ClInclude Include="ScanLineProduct.h">
-      <Filter>headers\data</Filter>
+    <ClInclude Include="include\EditLightScreen.h">
+      <Filter>headers\editor</Filter>
     </ClInclude>
-    <ClInclude Include="Interpolators.h">
-      <Filter>headers\data</Filter>
+    <ClInclude Include="include\EditObjectScreen.h">
+      <Filter>headers\editor</Filter>
     </ClInclude>
-    <ClInclude Include="RenderThread.h">
+    <ClInclude Include="include\Editor.h">
+      <Filter>headers\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="include\HelpScreen.h">
+      <Filter>headers\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Input.h">
+      <Filter>headers\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ListScreen.h">
+      <Filter>headers\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Screen.h">
+      <Filter>headers\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Displayable.h">
+      <Filter>headers\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GUIController.h">
+      <Filter>headers\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Label.h">
+      <Filter>headers\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\TextBox.h">
+      <Filter>headers\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Panel.h">
+      <Filter>headers\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Camera.h">
       <Filter>headers\rendering</Filter>
     </ClInclude>
-    <ClInclude Include="RenderThreadManagement.h">
+    <ClInclude Include="include\FrameBuffer.h">
       <Filter>headers\rendering</Filter>
     </ClInclude>
-    <ClInclude Include="TextDrawer.h">
+    <ClInclude Include="include\RenderThread.h">
       <Filter>headers\rendering</Filter>
     </ClInclude>
-    <ClInclude Include="Displayable.h">
-      <Filter>headers\gui</Filter>
+    <ClInclude Include="include\RenderThreadManagement.h">
+      <Filter>headers\rendering</Filter>
     </ClInclude>
-    <ClInclude Include="Panel.h">
-      <Filter>headers\gui</Filter>
+    <ClInclude Include="include\SceneRenderer.h">
+      <Filter>headers\rendering</Filter>
     </ClInclude>
-    <ClInclude Include="GUIController.h">
-      <Filter>headers\gui</Filter>
+    <ClInclude Include="include\Shader.hpp">
+      <Filter>headers\rendering</Filter>
     </ClInclude>
-    <ClInclude Include="GUIUtils.h">
-      <Filter>headers\gui</Filter>
+    <ClInclude Include="include\TextDrawer.h">
+      <Filter>headers\rendering</Filter>
     </ClInclude>
-    <ClInclude Include="Editor.h">
-      <Filter>headers\editor</Filter>
+    <ClInclude Include="include\TriangleClipper.h">
+      <Filter>headers\rendering</Filter>
     </ClInclude>
-    <ClInclude Include="Label.h">
-      <Filter>headers\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="Transform.h">
-      <Filter>headers\data</Filter>
-    </ClInclude>
-    <ClInclude Include="Raycast.h">
-      <Filter>headers\dataAccess</Filter>
-    </ClInclude>
-    <ClInclude Include="Input.h">
-      <Filter>headers\editor</Filter>
-    </ClInclude>
-    <ClInclude Include="Screen.h">
-      <Filter>headers\editor</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshType.h">
-      <Filter>headers\data</Filter>
-    </ClInclude>
-    <ClInclude Include="CreateObjectScreen.h">
-      <Filter>headers\editor</Filter>
-    </ClInclude>
-    <ClInclude Include="EditObjectScreen.h">
-      <Filter>headers\editor</Filter>
-    </ClInclude>
-    <ClInclude Include="TextBox.h">
-      <Filter>headers\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="HelpScreen.h">
-      <Filter>headers\editor</Filter>
-    </ClInclude>
-    <ClInclude Include="ImageStorage.h">
-      <Filter>headers\dataAccess</Filter>
-    </ClInclude>
-    <ClInclude Include="ImageView.h">
-      <Filter>headers\dataAccess</Filter>
-    </ClInclude>
-    <ClInclude Include="EditLightScreen.h">
-      <Filter>headers\editor</Filter>
-    </ClInclude>
-    <ClInclude Include="ListScreen.h">
-      <Filter>headers\editor</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneDataWriter.h">
+    <ClInclude Include="include\PersistentStorage.h">
       <Filter>headers\saving</Filter>
     </ClInclude>
-    <ClInclude Include="SceneDataReader.h">
+    <ClInclude Include="include\SaveableObject.h">
       <Filter>headers\saving</Filter>
     </ClInclude>
-    <ClInclude Include="PersistentStorage.h">
+    <ClInclude Include="include\SceneDataReader.h">
       <Filter>headers\saving</Filter>
     </ClInclude>
-    <ClInclude Include="SaveableObject.h">
+    <ClInclude Include="include\SceneDataWriter.h">
       <Filter>headers\saving</Filter>
     </ClInclude>
-    <ClInclude Include="SamplerType.h" />
+    <ClInclude Include="include\TriangleInterpolator.h">
+      <Filter>headers\dataAccess</Filter>
+    </ClInclude>
+    <ClInclude Include="include\TriangleInterpolatorManagementInterface.h">
+      <Filter>headers\dataAccess</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stb_image.h">
+      <Filter>headers\dataAccess</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SamplerType.h">
+      <Filter>headers\data</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ScanLineProduct.h">
+      <Filter>headers\data</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MeshType.h">
+      <Filter>headers\data</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Interpolators.h">
+      <Filter>headers\data</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GUIUtils.h">
+      <Filter>headers\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Buffer.h">
+      <Filter>headers\rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="headers">
