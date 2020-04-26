@@ -5,6 +5,4 @@ obj/
 
 # Visual Studio files and folder
 .vs/
-**.vcxproj.filters
 **.vcxproj.user
-/vendor/freetype/objs

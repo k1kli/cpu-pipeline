@@ -9,21 +9,21 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
 #include <TransformationMatrices.h>
-#include "../Scene.h"
-#include "../SceneRenderer.h"
-#include "../StaticColorSampler.h"
-#include "../Image.h"
-#include "../ImageSampler.h"
-#include "../MeshGenerator.h"
-#include "../Panel.h"
-#include "../GUIController.h"
-#include "../Label.h"
-#include "../Editor.h"
-#include "../Input.h"
-#include "../Raycast.h"
+#include "Scene.h"
+#include "SceneRenderer.h"
+#include "StaticColorSampler.h"
+#include "Image.h"
+#include "ImageSampler.h"
+#include "MeshGenerator.h"
+#include "Panel.h"
+#include "GUIController.h"
+#include "Label.h"
+#include "Editor.h"
+#include "Input.h"
+#include "Raycast.h"
 #include <iostream>
-#include "../SphereMeshGenerator.h"
-#include "../CuboidMeshGenerator.h"
+#include "SphereMeshGenerator.h"
+#include "CuboidMeshGenerator.h"
 
 #define DEFAULT_WIDTH 1280
 #define DEFAULT_HEIGHT 720

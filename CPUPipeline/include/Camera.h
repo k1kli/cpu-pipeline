@@ -1,8 +1,8 @@
 #pragma once
 #include <glm/glm.hpp>
-#include "../SaveableObject.h"
-#include "../SceneDataReader.h"
-#include "../SceneDataWriter.h"
+#include "SaveableObject.h"
+#include "SceneDataReader.h"
+#include "SceneDataWriter.h"
 
 class Camera : public SaveableObject
 {

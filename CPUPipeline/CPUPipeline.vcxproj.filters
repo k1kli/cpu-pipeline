@@ -1,0 +1,349 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Light.cpp">
+      <Filter>src\data</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>src\data</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>src\data</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>src\data</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneObject.cpp">
+      <Filter>src\data</Filter>
+    </ClCompile>
+    <ClCompile Include="InterpolatorsManager.cpp">
+      <Filter>src\dataAccess</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneRenderer.cpp">
+      <Filter>src\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="TriangleClipper.cpp">
+      <Filter>src\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticColorSampler.cpp">
+      <Filter>src\dataAccess</Filter>
+    </ClCompile>
+    <ClCompile Include="Image.cpp">
+      <Filter>src\data</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageSampler.cpp">
+      <Filter>src\dataAccess</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshGenerator.cpp">
+      <Filter>src\dataAccess\meshGenerators</Filter>
+    </ClCompile>
+    <ClCompile Include="SphereMeshGenerator.cpp">
+      <Filter>src\dataAccess\meshGenerators</Filter>
+    </ClCompile>
+    <ClCompile Include="VirtualMeshGenerator.cpp">
+      <Filter>src\dataAccess\meshGenerators</Filter>
+    </ClCompile>
+    <ClCompile Include="CuboidMeshGenerator.cpp">
+      <Filter>src\dataAccess\meshGenerators</Filter>
+    </ClCompile>
+    <ClCompile Include="CyllinderMeshGenerator.cpp">
+      <Filter>src\dataAccess\meshGenerators</Filter>
+    </ClCompile>
+    <ClCompile Include="ConeMeshGenerator.cpp">
+      <Filter>src\dataAccess\meshGenerators</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderThread.cpp">
+      <Filter>src\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderThreadManagement.cpp">
+      <Filter>src\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="TextDrawer.cpp">
+      <Filter>src\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Panel.cpp">
+      <Filter>src\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="GUIController.cpp">
+      <Filter>src\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="Displayable.cpp">
+      <Filter>src\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor.cpp">
+      <Filter>src\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Label.cpp">
+      <Filter>src\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform.cpp">
+      <Filter>src\data</Filter>
+    </ClCompile>
+    <ClCompile Include="Raycast.cpp">
+      <Filter>src\dataAccess</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>src\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Screen.cpp">
+      <Filter>src\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateObjectScreen.cpp">
+      <Filter>src\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="EditObjectScreen.cpp">
+      <Filter>src\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="TextBox.cpp">
+      <Filter>src\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="HelpScreen.cpp">
+      <Filter>src\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageStorage.cpp">
+      <Filter>src\dataAccess</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageView.cpp">
+      <Filter>src\dataAccess</Filter>
+    </ClCompile>
+    <ClCompile Include="EditLightScreen.cpp">
+      <Filter>src\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="ListScreen.cpp">
+      <Filter>src\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneDataWriter.cpp">
+      <Filter>src\saving</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneDataReader.cpp">
+      <Filter>src\saving</Filter>
+    </ClCompile>
+    <ClCompile Include="PersistentStorage.cpp">
+      <Filter>src\saving</Filter>
+    </ClCompile>
+    <ClCompile Include="SaveableObject.cpp">
+      <Filter>src\saving</Filter>
+    </ClCompile>
+    <ClCompile Include="Sampler.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="FrameBuffer.cpp" />
+    <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="TransformationMatrices.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\TransformationMatrices.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneRenderer.h">
+      <Filter>headers\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="TriangleClipper.h">
+      <Filter>headers\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Camera.h">
+      <Filter>headers\data</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FrameBuffer.h">
+      <Filter>headers\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Shader.hpp">
+      <Filter>headers\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>headers\data</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>headers\data</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>headers\data</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>headers\data</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneObject.h">
+      <Filter>headers\data</Filter>
+    </ClInclude>
+    <ClInclude Include="InterpolatorsManager.h">
+      <Filter>headers\dataAccess</Filter>
+    </ClInclude>
+    <ClInclude Include="TriangleInterpolatorManagementInterface.h">
+      <Filter>headers\dataAccess</Filter>
+    </ClInclude>
+    <ClInclude Include="TriangleInterpolator.h">
+      <Filter>headers\dataAccess</Filter>
+    </ClInclude>
+    <ClInclude Include="Sampler.h">
+      <Filter>headers\dataAccess</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticColorSampler.h">
+      <Filter>headers\dataAccess</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>headers\dataAccess</Filter>
+    </ClInclude>
+    <ClInclude Include="Image.h">
+      <Filter>headers\data</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageSampler.h">
+      <Filter>headers\dataAccess</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshGenerator.h">
+      <Filter>headers\dataAccess\meshGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="SphereMeshGenerator.h">
+      <Filter>headers\dataAccess\meshGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="VirtualMeshGenerator.h">
+      <Filter>headers\dataAccess\meshGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="CuboidMeshGenerator.h">
+      <Filter>headers\dataAccess\meshGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="CyllinderMeshGenerator.h">
+      <Filter>headers\dataAccess\meshGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="ConeMeshGenerator.h">
+      <Filter>headers\dataAccess\meshGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffer.h">
+      <Filter>headers\dataAccess</Filter>
+    </ClInclude>
+    <ClInclude Include="ScanLineProduct.h">
+      <Filter>headers\data</Filter>
+    </ClInclude>
+    <ClInclude Include="Interpolators.h">
+      <Filter>headers\data</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderThread.h">
+      <Filter>headers\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderThreadManagement.h">
+      <Filter>headers\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="TextDrawer.h">
+      <Filter>headers\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Displayable.h">
+      <Filter>headers\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Panel.h">
+      <Filter>headers\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="GUIController.h">
+      <Filter>headers\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="GUIUtils.h">
+      <Filter>headers\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor.h">
+      <Filter>headers\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Label.h">
+      <Filter>headers\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>headers\data</Filter>
+    </ClInclude>
+    <ClInclude Include="Raycast.h">
+      <Filter>headers\dataAccess</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>headers\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Screen.h">
+      <Filter>headers\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshType.h">
+      <Filter>headers\data</Filter>
+    </ClInclude>
+    <ClInclude Include="CreateObjectScreen.h">
+      <Filter>headers\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="EditObjectScreen.h">
+      <Filter>headers\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextBox.h">
+      <Filter>headers\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="HelpScreen.h">
+      <Filter>headers\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageStorage.h">
+      <Filter>headers\dataAccess</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageView.h">
+      <Filter>headers\dataAccess</Filter>
+    </ClInclude>
+    <ClInclude Include="EditLightScreen.h">
+      <Filter>headers\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="ListScreen.h">
+      <Filter>headers\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneDataWriter.h">
+      <Filter>headers\saving</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneDataReader.h">
+      <Filter>headers\saving</Filter>
+    </ClInclude>
+    <ClInclude Include="PersistentStorage.h">
+      <Filter>headers\saving</Filter>
+    </ClInclude>
+    <ClInclude Include="SaveableObject.h">
+      <Filter>headers\saving</Filter>
+    </ClInclude>
+    <ClInclude Include="SamplerType.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="headers">
+      <UniqueIdentifier>{952ef8d2-ce91-4dbd-8ade-563efd75b0bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{95a1ee27-4dfa-4c18-b3a1-928355700c5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="headers\rendering">
+      <UniqueIdentifier>{9f308034-5860-49b4-9da5-be83e6a4cd05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="headers\data">
+      <UniqueIdentifier>{ec857889-bf7a-471f-a049-c2e2fb6e7943}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="headers\dataAccess">
+      <UniqueIdentifier>{71ec2764-161c-4444-aee9-3ce606102dfa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\data">
+      <UniqueIdentifier>{57b738a7-b792-4597-84ba-272427ac4d90}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\dataAccess">
+      <UniqueIdentifier>{efb6cc5c-7dd1-4651-9f0d-9ef0309e199a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\rendering">
+      <UniqueIdentifier>{02c13af1-ff49-4c11-b02e-65ce2548b0de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="headers\dataAccess\meshGenerators">
+      <UniqueIdentifier>{c8ca3b2a-b65c-433c-8071-819072bf97b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\dataAccess\meshGenerators">
+      <UniqueIdentifier>{8cdc1aaf-a9c3-4961-a05a-148d0fd161b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="headers\gui">
+      <UniqueIdentifier>{9c3d1718-4923-49af-88ab-880eb72acde0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gui">
+      <UniqueIdentifier>{60d3d866-be87-4fbf-8d1b-bf5266db4bd2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="headers\editor">
+      <UniqueIdentifier>{9538216f-cb3d-48a1-b031-7131781833c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\editor">
+      <UniqueIdentifier>{532702ca-ee7c-46ef-b2c8-c7d24dc3df67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="headers\saving">
+      <UniqueIdentifier>{0452e9bf-a671-4c72-ba9c-b062c9212bd2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\saving">
+      <UniqueIdentifier>{817c85d7-48fa-49a9-b874-1b6da2db070b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
